@@ -64,4 +64,16 @@
         <item name="android:textColor">@color/em_main_color_tab_selected</item>
         <item name="android:textSize">12sp</item>
     </style>
+
+    <style name="main_about_me_arrow_item">
+        <item name="background">@color/ease_color_background</item>
+        <item name="arrowItemTitleSize">16sp</item>
+        <item name="arrowItemTitleStyle">bold</item>
+        <item name="arrowItemTitleColor">@color/ease_contact_arrow_item_title_color</item>
+        <item name="arrowItemShowAvatar">true</item>
+        <item name="arrowItemShowArrow">true</item>
+        <item name="arrowItemShowDivider">true</item>
+        <item name="arrowItemContentColor">@color/ease_contact_arrow_item_content_color</item>
+    </style>
+
 </resources>

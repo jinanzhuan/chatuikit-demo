@@ -60,4 +60,17 @@
 
     <string name="message_forward_success">Message forwarded successfully</string>
     <string name="message_forward_fail">Message forwarding failed</string>
+
+    <string name="main_about_me_presence">在线状态</string>
+    <string name="main_about_me_information">个人信息</string>
+    <string name="main_about_me_currency">通用</string>
+    <string name="main_about_me_notify">消息通知</string>
+    <string name="main_about_me_privacy">隐私</string>
+    <string name="main_about_me_about">关于</string>
+    <string name="main_about_me_login">登录</string>
+    <string name="main_about_me_setting">设置</string>
+    <string name="main_about_me_logout">退出登录</string>
+    <string name="main_about_me_id">环信ID:%1$s</string>
+
+
 </resources>
