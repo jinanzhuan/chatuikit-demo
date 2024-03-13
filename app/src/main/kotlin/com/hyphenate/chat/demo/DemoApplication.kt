@@ -5,6 +5,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.hyphenate.chat.demo.base.UserActivityLifecycleCallbacks
+import com.hyphenate.chat.demo.feature.contact.ChatContactDetailActivity
+import com.hyphenate.chat.demo.feature.group.ChatGroupDetailActivity
 import com.hyphenate.chat.demo.login.LoginActivity
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatConnectionListener
@@ -14,6 +16,8 @@ import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.common.helper.EasePreferenceManager
 import com.hyphenate.easeui.common.impl.OnValueSuccess
 import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
+import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
+import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
 import com.hyphenate.easeui.model.EaseProfile
 import com.hyphenate.easeui.provider.EaseCustomActivityRoute
 import com.hyphenate.easeui.provider.EaseUserProfileProvider
@@ -42,12 +46,19 @@ class DemoApplication: Application() {
 
         EaseIM.setCustomActivityRoute(object : EaseCustomActivityRoute {
             override fun getActivityRoute(intent: Intent): Intent {
-                if (intent.component?.className == EaseChatActivity::class.java.name) {
-                    intent.setClass(this@DemoApplication, ChatActivity::class.java)
+                when(intent.component?.className){
+                    EaseChatActivity::class.java.name -> {
+                        intent.setClass(this@DemoApplication, ChatActivity::class.java)
+                    }
+                    EaseGroupDetailActivity::class.java.name -> {
+                        intent.setClass(this@DemoApplication, ChatGroupDetailActivity::class.java)
+                    }
+                    EaseContactDetailsActivity::class.java.name -> {
+                        intent.setClass(this@DemoApplication, ChatContactDetailActivity::class.java)
+                    }
                 }
                 return intent
             }
-
         })
 
         EaseIM.setUserProfileProvider(object : EaseUserProfileProvider {
