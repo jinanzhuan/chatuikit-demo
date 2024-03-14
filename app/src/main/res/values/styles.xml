@@ -88,4 +88,20 @@
         <item name="arrowItemContentColor">@color/ease_contact_arrow_item_content_color</item>
     </style>
 
+    <style name="em_main_badge_tv">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/ease_size_3</item>
+        <item name="android:layout_marginLeft">@dimen/ease_size_20</item>
+        <item name="android:layout_marginStart">@dimen/ease_size_20</item>
+        <item name="android:background">@drawable/demo_main_unread_count_bg</item>
+        <item name="android:visibility">invisible</item>
+        <item name="android:textColor">@color/ease_color_text_primary</item>
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Body.Small</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/ease_size_4</item>
+        <item name="android:paddingEnd">@dimen/ease_size_4</item>
+    </style>
+
 </resources>

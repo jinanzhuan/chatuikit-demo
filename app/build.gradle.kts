@@ -101,6 +101,14 @@ dependencies {
     implementation("io.github.scwang90:refresh-header-material:2.1.0")
     implementation("io.github.scwang90:refresh-header-classics:2.1.0")
     implementation("pub.devrel:easypermissions:3.0.0")
+    // lifecycle
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    // lifecycle viewmodel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    // coroutines core library
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    // coroutines android library
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // hms push
     implementation("com.huawei.hms:push:6.3.0.302")
     // hihonor push

@@ -7,8 +7,7 @@ import com.hyphenate.chat.demo.common.extensions.internal.checkAppKey
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatOptions
-import com.hyphenate.push.EMPushConfig
-import com.xiaomi.push.it
+import com.hyphenate.easeui.common.PushConfigBuilder
 
 class DemoHelper private constructor(){
 
@@ -78,7 +77,7 @@ class DemoHelper private constructor(){
             /**
              * Note: Developers need to apply your own push accounts and replace the following
              */
-            pushConfig = EMPushConfig.Builder(context)
+            pushConfig = PushConfigBuilder(context)
                 .enableVivoPush()                                   // need to configure appid and appkey in AndroidManifest.xml
                 .enableMiPush(BuildConfig.MI_PUSH_APPID, BuildConfig.MI_PUSH_APPID)
                 .enableOppoPush(BuildConfig.OPPO_PUSH_APPKEY, BuildConfig.OPPO_PUSH_APPSECRET)
