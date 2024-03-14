@@ -9,27 +9,35 @@ class LoginFragmentViewModel(application: Application) : AndroidViewModel(applic
     private val mRepository: EMClientRepository = EMClientRepository()
 
     /**
-     * 登录环信
+     * Login to Chat Server.
      * @param userName
      * @param pwd
      * @param isTokenFlag
      */
-    fun login(userName: String, pwd: String, isTokenFlag: Boolean) =
+    fun login(userName: String, pwd: String, isTokenFlag: Boolean = false) =
         flow {
             emit(mRepository.loginToServer(userName, pwd, isTokenFlag))
         }
 
     /**
-     * 通过AppServe授权登录
+     * Login from app server.
      * @param userName
      * @param userPassword
      */
-    fun loginFromAppServe(userName: String, userPassword: String) =
+    fun loginFromAppServer(userName: String, userPassword: String) =
         flow {
-            emit(mRepository.loginFromServe(userName, userPassword))
+            emit(mRepository.loginFromServer(userName, userPassword))
         }
             .flatMapConcat { result ->
-                flow { emit(mRepository.loginToServer(userName, result.token!!, true)) }
+                flow { emit(mRepository.loginToServer(result.username!!, result.token!!, true)) }
             }
+
+    /**
+     * Get verification code.
+     */
+    fun getVerificationCode(phoneNumber: String?) =
+        flow {
+            emit(mRepository.getVerificationCode(phoneNumber))
+        }
 
 }

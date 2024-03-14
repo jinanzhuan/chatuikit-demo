@@ -4,6 +4,7 @@ import java.util.*
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    //id("com.google.gms.google-services")
 }
 
 val properties = Properties()
@@ -34,6 +35,24 @@ android {
         buildConfigField ("String", "APP_VERIFICATION_CODE", "\"/inside/app/image/\"")
 
         buildConfigField("String", "APPKEY", "\"${properties.getProperty("APPKEY")}\"")
+
+        // Set push info from local.properties
+        buildConfigField("String", "MEIZU_PUSH_APPKEY", "\"${properties.getProperty("MEIZU_PUSH_APPKEY")}\"")
+        buildConfigField("String", "MEIZU_PUSH_APPID", "\"${properties.getProperty("MEIZU_PUSH_APPID")}\"")
+        buildConfigField("String", "OPPO_PUSH_APPKEY", "\"${properties.getProperty("OPPO_PUSH_APPKEY")}\"")
+        buildConfigField("String", "OPPO_PUSH_APPSECRET", "\"${properties.getProperty("OPPO_PUSH_APPSECRET")}\"")
+        buildConfigField("String", "VIVO_PUSH_APPID", "\"${properties.getProperty("VIVO_PUSH_APPID")}\"")
+        buildConfigField("String", "VIVO_PUSH_APPKEY", "\"${properties.getProperty("VIVO_PUSH_APPKEY")}\"")
+        buildConfigField("String", "MI_PUSH_APPKEY", "\"${properties.getProperty("MI_PUSH_APPKEY")}\"")
+        buildConfigField("String", "MI_PUSH_APPID", "\"${properties.getProperty("MI_PUSH_APPID")}\"")
+        buildConfigField("String", "FCM_SENDERID", "\"${properties.getProperty("FCM_SENDERID")}\"")
+        buildConfigField("String", "HONOR_PUSH_APPID", "\"${properties.getProperty("HONOR_PUSH_APPID")}\"")
+
+        addManifestPlaceholders(mapOf(
+            "VIVO_PUSH_APPKEY" to properties.getProperty("VIVO_PUSH_APPKEY", "******"),
+            "VIVO_PUSH_APPID" to properties.getProperty("VIVO_PUSH_APPID", "******"),
+            "HONOR_PUSH_APPID" to properties.getProperty("HONOR_PUSH_APPID", "******")
+        ))
     }
 
     buildTypes {
@@ -69,7 +88,7 @@ android {
 }
 
 dependencies {
-
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
@@ -82,6 +101,27 @@ dependencies {
     implementation("io.github.scwang90:refresh-header-material:2.1.0")
     implementation("io.github.scwang90:refresh-header-classics:2.1.0")
     implementation("pub.devrel:easypermissions:3.0.0")
+    // hms push
+    implementation("com.huawei.hms:push:6.3.0.302")
+    // hihonor push
+    implementation("com.hihonor.mcs:push:7.0.41.301")
+    // meizu push
+    implementation("com.meizu.flyme.internet:push-internal:4.0.4@aar")//配置集成sdk
+    //oppo push
+    implementation(files("libs/oppo_push_3.0.0.aar"))
+    //oppo push需添加以下依赖
+    implementation("com.google.code.gson:gson:2.6.2")
+    implementation("commons-codec:commons-codec:1.6")
+    implementation("androidx.annotation:annotation:1.1.0")
+    // Google firebase cloud messaging
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:29.1.0"))
+
+    // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
+
     // Coil: load image library
     implementation("io.coil-kt:coil:2.5.0")
     implementation(project(mapOf("path" to ":ease-im-kit")))

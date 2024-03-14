@@ -2,15 +2,23 @@ package com.hyphenate.chat.demo.login
 
 import android.animation.Animator
 import android.content.Intent
-import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
-import android.widget.ImageView
+import android.view.View
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.hyphenate.chat.demo.DemoApplication
+import com.hyphenate.chat.demo.DemoHelper
 import com.hyphenate.chat.demo.MainActivity
 import com.hyphenate.chat.demo.R
 import com.hyphenate.chat.demo.base.BaseInitActivity
+import com.hyphenate.chat.demo.common.PreferenceManager
+import com.hyphenate.chat.demo.common.dialog.DemoAgreementDialogFragment
+import com.hyphenate.chat.demo.common.dialog.DemoDialogFragment
+import com.hyphenate.chat.demo.common.dialog.SimpleDialog
 import com.hyphenate.chat.demo.databinding.DemoSplashActivityBinding
 import com.hyphenate.chat.demo.viewmodel.SplashViewModel
 import com.hyphenate.easeui.common.ChatLog
@@ -18,10 +26,9 @@ import com.hyphenate.easeui.common.extensions.catchChatException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 class SplashActivity : BaseInitActivity<DemoSplashActivityBinding>() {
-    private var ivSplash: ImageView? = null
-    private var ivProduct: ImageView? = null
     private lateinit var model: SplashViewModel
 
     override fun getViewBinding(inflater: LayoutInflater): DemoSplashActivityBinding? {
@@ -32,16 +39,10 @@ class SplashActivity : BaseInitActivity<DemoSplashActivityBinding>() {
         setFitSystemForTheme(false, ContextCompat.getColor(this, R.color.transparent), true)
     }
 
-    override fun initView(savedInstanceState: Bundle?) {
-        super.initView(savedInstanceState)
-        ivSplash = findViewById(R.id.iv_splash)
-        ivProduct = findViewById(R.id.iv_product)
-    }
-
     override fun initData() {
         super.initData()
         model = ViewModelProvider(this)[SplashViewModel::class.java]
-        ivSplash!!.animate()
+        binding.ivSplash.animate()
             .alpha(1f)
             .setDuration(500)
             .setListener(object : Animator.AnimatorListener {
@@ -54,14 +55,62 @@ class SplashActivity : BaseInitActivity<DemoSplashActivityBinding>() {
                 override fun onAnimationRepeat(animation: Animator) {}
             })
             .start()
-        ivProduct!!.animate()
+        binding.tvProduct.animate()
             .alpha(1f)
             .setDuration(500)
             .start()
     }
 
     private fun checkIfAgreePrivacy() {
-        loginSDK()
+        if (DemoHelper.getInstance().getDataModel().isAgreeAgreement().not()) {
+            showPrivacyDialog()
+        } else {
+            checkSDKValid()
+        }
+    }
+
+    private fun checkSDKValid() {
+        if (DemoHelper.getInstance().hasAppKey.not()) {
+            showAlertDialog(R.string.splash_not_appkey)
+        } else {
+            if (DemoHelper.getInstance().isSDKInited().not()) {
+                showAlertDialog(R.string.splash_not_init)
+            } else {
+                loginSDK()
+            }
+        }
+    }
+
+    private fun showPrivacyDialog() {
+        DemoAgreementDialogFragment.Builder(mContext as AppCompatActivity)
+            .setTitle(R.string.demo_login_dialog_title)
+            .setOnConfirmClickListener(
+                R.string.demo_login_dialog_confirm,
+                object : DemoDialogFragment.OnConfirmClickListener {
+                    override fun onConfirmClick(view: View?) {
+                        DemoHelper.getInstance().getDataModel().setAgreeAgreement(true)
+                        DemoHelper.getInstance().initSDK()
+                        checkSDKValid()
+                    }
+                })
+            .setOnCancelClickListener(
+                R.string.demo_login_dialog_cancel,
+                object : DemoDialogFragment.OnCancelClickListener {
+                    override fun onCancelClick(view: View?) {
+                        exitProcess(1)
+                    }
+                })
+            .show()
+    }
+
+    private fun showAlertDialog(@StringRes title: Int) {
+        SimpleDialog.Builder(mContext)
+            .setTitle(getString(title))
+            .setPositiveButton(getString(R.string.confirm)) {
+                exitProcess(1)
+            }
+            .dismissNegativeButton()
+            .show()
     }
 
     private fun loginSDK() {

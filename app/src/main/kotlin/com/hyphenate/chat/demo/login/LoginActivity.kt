@@ -5,9 +5,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.hyphenate.chat.demo.R
 import com.hyphenate.chat.demo.base.BaseInitActivity
+import com.hyphenate.chat.demo.common.DemoConstant
 import com.hyphenate.chat.demo.databinding.DemoActivityLoginBinding
+import com.hyphenate.easeui.base.EaseBaseFragment
+import com.hyphenate.easeui.common.bus.EaseFlowBus
 
 class LoginActivity : BaseInitActivity<DemoActivityLoginBinding>() {
 
@@ -23,6 +27,28 @@ class LoginActivity : BaseInitActivity<DemoActivityLoginBinding>() {
 
     override fun setActivityTheme() {
         setFitSystemForTheme(false, ContextCompat.getColor(this, R.color.transparent), true)
+    }
+
+    override fun initData() {
+        super.initData()
+        initEvent()
+    }
+
+    private fun initEvent() {
+        EaseFlowBus.with<String>(DemoConstant.SKIP_DEVELOPER_CONFIG).register(this) {
+            if (it == LoginFragment::class.java.simpleName) {
+                replace(ServerSetFragment())
+            }
+        }
+    }
+
+    private fun replace(fragment: Fragment) {
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+            R.anim.slide_in_from_right,
+            R.anim.slide_out_to_left,
+            R.anim.slide_in_from_left,
+            R.anim.slide_out_to_right
+        ).replace(R.id.fl_fragment, fragment).addToBackStack(null).commit()
     }
 
     companion object {

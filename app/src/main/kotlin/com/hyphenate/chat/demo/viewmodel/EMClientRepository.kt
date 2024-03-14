@@ -1,18 +1,19 @@
 package com.hyphenate.chat.demo.viewmodel
 
-import com.hyphenate.EMError
-import com.hyphenate.chat.EMClient
-import com.hyphenate.cloud.HttpClientManager
 import com.hyphenate.chat.demo.BuildConfig
 import com.hyphenate.chat.demo.DemoApplication
+import com.hyphenate.chat.demo.DemoHelper
 import com.hyphenate.chat.demo.R
 import com.hyphenate.chat.demo.base.ErrorCode
 import com.hyphenate.chat.demo.bean.LoginResult
+import com.hyphenate.cloud.HttpClientManager
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatException
 import com.hyphenate.easeui.common.ChatValueCallback
+import com.hyphenate.easeui.common.impl.OnError
+import com.hyphenate.easeui.common.impl.OnSuccess
 import com.hyphenate.easeui.model.EaseProfile
 import com.hyphenate.easeui.model.EaseUser
 import com.hyphenate.exceptions.HyphenateException
@@ -27,9 +28,9 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
- * 作为EMClient的repository,处理EMClient相关的逻辑
+ * As the repository of ChatClient, handles ChatClient related logic
  */
-class EMClientRepository {
+class EMClientRepository: BaseRepository() {
     /**
      * 登录过后需要加载的数据
      * @return
@@ -65,7 +66,7 @@ class EMClientRepository {
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 try {
-                    EMClient.getInstance().createAccount(userName, pwd)
+                    ChatClient.getInstance().createAccount(userName, pwd)
                     continuation.resume(userName)
                 } catch (e: HyphenateException) {
                     continuation.resumeWithException(ChatException(e.errorCode, e.message))
@@ -87,6 +88,17 @@ class EMClientRepository {
     ): EaseUser =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
+                if (ChatClient.getInstance().isLoggedIn.not()) {
+                    if (DemoHelper.getInstance().getDataModel().isCustomSetEnable()) {
+                        DemoHelper.getInstance().getDataModel().getCustomAppKey()?.let {
+                            if (it.isNotEmpty()) {
+                                ChatClient.getInstance().changeAppkey(it)
+                            }
+                        }
+                    } else {
+                        ChatClient.getInstance().changeAppkey(BuildConfig.APPKEY)
+                    }
+                }
                 if (isTokenFlag) {
                     EaseIM.login(EaseProfile(userName), pwd, onSuccess = {
                         successForCallBack(continuation)
@@ -121,7 +133,7 @@ class EMClientRepository {
 
     private fun successForCallBack(continuation: Continuation<EaseUser>) {
         // get current user id
-        val currentUser = EMClient.getInstance().currentUser
+        val currentUser = ChatClient.getInstance().currentUser
         val user = EaseUser(currentUser)
         continuation.resume(user)
 
@@ -129,10 +141,13 @@ class EMClientRepository {
         loadAllConversationsAndGroups()
     }
 
-    suspend fun loginFromServe(userName: String, userPassword: String): LoginResult =
+    /**
+     * Login to app server and get token.
+     */
+    suspend fun loginFromServer(userName: String, userPassword: String): LoginResult =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
-                LoginFromAppServe(userName, userPassword, object : ChatValueCallback<LoginResult> {
+                loginFromAppServer(userName, userPassword, object : ChatValueCallback<LoginResult> {
                     override fun onSuccess(value: LoginResult?) {
                         continuation.resume(value!!)
                     }
@@ -144,7 +159,7 @@ class EMClientRepository {
             }
         }
 
-    private fun LoginFromAppServe(
+    private fun loginFromAppServer(
         userName: String,
         userPassword: String,
         callBack: ChatValueCallback<LoginResult>
@@ -180,8 +195,8 @@ class EMClientRepository {
                 if (responseInfo != null && responseInfo.length > 0) {
                     var errorInfo: String? = null
                     try {
-                        val `object` = JSONObject(responseInfo)
-                        errorInfo = `object`.getString("errorInfo")
+                        val responseObject = JSONObject(responseInfo)
+                        errorInfo = responseObject.getString("errorInfo")
                         if (errorInfo.contains("phone number illegal")) {
                             errorInfo = DemoApplication.getInstance().getString(R.string.em_login_phone_illegal)
                         } else if (errorInfo.contains("verification code error") || errorInfo.contains(
@@ -200,7 +215,69 @@ class EMClientRepository {
                 }
             }
         } catch (e: Exception) {
-            callBack.onError(EMError.NETWORK_ERROR, e.message)
+            callBack.onError(ChatError.NETWORK_ERROR, e.message)
+        }
+    }
+
+    /**
+     * Get verification code from server.
+     */
+    suspend fun getVerificationCode(phoneNumber: String?): Int =
+        withContext(Dispatchers.IO) {
+            suspendCoroutine { continuation ->
+                getVerificationCodeFromServer(
+                    phoneNumber,
+                    onSuccess = {
+                        continuation.resume(ChatError.EM_NO_ERROR)
+                    },
+                    onError = { code, error ->
+                        continuation.resumeWithException(ChatException(code, error))
+                    }
+                )
+            }
+        }
+
+    private fun getVerificationCodeFromServer(phoneNumber: String?, onSuccess: OnSuccess, onError: OnError) {
+        if (phoneNumber.isNullOrEmpty()) {
+            onError(ChatError.INVALID_PARAM, getContext().getString(R.string.em_login_phone_empty))
+            return
+        }
+        try {
+            val headers: MutableMap<String, String> = java.util.HashMap()
+            headers["Content-Type"] = "application/json"
+            val url =
+                BuildConfig.APP_SERVER_PROTOCOL + "://" + BuildConfig.APP_SERVER_DOMAIN + BuildConfig.APP_SEND_SMS_FROM_SERVER + "/" + phoneNumber + "/"
+            EMLog.d("getVerificationCodeFromServe url : ", url)
+            val response =
+                HttpClientManager.httpExecute(url, headers, null, HttpClientManager.Method_POST)
+            val code = response.code
+            val responseInfo = response.content
+            if (code == 200) {
+                onSuccess()
+            } else {
+                if (responseInfo != null && responseInfo.length > 0) {
+                    var errorInfo: String? = null
+                    try {
+                        val responseObject = JSONObject(responseInfo)
+                        errorInfo = responseObject.getString("errorInfo")
+                        if (errorInfo.contains("wait a moment while trying to send")) {
+                            errorInfo =
+                                getContext().getString(R.string.em_login_error_send_code_later)
+                        } else if (errorInfo.contains("exceed the limit of")) {
+                            errorInfo =
+                                getContext().getString(R.string.em_login_error_send_code_limit)
+                        }
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                        errorInfo = responseInfo
+                    }
+                    onError(code, errorInfo)
+                } else {
+                    onError(code, responseInfo)
+                }
+            }
+        } catch (e: java.lang.Exception) {
+            onError(ChatError.NETWORK_ERROR, e.message)
         }
     }
 }

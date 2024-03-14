@@ -28,17 +28,8 @@ class DemoApplication: Application() {
         instance = this
         registerActivityLifecycleCallbacks()
 
-        val appkey = BuildConfig.APPKEY
-        if (appkey.isNullOrEmpty()) {
-            showToast("APPKEY is null or empty")
-            Log.e("app","APPKEY is null or empty")
-            return
-        }
-        val options = ChatOptions()
-        options.appKey = appkey
-        options.acceptInvitationAlways = false
-        options.requireDeliveryAck = true
-        EaseIM.init(this, options)
+        DemoHelper.getInstance().init(this)
+        initSDK()
 
         EaseIM.setCustomActivityRoute(object : EaseCustomActivityRoute {
             override fun getActivityRoute(intent: Intent): Intent {
@@ -87,6 +78,12 @@ class DemoApplication: Application() {
         // Call this method after EaseIM#init
         val isBlack = EasePreferenceManager.getInstance().getBoolean("isBlack")
         AppCompatDelegate.setDefaultNightMode(if (isBlack) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+    }
+
+    private fun initSDK() {
+        if (DemoHelper.getInstance().getDataModel().isAgreeAgreement()) {
+            DemoHelper.getInstance().initSDK()
+        }
     }
 
     private fun registerActivityLifecycleCallbacks() {

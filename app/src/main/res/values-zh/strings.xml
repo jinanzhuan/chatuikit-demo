@@ -4,7 +4,14 @@
     <string name="em_conversation_menu_video">Voice and video conference</string>
     <string name="em_conversation_menu_group">Create group</string>
 
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
     <string name="loading">Loading&#8230;</string>
+
+    <string name="splash_title">环信即时通讯云</string>
+    <string name="splash_powered">Powered by Easemob</string>
+    <string name="splash_not_appkey">请先设置 AppKey 参数。</string>
+    <string name="splash_not_init">请先初始化 SDK。</string>
 
     <string name="em_login_btn_info_incomplete">用户名或者密码不能为空</string>
     <string name="em_login_failed">登录失败</string>
@@ -22,7 +29,7 @@
     <string name="em_login_not_select_agreement">请选择服务条款和隐私协议</string>
     <string name="em_login_error_send_code_later">请稍后再发</string>
     <string name="em_login_error_send_code_limit">获取已达上限</string>
-    <string name="em_login_server_configure">服务器配置</string>
+    <string name="em_login_server_configure"><u>服务器配置</u></string>
     <string name="demo_login_dialog_content">环信非常重视保护您的隐私，请您仔细阅读下面的《环信服务条款》与《环信隐私协议》，如果您同意请点击"同意并继续"按钮，如果您不同意，请点击"不同意"退出应用。</string>
     <string name="demo_login_dialog_content_privacy">阅读完整的《环信服务条款》与《环信隐私协议》了解详细内容。</string>
     <string name="demo_login_dialog_cancel">不同意</string>
@@ -35,6 +42,24 @@
     <string name="em_login_tv_token">token登录</string>
     <string name="em_login_tv_pwd">密码登录</string>
     <string name="em_login_token_hint">token</string>
+
+    <string name="server_set_title">服务器设置</string>
+    <string name="server_set_appkey">Appkey</string>
+    <string name="server_set_apns_cert_name">apns证书名称</string>
+    <string name="server_set_specify_server">使用私有服务器:</string>
+    <string name="server_set_server_address">IM服务器地址</string>
+    <string name="server_set_server_port">端口号</string>
+    <string name="server_set_rest_server_address">REST服务器地址</string>
+    <string name="server_set_appkey_empty_hint">请设置Appkey</string>
+    <string name="server_set_im_server_empty_hint">请设置IM服务器地址</string>
+    <string name="server_set_im_port_empty_hint">请设置IM端口号</string>
+    <string name="server_set_rest_server_empty_hint">请设置REST服务器地址</string>
+    <string name="server_open_develop_mode">开启开发者模式？</string>
+    <string name="server_close_develop_mode">关闭开发者模式？</string>
+    <string name="server_set_menu_save">保存</string>
+    <string name="server_set_dialog_title">重启客户端</string>
+    <string name="server_set_dialog_content">当前服务器设置需重启客户端生效， 确认重启？</string>
+    <string name="server_set_dialog_confirm_button_text">重启</string>
 
     <string name="em_main_title_home">会话</string>
     <string name="em_main_title_friends">通讯录</string>
