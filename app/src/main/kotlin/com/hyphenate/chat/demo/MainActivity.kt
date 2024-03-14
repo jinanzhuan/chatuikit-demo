@@ -15,6 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.navigation.NavigationBarView
 import com.hyphenate.chat.EMMessage
 import com.hyphenate.chat.demo.base.BaseInitActivity
+import com.hyphenate.chat.demo.conversation.ConversationListFragment
 import com.hyphenate.chat.demo.databinding.ActivityMainBinding
 import com.hyphenate.chat.demo.interfaces.IMainResultView
 import com.hyphenate.chat.demo.login.AboutMeFragment
@@ -111,6 +112,7 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
                 .useTitleBar(true)
                 .enableTitleBarPressBack(false)
                 .useSearchBar(true)
+                .setCustomFragment(ConversationListFragment())
                 .build()
         }
         mConversationListFragment?.let {
