@@ -264,6 +264,10 @@
             android:exported="false"/>
         <activity android:name=".feature.group.ChatGroupDetailActivity"
             android:exported="false"/>
+        <activity android:name=".feature.me.UserInformationActivity"
+            android:exported="false"/>
+        <activity android:name=".feature.me.EditUserNickNameActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>

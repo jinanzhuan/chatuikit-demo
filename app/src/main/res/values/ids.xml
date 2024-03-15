@@ -12,4 +12,8 @@
     <!-- group -->
     <item name="header_group" type="id"/>
     <item name="tv_privacy" type="id" />
+
+    <item name="about_information_camera" type="id"/>
+    <item name="about_information_picture" type="id"/>
+
 </resources>
