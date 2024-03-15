@@ -12,11 +12,11 @@ val inputStream = project.rootProject.file("local.properties").inputStream()
 properties.load( inputStream )
 
 android {
-    namespace = "com.hyphenate.chat.demo"
+    namespace = "com.hyphenate.chatdemo"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.hyphenate.chat.demo"
+        applicationId = "com.hyphenate.chatdemo"
         minSdk = 21
         targetSdk = 34
         versionCode = 1

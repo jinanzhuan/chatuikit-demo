@@ -66,7 +66,7 @@
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatUIKit"
-        android:name=".DemoApplication"
+        android:name="com.hyphenate.chatdemo.DemoApplication"
         tools:targetApi="31">
 
         <!-- FCM required start -->
@@ -258,15 +258,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatActivity"
+        <activity android:name="com.hyphenate.chatdemo.ui.chat.ChatActivity"
             android:exported="false"/>
-        <activity android:name=".feature.contact.ChatContactDetailActivity"
+        <activity android:name=".ui.contact.ChatContactDetailActivity"
             android:exported="false"/>
-        <activity android:name=".feature.group.ChatGroupDetailActivity"
+        <activity android:name=".ui.group.ChatGroupDetailActivity"
             android:exported="false"/>
-        <activity android:name=".feature.me.UserInformationActivity"
+        <activity android:name=".ui.me.UserInformationActivity"
             android:exported="false"/>
-        <activity android:name=".feature.me.EditUserNickNameActivity"
+        <activity android:name=".ui.me.EditUserNicknameActivity"
             android:exported="false"/>
     </application>
 
