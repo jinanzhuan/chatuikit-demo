@@ -30,4 +30,24 @@ class MainViewModel: EaseBaseViewModel<IMainResultView>(), IMainRequest {
             }
         }
     }
+
+    override fun getRequestUnreadCount() {
+        viewModelScope.launch {
+            flow {
+                emit(chatRepository.getRequestUnreadCount())
+            }
+                .map {
+                    if (it <= 0) {
+                        null
+                    } else if (it > 99) {
+                        "99+"
+                    } else {
+                        it.toString()
+                    }
+                }
+                .collectLatest {
+                    view?.getRequestUnreadCountSuccess(it)
+                }
+        }
+    }
 }
