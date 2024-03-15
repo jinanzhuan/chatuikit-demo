@@ -25,18 +25,12 @@ import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatMessageListener
 import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
-import com.hyphenate.easeui.common.extensions.ioScope
-import com.hyphenate.easeui.common.extensions.mainScope
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
 import com.hyphenate.easeui.feature.conversation.EaseConversationListFragment
+import com.hyphenate.easeui.interfaces.EaseContactListener
 import com.hyphenate.easeui.interfaces.OnEventResultListener
 import com.hyphenate.easeui.model.EaseEvent
-import com.xiaomi.push.it
-import kotlinx.coroutines.NonCancellable.cancel
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
@@ -75,6 +69,7 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         binding.navView.setOnItemSelectedListener(this)
         EaseIM.addEventResultListener(this)
         EaseIM.addChatMessageListener(this)
+        EaseIM.addContactListener(contactListener)
     }
 
     override fun initData() {
@@ -103,6 +98,18 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         EaseFlowBus.withStick<EaseEvent>(EaseEvent.EVENT.UPDATE.name).register(this){
             // check unread message count
             mainViewModel.getUnreadMessageCount()
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).register(this) {
+            Log.e("apex","EaseEvent.EVENT.UPDATE.name ${it.isNotifyChange} ")
+            if (it.isNotifyChange) {
+                mainViewModel.getRequestUnreadCount()
+            }
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD.name).register(this) {
+            Log.e("apex","EaseEvent.EVENT.ADD.name ${it.isNotifyChange}  ")
+            if (it.isNotifyChange) {
+                mainViewModel.getRequestUnreadCount()
+            }
         }
     }
 
@@ -244,6 +251,23 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         } else {
             badgeMap[0]?.text = count
             badgeMap[0]?.visibility = View.VISIBLE
+        }
+    }
+
+    override fun getRequestUnreadCountSuccess(count: String?) {
+        Log.e("apex","getRequestUnreadCountSuccess $count")
+        if (count.isNullOrEmpty()) {
+            badgeMap[1]?.text = ""
+            badgeMap[1]?.visibility = View.GONE
+        } else {
+            badgeMap[1]?.text = count
+            badgeMap[1]?.visibility = View.VISIBLE
+        }
+    }
+
+    private val contactListener = object : EaseContactListener() {
+        override fun onContactInvited(username: String?, reason: String?) {
+            mainViewModel.getRequestUnreadCount()
         }
     }
 

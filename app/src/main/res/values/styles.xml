@@ -104,4 +104,14 @@
         <item name="android:paddingEnd">@dimen/ease_size_4</item>
     </style>
 
+    <style name="main_about_me_information_title">
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Title.Medium</item>
+        <item name="android:textColor">@color/ease_contact_arrow_item_title_color</item>
+    </style>
+
+    <style name="main_about_me_information_subtitle">
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Label.Large</item>
+        <item name="android:textColor">@color/ease_contact_arrow_item_content_color</item>
+    </style>
+
 </resources>

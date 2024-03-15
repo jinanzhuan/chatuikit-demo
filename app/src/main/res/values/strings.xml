@@ -66,6 +66,7 @@
     <string name="em_main_title_friends">Contacts</string>
     <string name="em_main_title_me">Me</string>
 
+    <string name="menu_thread_topic">Thread</string>
     <string name="menu_voice_call">Voice Call</string>
     <string name="menu_video_call">Video Call</string>
 
@@ -97,6 +98,14 @@
     <string name="main_about_me_setting">设置</string>
     <string name="main_about_me_logout">退出登录</string>
     <string name="main_about_me_id">环信ID:%1$s</string>
+
+    <string name="main_about_me_information_avatar">avatar</string>
+    <string name="main_about_me_information_nick_name">nickName</string>
+    <string name="main_about_me_information_camera">camera</string>
+    <string name="main_about_me_information_picture">picture</string>
+    <string name="main_about_me_information_edit_picture">Do you need to edit the image?</string>
+    <string name="main_about_me_information_edit_nick_name">Change nickName</string>
+    <string name="main_about_me_information_change_name_count">%1$d/32</string>
 
     <!-- callkit -->
     <string name="call_duration">Call duration: %1$s</string>
