@@ -40,6 +40,7 @@
     <string name="em_main_title_friends">通讯录</string>
     <string name="em_main_title_me">我</string>
 
+    <string name="menu_thread_topic">话题</string>
     <string name="menu_voice_call">语音呼叫</string>
     <string name="menu_video_call">视频通话</string>
 
@@ -72,5 +73,14 @@
     <string name="main_about_me_setting">设置</string>
     <string name="main_about_me_logout">退出登录</string>
     <string name="main_about_me_id">环信ID:%1$s</string>
+
+    <string name="main_about_me_information_avatar">头像</string>
+    <string name="main_about_me_information_nick_name">昵称</string>
+    <string name="main_about_me_information_camera">拍照</string>
+    <string name="main_about_me_information_picture">相册</string>
+    <string name="main_about_me_information_edit_picture">是否需要编辑图片?</string>
+    <string name="main_about_me_information_edit_nick_name">修改昵称</string>
+    <string name="main_about_me_information_change_name_count">%1$d/32</string>
+
 
 </resources>

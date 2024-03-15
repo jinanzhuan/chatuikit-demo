@@ -3,6 +3,7 @@ package com.hyphenate.chat.demo.login
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,23 +14,29 @@ import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chat.demo.DemoApplication
 import com.hyphenate.chat.demo.R
 import com.hyphenate.chat.demo.databinding.DemoFragmentAboutMeBinding
+import com.hyphenate.chat.demo.feature.me.UserInformationActivity
 import com.hyphenate.chat.demo.viewmodel.LoginViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseFragment
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.ChatPresence
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.dialog.CustomDialog
+import com.hyphenate.easeui.common.dialog.SimpleListSheetDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
 import com.hyphenate.easeui.common.utils.EasePresenceUtil
 import com.hyphenate.easeui.configs.setStatusStyle
+import com.hyphenate.easeui.feature.chat.interfaces.IPresenceResultView
 import com.hyphenate.easeui.model.EaseEvent
+import com.hyphenate.easeui.viewmodel.presence.EasePresenceViewModel
+import com.hyphenate.easeui.viewmodel.presence.IPresenceRequest
 import com.hyphenate.easeui.widget.EasePresenceView
 import kotlinx.coroutines.launch
 
 class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnClickListener,
-    EasePresenceView.OnPresenceClickListener {
+    EasePresenceView.OnPresenceClickListener,IPresenceResultView {
 
     /**
      * The clipboard manager.
@@ -37,6 +44,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     private val clipboard by lazy { mContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
 
     private lateinit var loginViewModel: LoginViewModel
+    private var presenceViewModel:IPresenceRequest? = null
 
     companion object{
         private val TAG = AboutMeFragment::class.java.simpleName
@@ -45,7 +53,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     override fun getViewBinding(
         inflater: LayoutInflater,
         container: ViewGroup?
-    ): DemoFragmentAboutMeBinding? {
+    ): DemoFragmentAboutMeBinding {
         return DemoFragmentAboutMeBinding.inflate(inflater)
     }
 
@@ -57,6 +65,8 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     override fun initViewModel() {
         super.initViewModel()
         loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+        presenceViewModel = ViewModelProvider(this)[EasePresenceViewModel::class.java]
+        presenceViewModel?.attachView(this)
     }
 
     override fun initListener() {
@@ -113,11 +123,10 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     }
 
     private fun updatePresence(){
-        val map = EaseIM.getCache().getPresenceInfo
         EaseIM.getCurrentUser()?.let { user->
-            val presence = EaseIM.getCache().getUserPresence(user.id)
-            binding?.epPresence?.setPresenceData(user,map[user.id])
+            val presence = EaseIM.getUserPresence(user.id)
             presence?.let {
+                binding?.epPresence?.setPresenceData(user,it)
                 val subtitle = EasePresenceUtil.getPresenceString(mContext,it)
                 binding?.itemPresence?.setContent(subtitle)
             }
@@ -125,7 +134,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     }
 
     private fun initStatus(){
-        val isSilent = EaseIM.getCache().getMutedConversationList().containsKey(ChatClient.getInstance().currentUser)
+        val isSilent = EaseIM.checkMutedConversationList(ChatClient.getInstance().currentUser)
         if (isSilent) {
             binding?.icNotice?.visibility = View.VISIBLE
         }else{
@@ -146,15 +155,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     }
 
     private fun fetchCurrentPresence(){
-        lifecycleScope.launch {
-            loginViewModel.fetchCurrentUserPresence()
-                .catchChatException { e ->
-                    ChatLog.e(TAG, "fetchCurrentPresence failed: ${e.description}")
-                }
-                .collect {
-                    updatePresence()
-                }
-        }
+        presenceViewModel?.fetchPresenceStatus(mutableListOf(ChatClient.getInstance().currentUser))
     }
 
     override fun onPresenceClick(v: View?) {
@@ -167,7 +168,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
 
             }
             R.id.item_information -> {
-
+                startActivity(Intent(mContext, UserInformationActivity::class.java))
             }
             R.id.item_currency -> {
 
@@ -182,18 +183,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
 
             }
             R.id.about_me_logout -> {
-                val logoutDialog = CustomDialog(
-                    context = mContext,
-                    title = resources.getString(R.string.em_login_out_hint),
-                    isEditTextMode = false,
-                    onLeftButtonClickListener = {
-
-                    },
-                    onRightButtonClickListener = {
-                        logout()
-                    }
-                )
-                logoutDialog.show()
+                showLogoutDialog()
             }
             R.id.tv_number -> {
                 val indexOfSpace = binding?.tvNumber?.text?.indexOf(":")
@@ -212,6 +202,29 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
             }
             else -> {}
         }
+    }
+
+    private fun showLogoutDialog(){
+        val logoutDialog = CustomDialog(
+            context = mContext,
+            title = resources.getString(R.string.em_login_out_hint),
+            isEditTextMode = false,
+            onLeftButtonClickListener = {
+
+            },
+            onRightButtonClickListener = {
+                logout()
+            }
+        )
+        logoutDialog.show()
+    }
+
+    override fun fetchPresenceStatusSuccess(presence: MutableList<ChatPresence>) {
+        updatePresence()
+    }
+
+    override fun fetchPresenceStatusFail(code: Int, message: String?) {
+
     }
 
 }

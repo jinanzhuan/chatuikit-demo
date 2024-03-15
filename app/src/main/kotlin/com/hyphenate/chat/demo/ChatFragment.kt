@@ -3,12 +3,17 @@ package com.hyphenate.chat.demo
 import android.os.Bundle
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.chat.EaseChatFragment
+import com.hyphenate.easeui.feature.chat.enums.EaseChatType
+import com.hyphenate.easeui.feature.thread.EaseChatThreadListActivity
 
 class ChatFragment: EaseChatFragment() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         binding?.titleBar?.inflateMenu(R.menu.demo_chat_menu)
+        if (chatType == EaseChatType.SINGLE_CHAT){
+            binding?.titleBar?.setMenuIconVisible(R.id.chat_menu_thread,false)
+        }
         setMenuListener()
     }
 
@@ -21,6 +26,10 @@ class ChatFragment: EaseChatFragment() {
                 }
                 R.id.chat_menu_video_call -> {
                     mContext.showToast("video call")
+                    true
+                }
+                R.id.chat_menu_thread -> {
+                    EaseChatThreadListActivity.actionStart(mContext,conversationId)
                     true
                 }
                 else -> false
