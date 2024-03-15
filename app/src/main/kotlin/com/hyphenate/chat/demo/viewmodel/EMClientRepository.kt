@@ -31,6 +31,14 @@ import kotlin.coroutines.suspendCoroutine
  * As the repository of ChatClient, handles ChatClient related logic
  */
 class EMClientRepository: BaseRepository() {
+
+    companion object {
+        private const val LOGIN_URL = BuildConfig.APP_SERVER_PROTOCOL + "://" + BuildConfig.APP_SERVER_DOMAIN +
+                BuildConfig.APP_BASE_USER + BuildConfig.APP_SERVER_LOGIN
+        private const val SEND_SMS_URL = BuildConfig.APP_SERVER_PROTOCOL + "://" + BuildConfig.APP_SERVER_DOMAIN +
+                BuildConfig.APP_SEND_SMS_FROM_SERVER
+    }
+
     /**
      * 登录过后需要加载的数据
      * @return
@@ -170,8 +178,7 @@ class EMClientRepository: BaseRepository() {
             val request = JSONObject()
             request.putOpt("phoneNumber", userName)
             request.putOpt("smsCode", userPassword)
-            val url: String =
-                BuildConfig.APP_SERVER_PROTOCOL + "://" + BuildConfig.APP_SERVER_DOMAIN + BuildConfig.APP_BASE_USER + BuildConfig.APP_SERVER_LOGIN
+            val url: String = LOGIN_URL
             EMLog.d("LoginToAppServer url : ", url)
             val response = HttpClientManager.httpExecute(
                 url,
@@ -245,8 +252,7 @@ class EMClientRepository: BaseRepository() {
         try {
             val headers: MutableMap<String, String> = java.util.HashMap()
             headers["Content-Type"] = "application/json"
-            val url =
-                BuildConfig.APP_SERVER_PROTOCOL + "://" + BuildConfig.APP_SERVER_DOMAIN + BuildConfig.APP_SEND_SMS_FROM_SERVER + "/" + phoneNumber + "/"
+            val url = "$SEND_SMS_URL/$phoneNumber/"
             EMLog.d("getVerificationCodeFromServe url : ", url)
             val response =
                 HttpClientManager.httpExecute(url, headers, null, HttpClientManager.Method_POST)

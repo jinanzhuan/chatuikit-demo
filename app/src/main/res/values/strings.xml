@@ -98,5 +98,7 @@
     <string name="main_about_me_logout">退出登录</string>
     <string name="main_about_me_id">环信ID:%1$s</string>
 
+    <!-- callkit -->
+    <string name="call_duration">Call duration: %1$s</string>
 
 </resources>

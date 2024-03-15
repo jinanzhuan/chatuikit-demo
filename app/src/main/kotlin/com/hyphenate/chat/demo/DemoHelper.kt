@@ -54,8 +54,13 @@ class DemoHelper private constructor(){
                 // Initialize push.
                 // Set the UIKit options.
                 // Initialize the callkit module.
+                initCallKit()
             }
         }
+    }
+
+    private fun initCallKit() {
+
     }
 
     /**
@@ -72,6 +77,8 @@ class DemoHelper private constructor(){
             requireAck = true
             // set if you need delivery ack
             requireDeliveryAck = false
+            // Set whether the sent message is included in the message listener, default false
+            isIncludeSendMessageInMessageListener = true
             // Set whether to turn on local message traffic statistics, default false
             isEnableStatistics = true
             /**

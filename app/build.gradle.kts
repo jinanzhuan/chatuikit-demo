@@ -24,16 +24,19 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // Set app server info from local.properties
         buildConfigField ("String", "APP_SERVER_PROTOCOL", "\"https\"")
-        buildConfigField ("String", "APP_SERVER_DOMAIN", "\"a1.easemob.com\"")
-        buildConfigField ("String", "APP_BASE_USER", "\"/inside/app/user/\"")
-        buildConfigField ("String", "APP_SERVER_LOGIN", "\"login/V2\"")
-        buildConfigField ("String", "APP_SERVER_REGISTER", "\"register\"")
-        buildConfigField ("String", "APP_SERVE_CHECK_RESET", "\"reset/password\"")
-        buildConfigField ("String", "APP_SERVE_CHANGE_PWD", "\"/password\"")
-        buildConfigField ("String", "APP_SEND_SMS_FROM_SERVER", "\"/inside/app/sms/send\"")
-        buildConfigField ("String", "APP_VERIFICATION_CODE", "\"/inside/app/image/\"")
+        buildConfigField ("String", "APP_SERVER_DOMAIN", "\"${properties.getProperty("APP_SERVER_DOMAIN")}\"")
+        buildConfigField ("String", "APP_BASE_USER", "\"${properties.getProperty("APP_BASE_USER")}\"")
+        buildConfigField ("String", "APP_BASE_GROUP", "\"${properties.getProperty("APP_BASE_GROUP")}\"")
+        buildConfigField ("String", "APP_SERVER_LOGIN", "\"${properties.getProperty("APP_SERVER_LOGIN")}\"")
+        buildConfigField ("String", "APP_SEND_SMS_FROM_SERVER", "\"${properties.getProperty("APP_SEND_SMS_FROM_SERVER")}\"")
+        buildConfigField ("String", "APP_UPLOAD_AVATAR", "\"${properties.getProperty("APP_UPLOAD_AVATAR")}\"")
+        buildConfigField ("String", "APP_GROUP_AVATAR", "\"${properties.getProperty("APP_GROUP_AVATAR")}\"")
+        buildConfigField ("String", "APP_RTC_TOKEN_URL", "\"${properties.getProperty("APP_RTC_TOKEN_URL")}\"")
+        buildConfigField ("String", "APP_RTC_CHANNEL_MAPPER_URL", "\"${properties.getProperty("RTC_CHANNEL_MAPPER_URL")}\"")
 
+        // Set appkey from local.properties
         buildConfigField("String", "APPKEY", "\"${properties.getProperty("APPKEY")}\"")
 
         // Set push info from local.properties
@@ -47,6 +50,9 @@ android {
         buildConfigField("String", "MI_PUSH_APPID", "\"${properties.getProperty("MI_PUSH_APPID")}\"")
         buildConfigField("String", "FCM_SENDERID", "\"${properties.getProperty("FCM_SENDERID")}\"")
         buildConfigField("String", "HONOR_PUSH_APPID", "\"${properties.getProperty("HONOR_PUSH_APPID")}\"")
+
+        // Set RTC appId from local.properties
+        buildConfigField("String", "RTC_APPID", "\"${properties.getProperty("RTC_APPID")}\"")
 
         addManifestPlaceholders(mapOf(
             "VIVO_PUSH_APPKEY" to properties.getProperty("VIVO_PUSH_APPKEY", "******"),
@@ -133,4 +139,10 @@ dependencies {
     // Coil: load image library
     implementation("io.coil-kt:coil:2.5.0")
     implementation(project(mapOf("path" to ":ease-im-kit")))
+
+    //EaseCallKit，need add chat SDK
+    //api project(':ease-call-kit')
+    implementation("io.hyphenate:ease-call-kit:4.4.0")
+    // Chat SDK
+    implementation("io.hyphenate:hyphenate-chat:4.4.1")
 }
