@@ -6,22 +6,41 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.navigation.NavigationBarView
+import com.hyphenate.chat.EMMessage
 import com.hyphenate.chat.demo.base.BaseInitActivity
+import com.hyphenate.chat.demo.conversation.ConversationListFragment
 import com.hyphenate.chat.demo.databinding.ActivityMainBinding
+import com.hyphenate.chat.demo.interfaces.IMainResultView
 import com.hyphenate.chat.demo.login.AboutMeFragment
+import com.hyphenate.chat.demo.viewmodel.MainViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatError
+import com.hyphenate.easeui.common.ChatMessageListener
 import com.hyphenate.easeui.common.EaseConstant
+import com.hyphenate.easeui.common.bus.EaseFlowBus
+import com.hyphenate.easeui.common.extensions.ioScope
+import com.hyphenate.easeui.common.extensions.mainScope
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
 import com.hyphenate.easeui.feature.conversation.EaseConversationListFragment
 import com.hyphenate.easeui.interfaces.OnEventResultListener
+import com.hyphenate.easeui.model.EaseEvent
+import com.xiaomi.push.it
+import kotlinx.coroutines.NonCancellable.cancel
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
-    OnEventResultListener {
+    OnEventResultListener, IMainResultView, ChatMessageListener {
     override fun getViewBinding(inflater: LayoutInflater): ActivityMainBinding? {
         return ActivityMainBinding.inflate(inflater)
     }
@@ -30,18 +49,61 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
     private var mContactFragment:Fragment? = null
     private var mAboutMeFragment:Fragment? = null
     private var mCurrentFragment: Fragment? = null
+    private val badgeMap = mutableMapOf<Int, TextView>()
+    private val mainViewModel: MainViewModel by lazy {
+        ViewModelProvider(this)[MainViewModel::class.java]
+    }
+
+    companion object {
+        fun actionStart(context: Context) {
+            Intent(context, MainActivity::class.java).apply {
+                context.startActivity(this)
+            }
+        }
+    }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         binding.navView.itemIconTintList = null
         switchToHome()
         checkIfShowSavedFragment(savedInstanceState)
+        addTabBadge()
     }
 
     override fun initListener() {
         super.initListener()
         binding.navView.setOnItemSelectedListener(this)
         EaseIM.addEventResultListener(this)
+        EaseIM.addChatMessageListener(this)
+    }
+
+    override fun initData() {
+        super.initData()
+        mainViewModel.attachView(this)
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD.name).register(this){
+            // check unread message count
+            mainViewModel.getUnreadMessageCount()
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.REMOVE.name).register(this){
+            // check unread message count
+            mainViewModel.getUnreadMessageCount()
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.DESTROY.name).register(this){
+            // check unread message count
+            mainViewModel.getUnreadMessageCount()
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.LEAVE.name).register(this){
+            // check unread message count
+            mainViewModel.getUnreadMessageCount()
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).register(this){
+            // check unread message count
+            mainViewModel.getUnreadMessageCount()
+        }
+        EaseFlowBus.withStick<EaseEvent>(EaseEvent.EVENT.UPDATE.name).register(this){
+            // check unread message count
+            mainViewModel.getUnreadMessageCount()
+        }
     }
 
     private fun switchToHome() {
@@ -50,6 +112,7 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
                 .useTitleBar(true)
                 .enableTitleBarPressBack(false)
                 .useSearchBar(true)
+                .setCustomFragment(ConversationListFragment())
                 .build()
         }
         mConversationListFragment?.let {
@@ -110,9 +173,20 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
             if (!tag.isNullOrEmpty()) {
                 val fragment = supportFragmentManager.findFragmentByTag(tag)
                 if (fragment is Fragment) {
-                    Log.e("MainActivity", "checkIfShowSavedFragment: $tag")
                     replace(fragment, tag)
                 }
+            }
+        }
+    }
+
+    private fun addTabBadge() {
+        (binding.navView.getChildAt(0) as? BottomNavigationMenuView)?.let { menuView->
+            val childCount = menuView.childCount
+            for (i in 0 until childCount) {
+                val itemView = menuView.getChildAt(i) as BottomNavigationItemView
+                val badge = LayoutInflater.from(this).inflate(R.layout.demo_badge_home, menuView, false)
+                badgeMap[i] = badge.findViewById(R.id.tv_main_home_msg)
+                itemView.addView(badge)
             }
         }
     }
@@ -146,14 +220,6 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         }
     }
 
-    companion object {
-        fun actionStart(context: Context) {
-            Intent(context, MainActivity::class.java).apply {
-                context.startActivity(this)
-            }
-        }
-    }
-
     override fun onEventResult(function: String, errorCode: Int, errorMessage: String?) {
         when(function){
             EaseConstant.API_ASYNC_ADD_CONTACT -> {
@@ -169,6 +235,20 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
             }
             else -> {}
         }
+    }
+
+    override fun getUnreadCountSuccess(count: String?) {
+        if (count.isNullOrEmpty()) {
+            badgeMap[0]?.text = ""
+            badgeMap[0]?.visibility = View.GONE
+        } else {
+            badgeMap[0]?.text = count
+            badgeMap[0]?.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onMessageReceived(messages: MutableList<EMMessage>?) {
+        mainViewModel.getUnreadMessageCount()
     }
 
 }

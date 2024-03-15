@@ -4,7 +4,14 @@
     <string name="em_conversation_menu_video">Voice and video conference</string>
     <string name="em_conversation_menu_group">Create group</string>
 
+    <string name="cancel">Cancel</string>
+    <string name="confirm">OK</string>
     <string name="loading">Loading&#8230;</string>
+
+    <string name="splash_title">Easemob IM</string>
+    <string name="splash_powered">Powered by Easemob</string>
+    <string name="splash_not_appkey">Please set up the app key first.</string>
+    <string name="splash_not_init">Please initialize the Chat SDK first.</string>
 
     <string name="em_login_btn_info_incomplete">Username or password cannot be empty.</string>
     <string name="em_login_failed">Login failed</string>
@@ -22,7 +29,7 @@
     <string name="em_login_not_select_agreement">Please confirm Terms &amp; Policy</string>
     <string name="em_login_error_send_code_later">Please wait a moment while trying to send</string>
     <string name="em_login_error_send_code_limit">Access limit reached</string>
-    <string name="em_login_server_configure">Server Configure</string>
+    <string name="em_login_server_configure"><u>Server Configure</u></string>
     <string name="demo_login_dialog_content">Easemob attaches great importance to protecting your privacy. Please read the following Service and Privacy Policy carefully. Please click "OK" button to agree, and click "Deny" to exit the app.</string>
     <string name="demo_login_dialog_content_privacy">Read the complete Service and Privacy Policy for more details.</string>
     <string name="demo_login_dialog_cancel">Deny</string>
@@ -35,6 +42,25 @@
     <string name="em_login_tv_token">Log in with token</string>
     <string name="em_login_tv_pwd">Log in with password</string>
     <string name="em_login_token_hint">Token</string>
+
+    <string name="server_set_title">Server settings</string>
+    <string name="server_set_appkey">Appkey</string>
+    <string name="server_set_apns_cert_name">APNs certificate name</string>
+    <string name="server_set_specify_server">Use private server:</string>
+    <string name="server_set_server_address">IM server address</string>
+    <string name="server_set_server_port">Port</string>
+    <string name="server_set_rest_server_address">RESTful server address</string>
+    <string name="server_set_appkey_empty_hint">Please set an app key</string>
+    <string name="server_set_im_server_empty_hint">Set the IM server address</string>
+    <string name="server_set_im_port_empty_hint">Set the IM port number</string>
+    <string name="server_set_rest_server_empty_hint">Set the RESTful server address</string>
+    <string name="server_open_develop_mode">Open develop mode?</string>
+    <string name="server_close_develop_mode">Close develop mode?</string>
+    <string name="server_set_menu_save">Save</string>
+    <string name="server_set_illegal_appkey">You set a illegal appkey</string>
+    <string name="server_set_dialog_title">Reset App</string>
+    <string name="server_set_dialog_content">The current server settings need to be restarted to take effect.Confirm restart?</string>
+    <string name="server_set_dialog_confirm_button_text">Reset</string>
 
     <string name="em_main_title_home">Chat</string>
     <string name="em_main_title_friends">Contacts</string>

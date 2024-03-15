@@ -3,6 +3,9 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven { url = uri("https://maven.aliyun.com/repository/public/")}
+        maven { url = uri("https://developer.huawei.com/repo/")}
+        maven { url = uri("https://developer.hihonor.com/repo")}
     }
 }
 dependencyResolutionManagement {
@@ -10,6 +13,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://maven.aliyun.com/repository/public/")}
+        maven { url = uri("https://developer.huawei.com/repo/")}
+        maven { url = uri("https://developer.hihonor.com/repo")}
     }
 }
 

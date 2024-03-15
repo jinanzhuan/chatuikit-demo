@@ -23,24 +23,33 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton
 import android.widget.TextView
-import android.widget.TextView.GONE
 import android.widget.TextView.OnEditorActionListener
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.hyphenate.chat.demo.DemoHelper
 import com.hyphenate.chat.demo.MainActivity
 import com.hyphenate.chat.demo.R
+import com.hyphenate.chat.demo.common.CustomCountDownTimer
+import com.hyphenate.chat.demo.common.DemoConstant
+import com.hyphenate.chat.demo.common.dialog.SimpleDialog
+import com.hyphenate.chat.demo.common.extensions.internal.changePwdDrawable
+import com.hyphenate.chat.demo.common.extensions.internal.clearEditTextListener
+import com.hyphenate.chat.demo.common.extensions.internal.showRightDrawable
 import com.hyphenate.chat.demo.databinding.DemoFragmentLoginBinding
-import com.hyphenate.chat.demo.utils.EaseEditTextUtils
 import com.hyphenate.chat.demo.utils.PhoneNumberUtils
 import com.hyphenate.chat.demo.utils.ToastUtils.showToast
 import com.hyphenate.chat.demo.viewmodel.LoginFragmentViewModel
 import com.hyphenate.easeui.base.EaseBaseFragment
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatError
+import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.hideSoftKeyboard
+import com.hyphenate.easeui.model.EaseEvent
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -49,19 +58,14 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
     CompoundButton.OnCheckedChangeListener, OnEditorActionListener {
     private var mUserPhone: String? = null
     private var mCode: String? = null
-    private var isTokenFlag = false
     private lateinit var mFragmentViewModel: LoginFragmentViewModel
     private var clear: Drawable? = null
     private var eyeOpen: Drawable? = null
     private var eyeClose: Drawable? = null
-    private val COUNTS = 5
-    private val DURATION = (3 * 1000).toLong()
-    private val mHits = LongArray(COUNTS)
-    private var isDeveloperMode = true
+    private val mHits = LongArray(COUNT)
+    private var isDeveloperMode = false
     private var isShowingDialog = false
-
-    private val stopTimeoutMillis: Long = 5000
-
+    private var countDownTimer: CustomCountDownTimer? = null
 
     override fun getViewBinding(
         inflater: LayoutInflater,
@@ -75,12 +79,9 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
         binding?.run {
             etLoginPhone.addTextChangedListener(this@LoginFragment)
             etLoginCode.addTextChangedListener(this@LoginFragment)
-            tvLoginRegister.setOnClickListener(this@LoginFragment)
-            tvLoginToken.setOnClickListener(this@LoginFragment)
             tvVersion.setOnClickListener(this@LoginFragment)
             btnLogin.setOnClickListener(this@LoginFragment)
             tvGetCode.setOnClickListener(this@LoginFragment)
-            tvLoginResetPassword.setOnClickListener(this@LoginFragment)
             tvLoginDeveloper.setOnClickListener(this@LoginFragment)
             cbSelect.setOnCheckedChangeListener(this@LoginFragment)
             etLoginCode.setOnEditorActionListener(this@LoginFragment)
@@ -95,42 +96,29 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
 
     override fun initData() {
         super.initData()
-        // 保证切换fragment后相关状态正确
         binding?.run {
-            tvLoginToken.visibility = GONE
             etLoginPhone.setText(ChatClient.getInstance().currentUser)
             tvVersion.text = "V${ChatClient.VERSION}"
             tvAgreement.text = spannable
             tvAgreement.movementMethod = LinkMovementMethod.getInstance()
+            tvAgreement.setHintTextColor(Color.TRANSPARENT)
         }
-        if (isTokenFlag) {
-            switchLogin()
-        }
-        //切换密码可见不可见的两张图片
         eyeClose = ContextCompat.getDrawable(mContext, R.drawable.d_pwd_hide)
         eyeOpen = ContextCompat.getDrawable(mContext, R.drawable.d_pwd_show)
-        //切换密码可见不可见的两张图片
         clear = ContextCompat.getDrawable(mContext, R.drawable.d_clear)
-        EaseEditTextUtils.showRightDrawable(binding!!.etLoginPhone, clear)
+        binding?.etLoginPhone?.showRightDrawable(clear)
+        isDeveloperMode = DemoHelper.getInstance().getDataModel().isDeveloperMode()
         resetView(isDeveloperMode)
     }
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.tv_login_register -> {
-
-            }
-
-            R.id.tv_login_token -> {
-                isTokenFlag = !isTokenFlag
-                switchLogin()
-            }
-
             R.id.tv_version -> {
                 System.arraycopy(mHits, 1, mHits, 0, mHits.size - 1)
                 mHits[mHits.size - 1] = SystemClock.uptimeMillis()
                 if (mHits[0] >= SystemClock.uptimeMillis() - DURATION && !isShowingDialog) {
                     isShowingDialog = true
+                    showOpenDeveloperDialog()
                 }
             }
 
@@ -139,28 +127,13 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 loginToServer()
             }
 
-            R.id.tv_login_reset_password -> {
-
+            R.id.tv_get_code -> {
+                getVerificationCode()
             }
 
-        }
-    }
-
-    /**
-     * 切换登录方式
-     */
-    private fun switchLogin() {
-        binding?.etLoginCode?.setText("")
-        if (isTokenFlag) {
-            binding?.etLoginCode?.setHint(R.string.em_login_token_hint)
-            binding?.tvLoginToken?.setText(R.string.em_login_tv_pwd)
-            binding?.etLoginCode?.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
-        } else {
-            binding?.etLoginCode?.setHint(R.string.em_login_password_hint)
-            binding?.tvLoginToken?.setText(R.string.em_login_tv_token)
-            binding?.etLoginCode?.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            R.id.tv_login_developer -> {
+                EaseFlowBus.with<String>(DemoConstant.SKIP_DEVELOPER_CONFIG).post(lifecycleScope, LoginFragment::class.java.simpleName)
+            }
         }
     }
 
@@ -175,7 +148,9 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 return
             }
             lifecycleScope.launch {
-                mFragmentViewModel.login(mUserPhone!!, mCode!!, isTokenFlag)
+                mFragmentViewModel.login(mUserPhone!!, mCode!!)
+                    .onStart { showLoading(true) }
+                    .onCompletion { dismissLoading() }
                     .catchChatException { e ->
                         if (e.errorCode == ChatError.USER_AUTHENTICATION_FAILED) {
                             showToast(R.string.demo_error_user_authentication_failed)
@@ -187,20 +162,20 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                     .collect {
                         if (it != null) {
                             startActivity(Intent(mContext, MainActivity::class.java))
-                            mContext!!.finish()
+                            mContext.finish()
                         }
                     }
             }
         } else {
-            if (TextUtils.isEmpty(mUserPhone)) {
-                showToast(mContext!!.getString(R.string.em_login_phone_empty))
+            if (mUserPhone.isNullOrEmpty()) {
+                showToast(mContext.getString(R.string.em_login_phone_empty))
                 return
             }
             if (!PhoneNumberUtils.isPhoneNumber(mUserPhone)) {
                 showToast(mContext!!.getString(R.string.em_login_phone_illegal))
                 return
             }
-            if (TextUtils.isEmpty(mCode)) {
+            if (mCode.isNullOrEmpty()) {
                 showToast(R.string.em_login_code_empty)
                 return
             }
@@ -213,7 +188,13 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 return
             }
             lifecycleScope.launch {
-                mFragmentViewModel.loginFromAppServe(mUserPhone!!, mCode!!)
+                mFragmentViewModel.loginFromAppServer(mUserPhone!!, mCode!!)
+                    .onStart {
+                        showLoading(true)
+                    }
+                    .onCompletion {
+                        dismissLoading()
+                    }
                     .catchChatException { e ->
                         if (e.errorCode == ChatError.USER_AUTHENTICATION_FAILED) {
                             showToast(R.string.demo_error_user_authentication_failed)
@@ -233,15 +214,67 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
         }
     }
 
+    private fun getVerificationCode() {
+        if (mUserPhone.isNullOrEmpty()) {
+            showToast(mContext!!.getString(R.string.em_login_phone_empty))
+            return
+        }
+        if (!PhoneNumberUtils.isPhoneNumber(mUserPhone)) {
+            showToast(mContext!!.getString(R.string.em_login_phone_illegal))
+            return
+        }
+        binding?.tvGetCode?.let {
+            countDownTimer = CustomCountDownTimer(
+                it,
+                60000,
+                1000
+            )
+        }
+        lifecycleScope.launch {
+            mFragmentViewModel.getVerificationCode(mUserPhone!!)
+                .catchChatException { e ->
+                    showToast(e.description)
+                }
+                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(stopTimeoutMillis), null)
+                .collect {
+                    if (it != null) {
+                        countDownTimer?.start()
+                        showToast(R.string.em_login_post_code)
+                    }
+                }
+        }
+    }
+
+    private fun showOpenDeveloperDialog() {
+        SimpleDialog.Builder(mContext)
+            .setTitle(
+                if (isDeveloperMode) getString(R.string.server_close_develop_mode) else getString(
+                    R.string.server_open_develop_mode
+                )
+            )
+            .setPositiveButton{
+                isDeveloperMode = !isDeveloperMode
+                DemoHelper.getInstance().getDataModel()?.setDeveloperMode(isDeveloperMode)
+                binding?.etLoginPhone?.setText("")
+                resetView(isDeveloperMode)
+            }
+            .setOnDismissListener {
+                isShowingDialog = false
+            }
+            .setCanceledOnTouchOutside(false)
+            .build()
+            .show()
+    }
+
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
     override fun afterTextChanged(s: Editable) {
         binding?.run {
             mUserPhone = etLoginPhone.text.toString().trim { it <= ' ' }
             mCode = etLoginCode.text.toString().trim { it <= ' ' }
-            EaseEditTextUtils.showRightDrawable(etLoginPhone, clear)
+            etLoginPhone.showRightDrawable(clear)
             if (isDeveloperMode) {
-                EaseEditTextUtils.showRightDrawable(etLoginCode, if (isTokenFlag) null else eyeClose)
+                etLoginCode.showRightDrawable(eyeClose)
             }
             setButtonEnable(!TextUtils.isEmpty(mUserPhone) && !TextUtils.isEmpty(mCode))
         }
@@ -293,7 +326,7 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 }
             }, start1, end1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             spanStr.setSpan(
-                ForegroundColorSpan(Color.WHITE),
+                ForegroundColorSpan(ContextCompat.getColor(mContext, com.hyphenate.easeui.R.color.ease_color_primary)),
                 start1,
                 end1,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -306,7 +339,7 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 }
             }, start2, end2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             spanStr.setSpan(
-                ForegroundColorSpan(Color.WHITE),
+                ForegroundColorSpan(ContextCompat.getColor(mContext, com.hyphenate.easeui.R.color.ease_color_primary)),
                 start2,
                 end2,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -337,13 +370,12 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 etLoginPhone.setHint(R.string.em_login_name_hint)
                 tvGetCode.visibility = View.GONE
                 tvLoginDeveloper.visibility = View.VISIBLE
-                EaseEditTextUtils.changePwdDrawableRight(
-                    etLoginCode,
-                eyeClose,
-                eyeOpen,
-                null,
-                null,
-                null
+                etLoginCode.changePwdDrawable(
+                    eyeOpen,
+                    eyeClose,
+                    null,
+                    null,
+                    null
                 )
             } else {
                 etLoginPhone.inputType = InputType.TYPE_CLASS_PHONE
@@ -352,8 +384,8 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                 etLoginPhone.setHint(R.string.register_phone_number)
                 tvGetCode.visibility = View.VISIBLE
                 tvLoginDeveloper.visibility = View.GONE
-                EaseEditTextUtils.showRightDrawable(etLoginCode, null)
-                EaseEditTextUtils.clearEditTextListener(etLoginCode)
+                etLoginCode.showRightDrawable(null)
+                etLoginCode.clearEditTextListener()
             }
         }
     }
@@ -373,7 +405,15 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
     private abstract inner class MyClickableSpan : ClickableSpan() {
         override fun updateDrawState(ds: TextPaint) {
             super.updateDrawState(ds)
-            ds.bgColor = Color.TRANSPARENT
+            ds.color = ContextCompat.getColor(mContext, R.color.transparent)
+            ds.clearShadowLayer()
         }
+    }
+
+    companion object {
+        private const val TAG = "LoginFragment"
+        private const val COUNT: Int = 5
+        private const val DURATION = (3 * 1000).toLong()
+        private const val stopTimeoutMillis: Long = 5000
     }
 }
