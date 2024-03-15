@@ -6,6 +6,7 @@ import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.utils.ToastUtils
 import com.hyphenate.chatdemo.DemoHelper
+import com.hyphenate.chatdemo.callkit.extensions.getStringOrNull
 import com.hyphenate.easecallkit.EaseCallKit
 import com.hyphenate.easecallkit.base.EaseCallEndReason
 import com.hyphenate.easecallkit.base.EaseCallKitConfig
@@ -13,6 +14,8 @@ import com.hyphenate.easecallkit.base.EaseCallKitListener
 import com.hyphenate.easecallkit.base.EaseCallKitTokenCallback
 import com.hyphenate.easecallkit.base.EaseCallType
 import com.hyphenate.easecallkit.base.EaseGetUserAccountCallback
+import com.hyphenate.easecallkit.base.EaseUserAccount
+import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatHttpClientManagerBuilder
@@ -21,6 +24,7 @@ import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.mainScope
 import com.hyphenate.easeui.model.EaseEvent
+import com.hyphenate.easeui.provider.getSyncUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,10 +44,17 @@ object EaseCallKitManager {
     private const val PARAM_USER_APPKEY = "appkey"
     private const val RESULT_PARAM_TOKEN = "accessToken"
     private const val RESULT_PARAM_UID = "agoraUid"
+    private const val RESULT_PARAM_RESULT = "result"
+    private const val KEY_GROUPID = "groupId"
+
+    /**
+     * If multiple call, should set groupId.
+     */
+    var currentCallGroupId: String? = null
 
     private val callKitListener by lazy { object :EaseCallKitListener {
         override fun onInviteUsers(context: Context?, users: Array<out String>?, ext: JSONObject?) {
-            TODO("Not yet implemented")
+            currentCallGroupId = ext?.getStringOrNull(KEY_GROUPID)
         }
 
         override fun onEndCallWithReason(
@@ -66,6 +77,21 @@ object EaseCallKitManager {
         override fun onReceivedCall(callType: EaseCallType?, userId: String?, ext: JSONObject?) {
             ChatLog.e(TAG, "onReceivedCall: $callType, userId: $userId")
             // Can get groupId from ext
+            ext?.getStringOrNull(KEY_GROUPID)?.let { groupId ->
+                currentCallGroupId = groupId
+                CallUserInfo(userId).getUserInfo(groupId).parse().apply {
+                    EaseCallKit.getInstance().callKitConfig.setUserInfo(userId, this)
+                }
+            } ?: kotlin.run {
+                currentCallGroupId = null
+                CallUserInfo(userId).apply {
+                    EaseIM.getUserProvider()?.getSyncUser(userId)?.let { user ->
+                        this.nickName = user.getRemarkOrName()
+                        this.headImage = user.avatar
+                    }
+                    EaseCallKit.getInstance().callKitConfig.setUserInfo(userId, this.parse())
+                } // Single call
+            }
         }
 
         override fun onCallError(
@@ -103,9 +129,16 @@ object EaseCallKitManager {
         ) {
             // Only multi call callback this method
             if (userName.isNullOrEmpty()) {
-
+                SpannableStringBuilder(FETCH_USER_MAPPER).apply {
+                    append("?$PARAM_CHANNEL_NAME=$channelName")
+                    getAllUsersByUid(this.toString(), callback)
+                }
             } else {
-
+                // Set user info to call kit.
+                CallUserInfo(userName).getUserInfo(currentCallGroupId).parse().apply {
+                    EaseCallKit.getInstance().callKitConfig.setUserInfo(userId, this)
+                }
+                callback?.onUserAccount(listOf(EaseUserAccount(uid, userName)))
             }
         }
 
@@ -147,6 +180,38 @@ object EaseCallKitManager {
                 }
             } ?: kotlin.run {
                 callback?.onSetToken(null, 0)
+            }
+        }
+    }
+
+    private fun getAllUsersByUid(url: String, callback: EaseGetUserAccountCallback?) {
+        executeGetRequest(url) {
+            it?.let { response ->
+                if (response.code == 200) {
+                    response.content?.let { body ->
+                        try {
+                            val result = JSONObject(body)
+                            val userList = result.getJSONObject(RESULT_PARAM_RESULT)
+                            val userAccountList = mutableListOf<EaseUserAccount>()
+                            userList.keys().forEach { uIdStr ->
+                                val userId = userList.optString(uIdStr)
+                                // Set user info to call kit.
+                                CallUserInfo(userId).getUserInfo(currentCallGroupId).parse().apply {
+                                    EaseCallKit.getInstance().callKitConfig.setUserInfo(userId, this)
+                                }
+                                userAccountList.add(EaseUserAccount(uIdStr.toInt(), userId))
+                            }
+                            callback?.onUserAccount(userAccountList)
+                        } catch (e: Exception) {
+                            e.stackTrace
+                            callback?.onSetUserAccountError(ChatError.GENERAL_ERROR, e.message)
+                        }
+                    }
+                } else {
+                    callback?.onSetUserAccountError(response.code, response.content)
+                }
+            } ?: kotlin.run {
+                callback?.onSetUserAccountError(ChatError.GENERAL_ERROR, "response is null")
             }
         }
     }
