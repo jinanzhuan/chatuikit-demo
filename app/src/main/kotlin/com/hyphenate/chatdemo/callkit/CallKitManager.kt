@@ -1,12 +1,15 @@
 package com.hyphenate.chatdemo.callkit
 
 import android.content.Context
+import android.content.Intent
 import android.text.SpannableStringBuilder
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.callkit.extensions.getStringOrNull
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.utils.ToastUtils
-import com.hyphenate.chatdemo.DemoHelper
-import com.hyphenate.chatdemo.callkit.extensions.getStringOrNull
 import com.hyphenate.easecallkit.EaseCallKit
 import com.hyphenate.easecallkit.base.EaseCallEndReason
 import com.hyphenate.easecallkit.base.EaseCallKitConfig
@@ -22,8 +25,12 @@ import com.hyphenate.easeui.common.ChatHttpClientManagerBuilder
 import com.hyphenate.easeui.common.ChatHttpResponse
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.bus.EaseFlowBus
+import com.hyphenate.easeui.common.dialog.SimpleListSheetDialog
+import com.hyphenate.easeui.common.dialog.SimpleSheetType
 import com.hyphenate.easeui.common.extensions.mainScope
+import com.hyphenate.easeui.interfaces.SimpleListSheetItemClickListener
 import com.hyphenate.easeui.model.EaseEvent
+import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.provider.getSyncUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +39,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
-object EaseCallKitManager {
+object CallKitManager {
 
     private const val TAG = "EaseCallKitManager"
     private const val FETCH_TOKEN_URL = com.hyphenate.chatdemo.BuildConfig.APP_SERVER_PROTOCOL + "://" + com.hyphenate.chatdemo.BuildConfig.APP_SERVER_DOMAIN +
@@ -45,7 +52,9 @@ object EaseCallKitManager {
     private const val RESULT_PARAM_TOKEN = "accessToken"
     private const val RESULT_PARAM_UID = "agoraUid"
     private const val RESULT_PARAM_RESULT = "result"
-    private const val KEY_GROUPID = "groupId"
+    const val KEY_GROUPID = "groupId"
+    const val EXTRA_CONFERENCE_GROUP_ID = "group_id"
+    const val EXTRA_CONFERENCE_GROUP_EXIT_MEMBERS = "exist_members"
 
     /**
      * If multiple call, should set groupId.
@@ -55,6 +64,12 @@ object EaseCallKitManager {
     private val callKitListener by lazy { object :EaseCallKitListener {
         override fun onInviteUsers(context: Context?, users: Array<out String>?, ext: JSONObject?) {
             currentCallGroupId = ext?.getStringOrNull(KEY_GROUPID)
+            Intent(context, ConferenceInviteActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra(EXTRA_CONFERENCE_GROUP_ID, currentCallGroupId)
+                putExtra(EXTRA_CONFERENCE_GROUP_EXIT_MEMBERS, users)
+                context?.startActivity(this)
+            }
         }
 
         override fun onEndCallWithReason(
@@ -154,7 +169,66 @@ object EaseCallKitManager {
             isEnableRTCToken = true
             EaseCallKit.getInstance().init(context, this)
         }
+        // Register the activities which you have registered in manifest
+        // Register the activities which you have registered in manifest
+        EaseCallKit.getInstance().registerVideoCallClass(VideoCallActivity::class.java)
+        EaseCallKit.getInstance().registerMultipleVideoClass(MultipleVideoActivity::class.java)
         EaseCallKit.getInstance().setCallKitListener(callKitListener)
+    }
+
+    /**
+     * Show single chat video call dialog.
+     */
+    fun showSelectDialog(context: Context, conversationId: String?) {
+        val context = (context as FragmentActivity)
+        val mutableListOf = mutableListOf(
+            EaseMenuItem(
+                menuId = R.id.chat_video_call_voice,
+                title = context.getString(R.string.voice_call),
+                resourceId = R.drawable.phone_pick,
+                titleColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary)
+            ),
+            EaseMenuItem(
+                menuId = R.id.chat_video_call_video,
+                title = context.getString(R.string.video_call),
+                resourceId =  R.drawable.video_camera,
+                titleColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary)
+            ),
+        )
+        val dialog = SimpleListSheetDialog(
+            context = context,
+            itemList = mutableListOf,
+            type = SimpleSheetType.ITEM_LAYOUT_DIRECTION_START)
+        dialog.setSimpleListSheetItemClickListener(object : SimpleListSheetItemClickListener {
+            override fun onItemClickListener(position: Int, menu: EaseMenuItem) {
+                dialog.dismiss()
+                when(menu.menuId){
+                    R.id.chat_video_call_voice -> {
+                        EaseCallKit.getInstance().startSingleCall(
+                            EaseCallType.SINGLE_VOICE_CALL, conversationId, null,
+                            VideoCallActivity::class.java
+                        )
+                    }
+                    R.id.chat_video_call_video -> {
+                        EaseCallKit.getInstance().startSingleCall(
+                            EaseCallType.SINGLE_VIDEO_CALL, conversationId, null,
+                            VideoCallActivity::class.java
+                        )
+                    }
+                    else -> {}
+                }
+            }
+        })
+        context.supportFragmentManager.let { dialog?.show(it,"video_call_dialog") }
+    }
+
+    /**
+     * Start conference call.
+     */
+    fun startConferenceCall(context: Context, groupId: String?) {
+        val intent = Intent(context, ConferenceInviteActivity::class.java)
+        intent.putExtra(EXTRA_CONFERENCE_GROUP_ID, groupId)
+        context.startActivity(intent)
     }
 
     /**

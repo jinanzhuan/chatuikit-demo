@@ -57,6 +57,7 @@
     <string name="server_open_develop_mode">开启开发者模式？</string>
     <string name="server_close_develop_mode">关闭开发者模式？</string>
     <string name="server_set_menu_save">保存</string>
+    <string name="server_set_illegal_appkey">请设置正确的AppKey</string>
     <string name="server_set_dialog_title">重启客户端</string>
     <string name="server_set_dialog_content">当前服务器设置需重启客户端生效， 确认重启？</string>
     <string name="server_set_dialog_confirm_button_text">重启</string>
@@ -68,6 +69,7 @@
     <string name="menu_thread_topic">话题</string>
     <string name="menu_voice_call">语音呼叫</string>
     <string name="menu_video_call">视频通话</string>
+    <string name="menu_member_call">呼叫(%1$d)</string>
 
     <string name="register_phone_number">请输入手机号</string>
     <string name="phone_number">手机号</string>
@@ -110,5 +112,9 @@
 
     <!-- callkit -->
     <string name="call_duration">通话时长: %1$s</string>
+    <string name="video_call">视频通话</string>
+    <string name="voice_call">语音通话</string>
+    <string name="tips_select_contacts_first">请先选择联系人</string>
+    <string name="group_call_title">选择成员</string>
 
 </resources>

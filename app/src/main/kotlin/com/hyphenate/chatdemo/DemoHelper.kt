@@ -2,7 +2,7 @@ package com.hyphenate.chatdemo
 
 import android.content.Context
 import android.util.Log
-import com.hyphenate.chatdemo.callkit.EaseCallKitManager
+import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoDataModel
 import com.hyphenate.chatdemo.common.extensions.internal.checkAppKey
 import com.hyphenate.easeui.EaseIM
@@ -61,7 +61,7 @@ class DemoHelper private constructor(){
     }
 
     private fun initCallKit() {
-        EaseCallKitManager.init(context)
+        CallKitManager.init(context)
     }
 
     /**

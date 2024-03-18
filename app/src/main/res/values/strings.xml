@@ -69,6 +69,7 @@
     <string name="menu_thread_topic">Thread</string>
     <string name="menu_voice_call">Voice Call</string>
     <string name="menu_video_call">Video Call</string>
+    <string name="menu_member_call">Call(%1$d)</string>
 
     <string name="register_phone_number">Please enter your phone number</string>
     <string name="phone_number">Phone Number</string>
@@ -109,5 +110,9 @@
 
     <!-- callkit -->
     <string name="call_duration">Call duration: %1$s</string>
+    <string name="video_call">Video call</string>
+    <string name="voice_call">Voice call</string>
+    <string name="tips_select_contacts_first">Select a contact first</string>
+    <string name="group_call_title">Select members</string>
 
 </resources>

@@ -2,7 +2,7 @@ package com.hyphenate.chatdemo.ui.chat
 
 import android.os.Bundle
 import com.hyphenate.chatdemo.R
-import com.hyphenate.easeui.common.extensions.showToast
+import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.easeui.feature.chat.EaseChatFragment
 import com.hyphenate.easeui.feature.chat.enums.EaseChatType
 import com.hyphenate.easeui.feature.thread.EaseChatThreadListActivity
@@ -21,12 +21,8 @@ class ChatFragment: EaseChatFragment() {
     private fun setMenuListener() {
         binding?.titleBar?.setOnMenuItemClickListener {
             when(it.itemId) {
-                R.id.chat_menu_voice_call -> {
-                    mContext.showToast("voice call")
-                    true
-                }
                 R.id.chat_menu_video_call -> {
-                    mContext.showToast("video call")
+                    showVideoCall()
                     true
                 }
                 R.id.chat_menu_thread -> {
@@ -35,6 +31,14 @@ class ChatFragment: EaseChatFragment() {
                 }
                 else -> false
             }
+        }
+    }
+
+    private fun showVideoCall() {
+        if (chatType == EaseChatType.SINGLE_CHAT) {
+            CallKitManager.showSelectDialog(mContext, conversationId)
+        } else {
+            CallKitManager.startConferenceCall(mContext, conversationId)
         }
     }
 

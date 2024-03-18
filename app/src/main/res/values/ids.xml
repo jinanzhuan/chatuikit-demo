@@ -7,6 +7,10 @@
     <!-- create group -->
     <item name="sheet_item_create_group" type="id"/>
 
+    <!-- chat -->
+    <item name="chat_video_call_voice" type="id"/>
+    <item name="chat_video_call_video" type="id"/>
+
     <!-- new request -->
     <item name="header_new_request" type="id"/>
     <!-- group -->
