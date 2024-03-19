@@ -59,6 +59,16 @@ object CallKitManager {
     const val MSG_ATTR_CONF_ID = "conferenceId"
 
     /**
+     * Whether it is a rtc call.
+     */
+    var isRtcCall = false
+
+    /**
+     * Rtc call type.
+     */
+    var rtcType = 0
+
+    /**
      * If multiple call, should set groupId.
      */
     var currentCallGroupId: String? = null
@@ -234,6 +244,34 @@ object CallKitManager {
         val intent = Intent(context, ConferenceInviteActivity::class.java)
         intent.putExtra(EXTRA_CONFERENCE_GROUP_ID, groupId)
         context.startActivity(intent)
+    }
+
+    /**
+     * Receive call push.
+     */
+    fun receiveCallPush(context: Context) {
+        if (isRtcCall) {
+            if (EaseCallType.getfrom(rtcType) != EaseCallType.CONFERENCE_CALL) {
+                startVideoCallActivity(context)
+            } else {
+                startMultipleVideoActivity(context)
+            }
+            isRtcCall = false
+        }
+    }
+
+    fun startVideoCallActivity(context: Context) {
+        Intent(context, VideoCallActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(this)
+        }
+    }
+
+    fun startMultipleVideoActivity(context: Context) {
+        Intent(context, MultipleVideoActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(this)
+        }
     }
 
     /**

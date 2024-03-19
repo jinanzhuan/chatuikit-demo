@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import com.hyphenate.chatdemo.MainActivity
 import com.hyphenate.chatdemo.base.ActivityState
 import com.hyphenate.chatdemo.callkit.extensions.isTargetActivity
 import com.hyphenate.chatdemo.common.extensions.internal.makeTaskToFront
@@ -15,6 +16,9 @@ class CallKitActivityLifecycleCallback: Application.ActivityLifecycleCallbacks, 
     private val resumeActivity = mutableListOf<Activity>()
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         activityList.add(0, activity)
+        if (activity is MainActivity) {
+            CallKitManager.receiveCallPush(activity)
+        }
     }
 
     override fun onActivityStarted(activity: Activity) {
