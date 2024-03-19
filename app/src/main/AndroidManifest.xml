@@ -58,6 +58,15 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <!-- RTC end -->
 
+    <!-- Remove unused permission in remote library start -->
+    <uses-permission
+        android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
+        tools:node="remove"/>
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove"/>
+    <!-- Remove unused permission in remote library end -->
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -71,7 +80,7 @@
         tools:targetApi="31">
 
         <!-- FCM required start -->
-        <service android:name=".common.fcm.EMFCMMSGService"
+        <service android:name=".common.push.fcm.EMFCMMSGService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -87,7 +96,7 @@
         <!-- FCM required end -->
 
         <!--华为 HMS Config-->
-        <service android:name=".common.service.HMSPushService"
+        <service android:name=".common.push.service.HMSPushService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
@@ -215,7 +224,7 @@
 
         </receiver>
 
-        <receiver android:name=".common.receiver.MiMsgReceiver"
+        <receiver android:name=".common.push.receiver.MiMsgReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
@@ -235,12 +244,18 @@
             android:value="${HONOR_PUSH_APPID}" />
 
         <service
-            android:name=".common.service.HONORPushService"
+            android:name=".common.push.service.HONORPushService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.hihonor.push.action.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <!--如果您的应用targerSdkVersion大于等于30，需要在 AndroidManifest.xml 中添加标签，用于查找到对应的action。-->
+        <queries>
+            <intent>
+                <action android:name="com.hihonor.push.action.BIND_PUSH_SERVICE" />
+            </intent>
+        </queries>
 
         <!-- Hihonor推送配置 end -->
 

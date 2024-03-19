@@ -5,6 +5,7 @@ import android.util.Log
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoDataModel
 import com.hyphenate.chatdemo.common.extensions.internal.checkAppKey
+import com.hyphenate.chatdemo.common.push.PushManager
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatOptions
@@ -53,12 +54,22 @@ class DemoHelper private constructor(){
                 // debug mode, you'd better set it to false, if you want release your App officially.
                 ChatClient.getInstance().setDebugMode(true)
                 // Initialize push.
+                initPush()
                 // Set the UIKit options.
                 // Initialize the callkit module.
                 initCallKit()
             }
         }
     }
+
+    private fun initPush() {
+        PushManager.initPush(context)
+    }
+
+    /**
+     * Get the notifier.
+     */
+    fun getNotifier() = EaseIM.getNotifier()
 
     private fun initCallKit() {
         CallKitManager.init(context)

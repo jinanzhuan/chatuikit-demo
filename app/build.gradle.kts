@@ -4,7 +4,12 @@ import java.util.*
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    //id("com.google.gms.google-services")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
+    // Add the Huawei services Gradle plugin
+    id("com.huawei.agconnect")
+    // Add honor services Gradle plugin
+    id("com.hihonor.mcs.asplugin")
 }
 
 val properties = Properties()
@@ -61,8 +66,27 @@ android {
         ))
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file(properties.getProperty("DEBUG_STORE_FILE_PATH", "./keystore/sdkdemo.jks"))
+            storePassword = properties.getProperty("DEBUG_STORE_PASSWORD", "123456")
+            keyAlias = properties.getProperty("DEBUG_KEY_ALIAS", "easemob")
+            keyPassword = properties.getProperty("DEBUG_KEY_PASSWORD", "123456")
+        }
+        create("release") {
+            storeFile = file(properties.getProperty("RELEASE_STORE_FILE_PATH", "./keystore/sdkdemo.jks"))
+            storePassword = properties.getProperty("RELEASE_STORE_PASSWORD", "123456")
+            keyAlias = properties.getProperty("RELEASE_KEY_ALIAS", "easemob")
+            keyPassword = properties.getProperty("RELEASE_KEY_PASSWORD", "123456")
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -116,9 +140,9 @@ dependencies {
     // coroutines android library
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // hms push
-    implementation("com.huawei.hms:push:6.3.0.302")
+    implementation("com.huawei.hms:push:6.12.0.300")
     // hihonor push
-    implementation("com.hihonor.mcs:push:7.0.41.301")
+    implementation("com.hihonor.mcs:push:7.0.61.303")
     // meizu push
     implementation("com.meizu.flyme.internet:push-internal:4.0.4@aar")//配置集成sdk
     //oppo push
@@ -129,7 +153,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     // Google firebase cloud messaging
     // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:29.1.0"))
+    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
 
     // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies

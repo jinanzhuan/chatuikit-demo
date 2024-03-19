@@ -9,6 +9,22 @@ class DemoDataModel(private val context: Context) {
     }
 
     /**
+     * Set the flag whether to use google push.
+     * @param useFCM
+     */
+    fun setUseFCM(useFCM: Boolean) {
+        PreferenceManager.putValue(KEY_PUSH_USE_FCM, useFCM)
+    }
+
+    /**
+     * Get the flag whether to use google push.
+     * @return
+     */
+    fun isUseFCM(): Boolean {
+        return PreferenceManager.getValue(KEY_PUSH_USE_FCM, false)
+    }
+
+    /**
      * Set the developer mode.
      * @param isDeveloperMode The developer mode.
      */
@@ -143,6 +159,7 @@ class DemoDataModel(private val context: Context) {
         private const val KEY_IM_SERVER_PORT = "SHARED_KEY_IM_SERVER_PORT"
         private const val KEY_ENABLE_CUSTOM_SERVER = "SHARED_KEY_ENABLE_CUSTOM_SERVER"
         private const val KEY_ENABLE_CUSTOM_SET = "SHARED_KEY_ENABLE_CUSTOM_SET"
+        private const val KEY_PUSH_USE_FCM = "shared_key_push_use_fcm"
     }
 
 }
