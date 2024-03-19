@@ -1,5 +1,6 @@
 package com.hyphenate.chatdemo.callkit
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.text.SpannableStringBuilder
@@ -55,6 +56,7 @@ object CallKitManager {
     const val KEY_GROUPID = "groupId"
     const val EXTRA_CONFERENCE_GROUP_ID = "group_id"
     const val EXTRA_CONFERENCE_GROUP_EXIT_MEMBERS = "exist_members"
+    const val MSG_ATTR_CONF_ID = "conferenceId"
 
     /**
      * If multiple call, should set groupId.
@@ -131,7 +133,7 @@ object CallKitManager {
             callback: EaseCallKitTokenCallback?
         ) {
             SpannableStringBuilder(FETCH_TOKEN_URL).apply {
-                append("$channelName/$PARAM_USER/$userId")
+                append("/$channelName/$PARAM_USER/$userId")
                 getRtcToken(this.toString(), callback)
             }
         }
@@ -169,7 +171,8 @@ object CallKitManager {
             isEnableRTCToken = true
             EaseCallKit.getInstance().init(context, this)
         }
-        // Register the activities which you have registered in manifest
+        // Register the activityLifecycleCallbacks to monitor the activity lifecycle.
+        (context.applicationContext as Application).registerActivityLifecycleCallbacks(CallKitActivityLifecycleCallback())
         // Register the activities which you have registered in manifest
         EaseCallKit.getInstance().registerVideoCallClass(VideoCallActivity::class.java)
         EaseCallKit.getInstance().registerMultipleVideoClass(MultipleVideoActivity::class.java)
@@ -186,13 +189,15 @@ object CallKitManager {
                 menuId = R.id.chat_video_call_voice,
                 title = context.getString(R.string.voice_call),
                 resourceId = R.drawable.phone_pick,
-                titleColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary)
+                titleColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary),
+                resourceTintColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary)
             ),
             EaseMenuItem(
                 menuId = R.id.chat_video_call_video,
                 title = context.getString(R.string.video_call),
                 resourceId =  R.drawable.video_camera,
-                titleColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary)
+                titleColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary),
+                resourceTintColor = ContextCompat.getColor(context, com.hyphenate.easeui.R.color.ease_color_primary)
             ),
         )
         val dialog = SimpleListSheetDialog(
@@ -237,6 +242,7 @@ object CallKitManager {
     private fun getRtcToken(tokenUrl: String, callback: EaseCallKitTokenCallback?) {
         executeGetRequest(tokenUrl) {
             it?.let { response ->
+                ChatLog.d(TAG, "getRtcToken: url:$tokenUrl ${response.code}, ${response.content}")
                 if (response.code == 200) {
                     response.content?.let { body ->
                         try {
@@ -261,6 +267,7 @@ object CallKitManager {
     private fun getAllUsersByUid(url: String, callback: EaseGetUserAccountCallback?) {
         executeGetRequest(url) {
             it?.let { response ->
+                ChatLog.d(TAG, "getAllUsersByUid: url:$url ${response.code}, ${response.content}")
                 if (response.code == 200) {
                     response.content?.let { body ->
                         try {

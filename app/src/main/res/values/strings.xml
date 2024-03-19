@@ -114,5 +114,7 @@
     <string name="voice_call">Voice call</string>
     <string name="tips_select_contacts_first">Select a contact first</string>
     <string name="group_call_title">Select members</string>
+    <string name="demo_activity_label_video_call">video_call</string>
+    <string name="demo_activity_label_multi_call">multi_call</string>
 
 </resources>

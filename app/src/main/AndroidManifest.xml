@@ -2,16 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- App required start -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <!-- App required end -->
+
     <!-- IM SDK required start -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -20,14 +20,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!--Need to add after Android 12, apply for alarm clock timing permission -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <!-- 从扩展存储读取权限 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <!-- Android 13 用于替换 READ_EXTERNAL_STORAGE 权限 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
-    <!-- Android 14 用于申请部分权限 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
     <!-- IM SDK required end -->
 
     <!-- 魅族推送配置 start-->
@@ -56,6 +48,15 @@
         android:protectionLevel="signature" />
     <uses-permission android:name="${applicationId}.permission.MIPUSH_RECEIVE" />
     <!-- Mi推送配置 end -->
+
+    <!-- RTC start -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <!-- 对于 Android 12.0 及以上且集成 v4.1.0 以下 SDK 的设备，还需要添加以下权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <!-- 对于 Android 12.0 及以上设备，还需要添加以下权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <!-- RTC end -->
 
     <application
         android:allowBackup="true"
@@ -271,8 +272,16 @@
         <activity android:name="com.hyphenate.chatdemo.callkit.ConferenceInviteActivity"
             android:exported="false"/>
         <activity android:name="com.hyphenate.chatdemo.callkit.VideoCallActivity"
+            android:label="@string/demo_activity_label_video_call"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:excludeFromRecents="false"
+            android:launchMode="singleInstance"
             android:exported="false"/>
         <activity android:name="com.hyphenate.chatdemo.callkit.MultipleVideoActivity"
+            android:label="@string/demo_activity_label_multi_call"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:excludeFromRecents="false"
+            android:launchMode="singleInstance"
             android:exported="false"/>
     </application>
 

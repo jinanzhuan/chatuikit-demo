@@ -30,6 +30,8 @@ class ChatActivity: EaseChatActivity() {
                 mContext.showToast(R.string.message_forward_fail)
             }
         })
-        builder.setCustomFragment(ChatFragment()).setTargetTranslationList(mutableListOf("EN"))
+        builder.setCustomFragment(ChatFragment())
+            .setTargetTranslationList(mutableListOf("EN"))
+            .setCustomAdapter(CustomMessagesAdapter())
     }
 }

@@ -2,8 +2,13 @@ package com.hyphenate.chatdemo.callkit
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.base.BaseInitActivity
 import com.hyphenate.chatdemo.databinding.DemoActivityConferenceInviteBinding
@@ -19,7 +24,7 @@ class ConferenceInviteActivity: BaseInitActivity<DemoActivityConferenceInviteBin
     private var selectedMembers:MutableList<String> = mutableListOf()
 
     companion object {
-        private const val TAG = "ConferenceInviteActivity"
+        private const val TAG = "ConferenceInvite"
     }
 
     override fun getViewBinding(inflater: LayoutInflater): DemoActivityConferenceInviteBinding? {
@@ -57,17 +62,21 @@ class ConferenceInviteActivity: BaseInitActivity<DemoActivityConferenceInviteBin
         })
         supportFragmentManager.beginTransaction().replace(binding.flFragment.id, fragment).commit()
 
-        binding.titleBar.inflateMenu(R.menu.demo_conference_invite_menu)
         resetMenuInfo(existMembers.size)
     }
 
     private fun resetMenuInfo(size: Int) {
         binding.titleBar.getToolBar().menu.findItem(R.id.chat_menu_member_call).let {
             it.isEnabled = size - existMembers.size > 0
-            it.title = if (size > 0) {
-                getString(R.string.menu_member_call, size)
-            } else {
-                getString(R.string.menu_member_call, size)
+            it.title = getString(R.string.menu_member_call, size)
+            it.title?.let { title->
+                if (it.isEnabled) {
+                    SpannableStringBuilder(title).let { span ->
+                        span.setSpan(ForegroundColorSpan(ContextCompat.getColor(mContext, com.hyphenate.easeui.R.color.ease_color_primary))
+                            , 0, span.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        it.title = span
+                    }
+                }
             }
         }
     }
@@ -92,8 +101,21 @@ class ConferenceInviteActivity: BaseInitActivity<DemoActivityConferenceInviteBin
             }
         }
         binding.titleBar.setNavigationOnClickListener {
-            finish()
+            onBackPressed()
         }
+    }
+
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        super.onBackPressed()
+        EaseCallKit.getInstance().startInviteMultipleCall(null, null)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            EaseCallKit.getInstance().startInviteMultipleCall(null, null)
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
 }

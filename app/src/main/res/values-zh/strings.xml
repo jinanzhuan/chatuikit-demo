@@ -116,5 +116,7 @@
     <string name="voice_call">语音通话</string>
     <string name="tips_select_contacts_first">请先选择联系人</string>
     <string name="group_call_title">选择成员</string>
+    <string name="demo_activity_label_video_call">video_call</string>
+    <string name="demo_activity_label_multi_call">multi_call</string>
 
 </resources>
