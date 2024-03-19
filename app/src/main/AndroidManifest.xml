@@ -250,13 +250,6 @@
                 <action android:name="com.hihonor.push.action.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <!--如果您的应用targerSdkVersion大于等于30，需要在 AndroidManifest.xml 中添加标签，用于查找到对应的action。-->
-        <queries>
-            <intent>
-                <action android:name="com.hihonor.push.action.BIND_PUSH_SERVICE" />
-            </intent>
-        </queries>
-
         <!-- Hihonor推送配置 end -->
 
         <activity
