@@ -66,7 +66,6 @@
     <string name="em_main_title_friends">Contacts</string>
     <string name="em_main_title_me">Me</string>
 
-    <string name="menu_thread_topic">Thread</string>
     <string name="menu_voice_call">Voice Call</string>
     <string name="menu_video_call">Video Call</string>
     <string name="menu_member_call">Call(%1$d)</string>

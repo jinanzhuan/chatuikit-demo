@@ -1,6 +1,7 @@
 package com.hyphenate.chatdemo.ui.chat
 
 import android.os.Bundle
+import android.view.MenuItem
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.easeui.feature.chat.EaseChatFragment
@@ -12,26 +13,16 @@ class ChatFragment: EaseChatFragment() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         binding?.titleBar?.inflateMenu(R.menu.demo_chat_menu)
-        if (chatType == EaseChatType.SINGLE_CHAT){
-            binding?.titleBar?.setMenuIconVisible(R.id.chat_menu_thread,false)
-        }
-        setMenuListener()
     }
 
-    private fun setMenuListener() {
-        binding?.titleBar?.setOnMenuItemClickListener {
-            when(it.itemId) {
-                R.id.chat_menu_video_call -> {
-                    showVideoCall()
-                    true
-                }
-                R.id.chat_menu_thread -> {
-                    EaseChatThreadListActivity.actionStart(mContext,conversationId)
-                    true
-                }
-                else -> false
+    override fun setMenuItemClick(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.chat_menu_video_call -> {
+                showVideoCall()
+                return true
             }
         }
+        return super.setMenuItemClick(item)
     }
 
     private fun showVideoCall() {
@@ -44,6 +35,6 @@ class ChatFragment: EaseChatFragment() {
 
     override fun cancelMultipleSelectStyle() {
         super.cancelMultipleSelectStyle()
-        setMenuListener()
+        //setMenuListener()
     }
 }
