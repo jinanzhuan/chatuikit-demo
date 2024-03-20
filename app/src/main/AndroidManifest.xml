@@ -67,6 +67,14 @@
         tools:node="remove"/>
     <!-- Remove unused permission in remote library end -->
 
+    <!-- honor push required -->
+    <!-- 如果您的应用targerSdkVersion大于等于30，需要在 AndroidManifest.xml 中添加标签，用于查找到对应的action。 -->
+    <queries>
+        <intent>
+            <action android:name="com.hihonor.push.action.BIND_PUSH_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
