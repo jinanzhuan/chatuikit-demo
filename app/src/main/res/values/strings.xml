@@ -116,4 +116,8 @@
     <string name="demo_activity_label_video_call">video_call</string>
     <string name="demo_activity_label_multi_call">multi_call</string>
 
+    <!-- contact detail -->
+    <string name="detail_item_audio">Audio</string>
+    <string name="detail_item_video">Video</string>
+
 </resources>

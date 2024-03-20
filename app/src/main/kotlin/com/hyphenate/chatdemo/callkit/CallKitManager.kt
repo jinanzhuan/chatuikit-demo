@@ -219,22 +219,36 @@ object CallKitManager {
                 dialog.dismiss()
                 when(menu.menuId){
                     R.id.chat_video_call_voice -> {
-                        EaseCallKit.getInstance().startSingleCall(
-                            EaseCallType.SINGLE_VOICE_CALL, conversationId, null,
-                            VideoCallActivity::class.java
-                        )
+                        startSingleAudioCall(conversationId)
                     }
                     R.id.chat_video_call_video -> {
-                        EaseCallKit.getInstance().startSingleCall(
-                            EaseCallType.SINGLE_VIDEO_CALL, conversationId, null,
-                            VideoCallActivity::class.java
-                        )
+                        startSingleVideoCall(conversationId)
                     }
                     else -> {}
                 }
             }
         })
         context.supportFragmentManager.let { dialog?.show(it,"video_call_dialog") }
+    }
+
+    /**
+     * Start single audio call.
+     */
+    fun startSingleAudioCall(conversationId: String?) {
+        EaseCallKit.getInstance().startSingleCall(
+            EaseCallType.SINGLE_VOICE_CALL, conversationId, null,
+            VideoCallActivity::class.java
+        )
+    }
+
+    /**
+     * Start single video call.
+     */
+    fun startSingleVideoCall(conversationId: String?) {
+        EaseCallKit.getInstance().startSingleCall(
+            EaseCallType.SINGLE_VIDEO_CALL, conversationId, null,
+            VideoCallActivity::class.java
+        )
     }
 
     /**
@@ -260,14 +274,14 @@ object CallKitManager {
         }
     }
 
-    fun startVideoCallActivity(context: Context) {
+    private fun startVideoCallActivity(context: Context) {
         Intent(context, VideoCallActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(this)
         }
     }
 
-    fun startMultipleVideoActivity(context: Context) {
+    private fun startMultipleVideoActivity(context: Context) {
         Intent(context, MultipleVideoActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(this)

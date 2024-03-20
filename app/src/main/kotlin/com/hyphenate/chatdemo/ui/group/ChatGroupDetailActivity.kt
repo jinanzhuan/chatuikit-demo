@@ -1,38 +1,39 @@
 package com.hyphenate.chatdemo.ui.group
 
-import com.hyphenate.easeui.R
-import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
-import com.hyphenate.easeui.feature.chat.enums.EaseChatType
+import androidx.core.content.ContextCompat
+import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
-import com.hyphenate.easeui.feature.search.EaseSearchActivity
-import com.hyphenate.easeui.feature.search.EaseSearchType
 import com.hyphenate.easeui.model.EaseMenuItem
 
 class ChatGroupDetailActivity :EaseGroupDetailActivity(){
 
+    override fun getDetailItem(): MutableList<EaseMenuItem>? {
+        val list = super.getDetailItem()
+        val videoItem = EaseMenuItem(
+            title = getString(R.string.menu_video_call),
+            resourceId = R.drawable.video_call,
+            menuId = R.id.group_item_video_call,
+            titleColor = ContextCompat.getColor(this, com.hyphenate.easeui.R.color.ease_color_primary),
+            order = 2,
+            resourceTintColor = ContextCompat.getColor(this, com.hyphenate.easeui.R.color.ease_color_primary)
+        )
+        list?.add(videoItem)
+        return list
+    }
+
     override fun onMenuItemClick(item: EaseMenuItem?, position: Int): Boolean {
         item?.let {menu->
-            when(menu.menuId){
-                R.id.extend_item_message -> {
-                    groupId?.let {
-                        EaseChatActivity.actionStart(mContext, it, EaseChatType.GROUP_CHAT)
-                    }
+            return when(menu.menuId){
+                R.id.group_item_video_call -> {
+                    CallKitManager.startConferenceCall(this, groupId)
+                    true
                 }
-                R.id.extend_item_audio_call -> {
 
+                else -> {
+                    super.onMenuItemClick(item, position)
                 }
-                R.id.extend_item_video_call -> {
-
-                }
-                R.id.extend_item_search -> {
-                    mContext.startActivity(EaseSearchActivity.createIntent(
-                            mContext, EaseSearchType.MESSAGE, groupId
-                        )
-                    )
-                }
-                else -> {}
             }
-            return true
         }
         return false
     }
