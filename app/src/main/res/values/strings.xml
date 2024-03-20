@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ChatUIKit</string>
+    <string name="app_name">Easemob</string>
 
     <string name="em_conversation_menu_video">Voice and video conference</string>
     <string name="em_conversation_menu_group">Create group</string>

@@ -148,7 +148,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                     ChatLog.e("logout", "logout failed: ${e.description}")
                 }
                 .collect {
-                    DemoApplication.getInstance().getLifecycleCallbacks()?.skipToTarget(
+                    DemoApplication.getInstance().getLifecycleCallbacks().skipToTarget(
                         LoginActivity::class.java)
                 }
         }
