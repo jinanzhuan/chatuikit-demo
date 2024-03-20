@@ -103,6 +103,16 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
                 mainViewModel.getRequestUnreadCount()
             }
         }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD.name).register(this) {
+            if (it.isNotifyChange) {
+                mainViewModel.getRequestUnreadCount()
+            }
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD + EaseEvent.TYPE.CONVERSATION).register(this) {
+            if (it.isConversationChange) {
+                mainViewModel.getUnreadMessageCount()
+            }
+        }
     }
 
     private fun switchToHome() {

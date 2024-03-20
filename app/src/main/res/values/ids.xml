@@ -20,4 +20,12 @@
     <item name="about_information_camera" type="id"/>
     <item name="about_information_picture" type="id"/>
 
+    <!-- detail menu id -->
+    <!-- audio -->
+    <item name="contact_item_audio_call" type="id"/>
+    <!-- video -->
+    <item name="contact_item_video_call" type="id"/>
+    <!-- conference -->
+    <item name="group_item_video_call" type="id"/>
+
 </resources>

@@ -1,11 +1,19 @@
 package com.hyphenate.chatdemo.common
 
 import android.content.Context
+import com.hyphenate.easeui.model.EaseUser
 
 class DemoDataModel(private val context: Context) {
 
     init {
         PreferenceManager.init(context)
+    }
+
+    /**
+     * Get user by userId from local db.
+     */
+    fun getUser(userId: String?): EaseUser? {
+        return null
     }
 
     /**
