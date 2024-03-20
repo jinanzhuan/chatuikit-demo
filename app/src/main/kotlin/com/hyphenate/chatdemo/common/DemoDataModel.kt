@@ -157,6 +157,20 @@ class DemoDataModel(private val context: Context) {
         return PreferenceManager.getValue(KEY_IM_SERVER_PORT, 0)
     }
 
+    /**
+     * Set the silent mode for the App.
+     */
+    fun setAppPushSilent(isSilent: Boolean) {
+        PreferenceManager.putValue(KEY_PUSH_APP_SILENT_MODEL, isSilent)
+    }
+
+    /**
+     * Get the silent mode for the App.
+     */
+    fun isAppPushSilent(): Boolean {
+        return PreferenceManager.getValue(KEY_PUSH_APP_SILENT_MODEL, false)
+    }
+
 
     companion object {
         private const val KEY_DEVELOPER_MODE = "shared_is_developer"
@@ -168,6 +182,7 @@ class DemoDataModel(private val context: Context) {
         private const val KEY_ENABLE_CUSTOM_SERVER = "SHARED_KEY_ENABLE_CUSTOM_SERVER"
         private const val KEY_ENABLE_CUSTOM_SET = "SHARED_KEY_ENABLE_CUSTOM_SET"
         private const val KEY_PUSH_USE_FCM = "shared_key_push_use_fcm"
+        private const val KEY_PUSH_APP_SILENT_MODEL = "key_push_app_silent_model"
     }
 
 }

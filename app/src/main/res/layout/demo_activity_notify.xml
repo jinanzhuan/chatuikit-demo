@@ -21,6 +21,7 @@
         android:id="@+id/switch_item_notify"
         app:switchItemTitle="@string/main_about_me_notify_title"
         style="@style/ease_contact_detail_switch_item"
+        app:switchItemClickable="false"
         android:layout_width="match_parent"
         android:layout_height="54dp" />
 
