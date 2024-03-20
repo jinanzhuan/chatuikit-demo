@@ -3,7 +3,6 @@ package com.hyphenate.chatdemo
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -258,7 +257,6 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
     }
 
     override fun getRequestUnreadCountSuccess(count: String?) {
-        Log.e("apex","getRequestUnreadCountSuccess $count")
         if (count.isNullOrEmpty()) {
             badgeMap[1]?.text = ""
             badgeMap[1]?.visibility = View.GONE

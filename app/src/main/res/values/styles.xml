@@ -114,4 +114,43 @@
         <item name="android:textColor">@color/ease_contact_arrow_item_content_color</item>
     </style>
 
+    <style name="main_about_me_feature_text_describe">
+        <item name="android:background">@color/ease_color_spacing_view</item>
+        <item name="android:textColor">@color/ease_color_text_secondary_high</item>
+        <item name="android:paddingStart">@dimen/ease_size_16</item>
+        <item name="android:paddingEnd">@dimen/ease_size_16</item>
+        <item name="android:paddingTop">@dimen/ease_size_4</item>
+        <item name="android:paddingBottom">@dimen/ease_size_4</item>
+    </style>
+
+    <style name="main_about_me_about_subtitle">
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Label.Medium</item>
+        <item name="android:textColor">@color/ease_details_subtitle2_color</item>
+    </style>
+
+    <style name="about_logo">
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Title.Medium</item>
+        <item name="android:textColor">@color/ease_color_on_background_low</item>
+    </style>
+
+    <style name="about_version">
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Label.Medium</item>
+        <item name="android:textColor">@color/ease_color_text_secondary_high</item>
+    </style>
+
+    <style name="about_uikit_version">
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Label.Medium</item>
+        <item name="android:textColor">@color/ease_color_text_secondary_high</item>
+    </style>
+
+    <style name="contact_detail_arrow_item">
+        <item name="background">@color/ease_color_background</item>
+        <item name="arrowItemTitleSize">16sp</item>
+        <item name="arrowItemTitleStyle">bold</item>
+        <item name="arrowItemTitleColor">@color/ease_contact_arrow_item_title_color</item>
+        <item name="arrowItemShowArrow">true</item>
+        <item name="arrowItemShowDivider">true</item>
+        <item name="arrowItemContentColor">@color/ease_contact_arrow_item_content_color</item>
+    </style>
+
 </resources>

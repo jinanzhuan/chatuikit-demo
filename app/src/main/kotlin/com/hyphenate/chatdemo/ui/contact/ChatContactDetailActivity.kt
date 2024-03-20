@@ -1,12 +1,27 @@
 package com.hyphenate.chatdemo.ui.contact
 
-import androidx.core.content.ContextCompat
 import com.hyphenate.chatdemo.R
+import androidx.core.content.ContextCompat
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseMenuItem
+import com.hyphenate.easeui.widget.EaseArrowItemView
+
 
 class ChatContactDetailActivity:EaseContactDetailsActivity() {
+
+    private val remarkItem: EaseArrowItemView by lazy { findViewById(R.id.item_remark) }
+
+    override fun initView() {
+        super.initView()
+    }
+
+    override fun initListener() {
+        super.initListener()
+        remarkItem.setOnClickListener{
+
+        }
+    }
 
     override fun getDetailItem(): MutableList<EaseMenuItem>? {
         val list = super.getDetailItem()

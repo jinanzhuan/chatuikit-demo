@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chatdemo.DemoApplication
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoFragmentAboutMeBinding
+import com.hyphenate.chatdemo.ui.me.AboutActivity
+import com.hyphenate.chatdemo.ui.me.CurrencyActivity
+import com.hyphenate.chatdemo.ui.me.NotifyActivity
 import com.hyphenate.chatdemo.ui.me.UserInformationActivity
 import com.hyphenate.chatdemo.viewmodel.LoginViewModel
 import com.hyphenate.easeui.EaseIM
@@ -21,6 +26,7 @@ import com.hyphenate.easeui.base.EaseBaseFragment
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatPresence
+import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.dialog.CustomDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
@@ -95,6 +101,11 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                 updatePresence()
             }
         }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT).register(this) {
+            if (it.isContactChange && it.event == DemoConstant.EVENT_UPDATE_SELF) {
+                updatePresence()
+            }
+        }
     }
 
     private fun initPresence(){
@@ -128,6 +139,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                 binding?.epPresence?.setPresenceData(user,it)
                 val subtitle = EasePresenceUtil.getPresenceString(mContext,it)
                 binding?.itemPresence?.setContent(subtitle)
+                binding?.tvName?.text = user.name ?: user.id
             }
         }
     }
@@ -171,16 +183,16 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                 startActivity(Intent(mContext, UserInformationActivity::class.java))
             }
             R.id.item_currency -> {
-
+                startActivity(Intent(mContext, CurrencyActivity::class.java))
             }
             R.id.item_notify -> {
-
+                startActivity(Intent(mContext, NotifyActivity::class.java))
             }
             R.id.item_privacy -> {
 
             }
             R.id.item_about -> {
-
+                startActivity(Intent(mContext, AboutActivity::class.java))
             }
             R.id.about_me_logout -> {
                 showLogoutDialog()

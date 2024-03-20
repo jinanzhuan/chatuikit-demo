@@ -15,17 +15,24 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityMeInformationBinding
+import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatImageUtils
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatPathUtils
+import com.hyphenate.easeui.common.EaseConstant
+import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.dialog.CustomDialog
 import com.hyphenate.easeui.common.dialog.SimpleListSheetDialog
+import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
 import com.hyphenate.easeui.common.extensions.isSdcardExist
 import com.hyphenate.easeui.common.permission.PermissionCompat
@@ -33,8 +40,12 @@ import com.hyphenate.easeui.common.utils.EaseCompat
 import com.hyphenate.easeui.common.utils.EaseFileUtils
 import com.hyphenate.easeui.configs.setAvatarStyle
 import com.hyphenate.easeui.interfaces.SimpleListSheetItemClickListener
+import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.model.EaseProfile
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -45,7 +56,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     private var selfProfile:EaseProfile? = null
     private var showSelectDialog:SimpleListSheetDialog? = null
     private var imageUri:Uri?= null
-    private var editImageUri:Uri?= null
+    private lateinit var model: ProfileInfoViewModel
 
     override fun getViewBinding(inflater: LayoutInflater): DemoActivityMeInformationBinding? {
         return DemoActivityMeInformationBinding.inflate(inflater)
@@ -111,6 +122,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         super.onCreate(savedInstanceState)
         initView()
         initListener()
+        initData()
     }
 
     private fun initView(){
@@ -119,6 +131,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             ivAvatar.setRadius(8.dpToPx(this@UserInformationActivity))
             ivAvatar.scaleType = ImageView.ScaleType.CENTER_CROP
         }
+        updateLocalData()
     }
 
     private fun initListener(){
@@ -129,6 +142,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         }
     }
 
+    private fun initData(){
+        model = ViewModelProvider(this)[ProfileInfoViewModel::class.java]
+    }
 
     private fun updateLocalData(){
         binding.run {
@@ -241,11 +257,14 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     }
 
     private fun onActivityResultForCamera(data: Intent?) {
-        if (cameraFile != null && cameraFile!!.exists()) {
-            var uri = Uri.parse(cameraFile!!.absolutePath)
-            // Check if the image is rotated and restore it
-            uri = ChatImageUtils.checkDegreeAndRestoreImage(mContext, uri)
-            //todo 上传图片
+        cameraFile?.let {
+            if (it.exists()){
+                var uri = Uri.parse(it.absolutePath)
+//                Check if the image is rotated and restore it
+                uri = ChatImageUtils.checkDegreeAndRestoreImage(mContext, uri)
+                imageUri = uri
+                uploadFile(it.absolutePath)
+            }
         }
     }
 
@@ -253,13 +272,16 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         if (data != null) {
             val selectedImage = data.data
             if (selectedImage != null) {
-                val filePath: String = EaseFileUtils.getFilePath(mContext, selectedImage)
+                var filePath: String = EaseFileUtils.getFilePath(mContext, selectedImage)
                 if (!TextUtils.isEmpty(filePath) && File(filePath).exists()) {
                     imageUri = Uri.parse(filePath)
                 } else {
                     imageUri = selectedImage
+                    selectedImage.path?.let {
+                        filePath = it
+                    }
                 }
-                showEditImageDialog(imageUri)
+                showEditImageDialog(selectedImage)
             }
         }
     }
@@ -270,12 +292,12 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             selectedImage?.let {
                 val filePath: String = EaseFileUtils.getFilePath(mContext, selectedImage)
                 if (!TextUtils.isEmpty(filePath) && File(filePath).exists()) {
-                    editImageUri = Uri.parse(filePath)
+                    imageUri = Uri.parse(filePath)
+                    uploadFile(filePath)
                 }else{
-                    editImageUri = selectedImage
+                    imageUri = selectedImage
+                    uploadFile(selectedImage)
                 }
-                // todo 上传图片
-                binding.ivAvatar.setImageURI(selectedImage)
             }
         }
     }
@@ -312,7 +334,6 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     }
 
     private fun openImageEditor(uri: Uri?) {
-        Log.e("apex","openImageEditor $uri")
         uri?.let {
             val intent = Intent(Intent.ACTION_EDIT).apply {
                 setDataAndType(uri, "image/*")
@@ -323,14 +344,15 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         }
     }
 
-    private fun showEditImageDialog(imageUri:Uri?){
+    private fun showEditImageDialog(fileUri: Uri?){
         val editDialog = CustomDialog(
             context = mContext,
             title = resources.getString(R.string.main_about_me_information_edit_picture),
             isEditTextMode = false,
             onLeftButtonClickListener = {
-                binding.ivAvatar.setImageURI(imageUri)
-                //todo 上传图片
+                fileUri?.let {
+                    uploadFile(it)
+                }
             },
             onRightButtonClickListener = {
                 if (PermissionCompat.checkPermission(
@@ -351,9 +373,45 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         selfProfile?.avatar = url
         selfProfile?.let {
             EaseIM.updateCurrentUser(it)
+            EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+                .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
         }
     }
 
+    private fun uploadFile(filePath:String?){
+        val scaledImage = ChatImageUtils.getScaledImage(this,filePath)
+        lifecycleScope.launch {
+            model.uploadAvatar(scaledImage)
+                .catchChatException { e ->
+                    ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                }
+                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+                .collect {
+                    it?.let {
+                        binding.ivAvatar.setImageURI(imageUri)
+                        updateUserAvatar(it)
+                    }
+                }
+        }
+    }
+
+    private fun uploadFile(fileUri:Uri?){
+        val scaledImageUri = ChatImageUtils.getScaledImage(this,fileUri)
+        lifecycleScope.launch {
+            val fileUrl = EaseCompat.getPath(this@UserInformationActivity,scaledImageUri)
+            model.uploadAvatar(fileUrl)
+                .catchChatException { e ->
+                    ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                }
+                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+                .collect {
+                    it?.let {
+                        binding.ivAvatar.setImageURI(imageUri)
+                        updateUserAvatar(it)
+                    }
+                }
+        }
+    }
 
     override fun onClick(v: View?) {
        when(v?.id){
@@ -366,4 +424,19 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
            else -> {}
        }
     }
+
+//    private fun getGroupAvatar(groupId:String){
+//        lifecycleScope.launch {
+//            model.getGroupAvatar(groupId)
+//                .catchChatException { e ->
+//                    ChatLog.e("TAG", "getGroupAvatar fail error message = " + e.description)
+//                }
+//                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+//                .collect {
+//                    it?.let {
+//                       Log.e("apex","getGroupAvatar $it")
+//                    }
+//                }
+//        }
+//    }
 }
