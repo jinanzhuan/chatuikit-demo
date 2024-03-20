@@ -4,10 +4,10 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -396,20 +396,22 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     }
 
     private fun uploadFile(fileUri:Uri?){
-        val scaledImageUri = ChatImageUtils.getScaledImage(this,fileUri)
-        lifecycleScope.launch {
-            val fileUrl = EaseCompat.getPath(this@UserInformationActivity,scaledImageUri)
-            model.uploadAvatar(fileUrl)
-                .catchChatException { e ->
-                    ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
-                }
-                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
-                .collect {
-                    it?.let {
-                        binding.ivAvatar.setImageURI(imageUri)
-                        updateUserAvatar(it)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            val scaledImageUri =  ChatImageUtils.getScaledImage(this,fileUri)
+            lifecycleScope.launch {
+                val fileUrl = EaseCompat.getPath(this@UserInformationActivity,scaledImageUri)
+                model.uploadAvatar(fileUrl)
+                    .catchChatException { e ->
+                        ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
                     }
-                }
+                    .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+                    .collect {
+                        it?.let {
+                            binding.ivAvatar.setImageURI(imageUri)
+                            updateUserAvatar(it)
+                        }
+                    }
+            }
         }
     }
 
@@ -425,18 +427,4 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
        }
     }
 
-//    private fun getGroupAvatar(groupId:String){
-//        lifecycleScope.launch {
-//            model.getGroupAvatar(groupId)
-//                .catchChatException { e ->
-//                    ChatLog.e("TAG", "getGroupAvatar fail error message = " + e.description)
-//                }
-//                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
-//                .collect {
-//                    it?.let {
-//                       Log.e("apex","getGroupAvatar $it")
-//                    }
-//                }
-//        }
-//    }
 }

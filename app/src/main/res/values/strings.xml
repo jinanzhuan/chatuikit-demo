@@ -110,6 +110,8 @@
     <string name="currency_feature_reaction_describe">通过长按为消息添加表情回应</string>
 
     <string name="demo_contact_remark">Remark</string>
+    <string name="demo_contact_edit_remark">修改备注</string>
+    <string name="demo_contact_remark_count">%1$d/128</string>
 
     <string name="main_about_me_currency_language">语言设置</string>
     <string name="currency_language_zh_cn">Simplified Chinese</string>

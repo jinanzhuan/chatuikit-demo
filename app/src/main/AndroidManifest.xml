@@ -321,6 +321,8 @@
             android:exported="false"/>
         <activity android:name=".ui.me.WebViewActivity"
             android:exported="false"/>
+        <activity android:name=".ui.contact.ChatContactRemarkActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>

@@ -17,8 +17,8 @@ import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseProfile
 
-class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBinding>() {
-    private var selfProfile:EaseProfile? = null
+open class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBinding>() {
+    var selfProfile:EaseProfile? = null
     private var newName:String = ""
 
     companion object{
@@ -32,6 +32,11 @@ class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBin
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         selfProfile = EaseIM.getCurrentUser()
+        initTitle()
+        initListener()
+    }
+
+    open fun initTitle(){
         binding.run {
             titleBar.setTitle(getString(R.string.main_about_me_information_edit_nick_name))
             selfProfile?.let {
@@ -41,11 +46,9 @@ class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBin
         binding.inputNameCount.text = resources.getString(
             R.string.main_about_me_information_change_name_count
             ,selfProfile?.name?.length ?: 0)
-
-        initListener()
     }
 
-    private fun initListener(){
+    open fun initListener(){
         binding.titleBar.setNavigationOnClickListener { mContext.onBackPressed() }
         binding.etName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -81,7 +84,7 @@ class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBin
         }
     }
 
-    private fun updateSaveView(length: Int){
+    open fun updateSaveView(length: Int){
         binding.titleBar.setMenuTitleColor(
             ContextCompat.getColor(mContext,
             if (length != 0) com.hyphenate.easeui.R.color.ease_color_primary
