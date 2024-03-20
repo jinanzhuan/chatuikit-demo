@@ -2,15 +2,28 @@ package com.hyphenate.chatdemo.ui.me
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityNotifyBinding
+import com.hyphenate.chatdemo.viewmodel.PushViewModel
 import com.hyphenate.easeui.base.EaseBaseActivity
+import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.ChatPushRemindType
+import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.helper.EasePreferenceManager
 import com.hyphenate.easeui.widget.EaseSwitchItemView
+import com.xiaomi.push.it
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
-class NotifyActivity:EaseBaseActivity<DemoActivityNotifyBinding>(),
-    EaseSwitchItemView.OnCheckedChangeListener {
+class NotifyActivity:EaseBaseActivity<DemoActivityNotifyBinding>() {
+
+    private  var pushViewModel: PushViewModel? = null
+
     override fun getViewBinding(inflater: LayoutInflater): DemoActivityNotifyBinding? {
         return DemoActivityNotifyBinding.inflate(inflater)
     }
@@ -19,6 +32,30 @@ class NotifyActivity:EaseBaseActivity<DemoActivityNotifyBinding>(),
         super.onCreate(savedInstanceState)
         initView()
         initListener()
+        initData()
+    }
+
+    private fun initData() {
+        pushViewModel = ViewModelProvider(this)[PushViewModel::class.java]
+        pushViewModel?.let {
+            lifecycleScope.launch {
+                it.getSilentModeForApp()
+                    .catchChatException {
+                        ChatLog.e("notify", "initData: ${it.description}")
+                    }
+                    .collect {
+                        it.remindType?.let { remindType ->
+                            if (remindType == ChatPushRemindType.NONE) {
+                                DemoHelper.getInstance().getDataModel().setAppPushSilent(true)
+                                binding.switchItemNotify.setChecked(true)
+                            } else {
+                                DemoHelper.getInstance().getDataModel().setAppPushSilent(false)
+                                binding.switchItemNotify.setChecked(false)
+                            }
+                        }
+                    }
+            }
+        }
     }
 
     private fun initView(){
@@ -26,12 +63,6 @@ class NotifyActivity:EaseBaseActivity<DemoActivityNotifyBinding>(),
     }
 
     private fun initSwitch(){
-        val isDisturbance = EasePreferenceManager.getInstance().getBoolean(DemoConstant.MSG_NO_DISTURBANCE)
-        if (isDisturbance){
-            binding.switchItemNotify.setChecked(true)
-        }else{
-            binding.switchItemNotify.setChecked(false)
-        }
         binding.switchItemNotify.setSwitchTarckDrawable(com.hyphenate.easeui.R.drawable.ease_switch_track_selector)
         binding.switchItemNotify.setSwitchThumbDrawable(com.hyphenate.easeui.R.drawable.ease_switch_thumb_selector)
     }
@@ -41,16 +72,44 @@ class NotifyActivity:EaseBaseActivity<DemoActivityNotifyBinding>(),
             it.titleBar.setNavigationOnClickListener{
                 mContext.onBackPressed()
             }
-            it.switchItemNotify.setOnCheckedChangeListener(this)
+            it.switchItemNotify.setOnClickListener {
+                binding.switchItemNotify.switch?.let { switch ->
+                    val isChecked = switch.isChecked
+                    changeAppSilentModel(isChecked.not())
+                }
+            }
         }
     }
 
-    override fun onCheckedChanged(buttonView: EaseSwitchItemView?, isChecked: Boolean) {
-        when(buttonView?.id){
-            R.id.switch_item_notify ->{
-                EasePreferenceManager.getInstance().putBoolean(DemoConstant.MSG_NO_DISTURBANCE,isChecked)
+    private fun changeAppSilentModel(checked: Boolean) {
+        lifecycleScope.launch {
+            if (checked) {
+                pushViewModel?.let {
+                    it.setSilentModeForApp()
+                        .onStart { showLoading(true) }
+                        .onCompletion { dismissLoading() }
+                        .catchChatException {
+                            ChatLog.e("notify", "changeAppSilentModel: ${it.description}")
+                        }
+                        .collect {
+                            DemoHelper.getInstance().getDataModel().setAppPushSilent(true)
+                            binding.switchItemNotify.setChecked(true)
+                        }
+                }
+            } else {
+                pushViewModel?.let {
+                    it.clearSilentModeForApp()
+                        .onStart { showLoading(true) }
+                        .onCompletion { dismissLoading() }
+                        .catchChatException {
+                            ChatLog.e("notify", "changeAppSilentModel: ${it.description}")
+                        }
+                        .collect {
+                            DemoHelper.getInstance().getDataModel().setAppPushSilent(false)
+                            binding.switchItemNotify.setChecked(false)
+                        }
+                }
             }
-            else -> {}
         }
     }
 }
