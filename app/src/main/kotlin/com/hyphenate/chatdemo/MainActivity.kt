@@ -3,7 +3,6 @@ package com.hyphenate.chatdemo
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -100,13 +99,6 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
             mainViewModel.getUnreadMessageCount()
         }
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).register(this) {
-            Log.e("apex","EaseEvent.EVENT.UPDATE.name ${it.isNotifyChange} ")
-            if (it.isNotifyChange) {
-                mainViewModel.getRequestUnreadCount()
-            }
-        }
-        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD.name).register(this) {
-            Log.e("apex","EaseEvent.EVENT.ADD.name ${it.isNotifyChange}  ")
             if (it.isNotifyChange) {
                 mainViewModel.getRequestUnreadCount()
             }
@@ -255,7 +247,6 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
     }
 
     override fun getRequestUnreadCountSuccess(count: String?) {
-        Log.e("apex","getRequestUnreadCountSuccess $count")
         if (count.isNullOrEmpty()) {
             badgeMap[1]?.text = ""
             badgeMap[1]?.visibility = View.GONE

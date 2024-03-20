@@ -2,8 +2,11 @@ package com.hyphenate.chatdemo
 
 import android.app.Application
 import android.content.Intent
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.hyphenate.chatdemo.base.UserActivityLifecycleCallbacks
+import com.hyphenate.chatdemo.common.DemoConstant
+import com.hyphenate.chatdemo.common.LanguageUtil
 import com.hyphenate.chatdemo.ui.chat.ChatActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
 import com.hyphenate.chatdemo.ui.group.ChatGroupDetailActivity
@@ -85,8 +88,13 @@ class DemoApplication: Application() {
         })
 
         // Call this method after EaseIM#init
-        val isBlack = EasePreferenceManager.getInstance().getBoolean("isBlack")
+        val isBlack = EasePreferenceManager.getInstance().getBoolean(DemoConstant.IS_BLACK_THEME)
         AppCompatDelegate.setDefaultNightMode(if (isBlack) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+        val targetLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
+        targetLanguage?.let {
+            Log.e("apex","targetLanguage $it")
+            LanguageUtil.changeLanguage(applicationContext,it)
+        }
     }
 
     private fun initSDK() {

@@ -8,9 +8,11 @@ import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityMeInformationEditBinding
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
+import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseProfile
@@ -96,8 +98,8 @@ class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBin
             resultIntent.putExtra(RESULT_REFRESH, true)
             setResult(RESULT_OK,resultIntent)
 
-            EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).post(lifecycleScope,
-                EaseEvent(EaseEvent.EVENT.UPDATE.name, EaseEvent.TYPE.CONTACT))
+            EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+                .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
 
         }
         finish()

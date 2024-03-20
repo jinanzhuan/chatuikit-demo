@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">ChatUIKit</string>
 
     <string name="em_conversation_menu_video">Voice and video conference</string>
@@ -90,16 +90,8 @@
 
 
     <string name="main_about_me_presence">在线状态</string>
-    <string name="main_about_me_information">个人信息</string>
-    <string name="main_about_me_currency">通用</string>
-    <string name="main_about_me_notify">消息通知</string>
-    <string name="main_about_me_privacy">隐私</string>
-    <string name="main_about_me_about">关于</string>
-    <string name="main_about_me_login">登录</string>
-    <string name="main_about_me_setting">设置</string>
-    <string name="main_about_me_logout">退出登录</string>
-    <string name="main_about_me_id">环信ID:%1$s</string>
 
+    <string name="main_about_me_information">个人信息</string>
     <string name="main_about_me_information_avatar">头像</string>
     <string name="main_about_me_information_nick_name">昵称</string>
     <string name="main_about_me_information_camera">拍照</string>
@@ -107,6 +99,50 @@
     <string name="main_about_me_information_edit_picture">是否需要编辑图片?</string>
     <string name="main_about_me_information_edit_nick_name">修改昵称</string>
     <string name="main_about_me_information_change_name_count">%1$d/32</string>
+
+    <string name="main_about_me_currency">通用</string>
+    <string name="main_about_me_currency_dark_model">暗黑模式</string>
+    <string name="main_about_me_currency_feature">特性开关</string>
+    <string name="currency_feature_translation">消息翻译</string>
+    <string name="currency_feature_translation_describe">通过长按将消息翻译为系统语言</string>
+    <string name="currency_feature_topic">群组话题</string>
+    <string name="currency_feature_topic_describe">通过群组内的一条消息创建一个话题</string>
+    <string name="currency_feature_reaction">消息表情回应</string>
+    <string name="currency_feature_reaction_describe">通过长按为消息添加表情回应</string>
+
+    <string name="demo_contact_remark">备注</string>
+
+    <string name="main_about_me_currency_language">语言设置</string>
+    <string name="currency_language_zh_cn">简体中文</string>
+    <string name="currency_language_en">英文</string>
+    <string name="main_about_me_currency_language_confirm">确认</string>
+
+    <string name="main_about_me_notify">消息通知</string>
+    <string name="main_about_me_notify_title">消息离线推送</string>
+    <string name="main_about_me_notify_describe">关闭后，除非被@，否则将收不到任何消息推送与提示</string>
+
+    <string name="main_about_me_privacy">隐私</string>
+
+    <string name="main_about_me_about">关于</string>
+    <string name="about_logo">环信 IM</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_uikit_version">Uikit Version %1$s</string>
+    <string name="about_official_website">访问官网</string>
+    <string name="about_official_website_url">https://www.easemob.com/</string>
+    <string name="about_official_website_title" tools:ignore="ExtraTranslation">环信 - 中国IM即时通讯服务开创者</string>
+    <string name="about_service_hotline">服务热线</string>
+    <string name="about_service_hotline_tl" tools:ignore="TypographyDashes">400–622-1776</string>
+    <string name="about_business_cooperation">商务合作</string>
+    <string name="about_business_cooperation_email">bd@easemob.com</string>
+    <string name="about_channel_cooperation">渠道合作</string>
+    <string name="about_channel_cooperation_email">qudao@easemob.com</string>
+    <string name="about_complaint_suggestions">投诉建议</string>
+    <string name="about_complaint_suggestions_email">issues@easemob.com</string>
+
+    <string name="main_about_me_login">登录</string>
+    <string name="main_about_me_setting">设置</string>
+    <string name="main_about_me_logout">退出登录</string>
+    <string name="main_about_me_id">环信ID:%1$s</string>
 
 
     <!-- callkit -->

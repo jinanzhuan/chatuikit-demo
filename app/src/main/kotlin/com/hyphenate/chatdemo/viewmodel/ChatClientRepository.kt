@@ -16,7 +16,10 @@ class ChatManagerRepository: BaseRepository() {
      */
     suspend fun getAllUnreadMessageCount(): Int =
         withContext(Dispatchers.IO) {
-            ChatClient.getInstance().chatManager().unreadMessageCount
+            val systemConversation = EaseNotificationMsgManager.getInstance().getConversation()
+            val systemUnread = systemConversation.unreadMsgCount
+            val allUnread = ChatClient.getInstance().chatManager().unreadMessageCount
+            allUnread - systemUnread
         }
 
     /**
