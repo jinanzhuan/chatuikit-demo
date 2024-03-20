@@ -100,15 +100,18 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
             mainViewModel.getUnreadMessageCount()
         }
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).register(this) {
-            Log.e("apex","EaseEvent.EVENT.UPDATE.name ${it.isNotifyChange} ")
             if (it.isNotifyChange) {
                 mainViewModel.getRequestUnreadCount()
             }
         }
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD.name).register(this) {
-            Log.e("apex","EaseEvent.EVENT.ADD.name ${it.isNotifyChange}  ")
             if (it.isNotifyChange) {
                 mainViewModel.getRequestUnreadCount()
+            }
+        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD + EaseEvent.TYPE.CONVERSATION).register(this) {
+            if (it.isConversationChange) {
+                mainViewModel.getUnreadMessageCount()
             }
         }
     }
