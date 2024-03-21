@@ -4,9 +4,18 @@ import com.hyphenate.chatdemo.DemoApplication
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.login.LoginActivity
 import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatConnectionListener
+import com.hyphenate.easeui.common.ChatGroup
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatMessageListener
+import com.hyphenate.easeui.common.bus.EaseFlowBus
+import com.hyphenate.easeui.common.extensions.ioScope
+import com.hyphenate.easeui.common.impl.ValueCallbackImpl
+import com.hyphenate.easeui.model.EaseEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object ListenersWrapper {
 
@@ -14,6 +23,19 @@ object ListenersWrapper {
         object : ChatConnectionListener {
             override fun onConnected() {
                 // do something
+                CoroutineScope(Dispatchers.IO).launch {
+                    val groups = ChatClient.getInstance().groupManager().allGroups
+                    if (groups.isEmpty()) {
+                        ChatClient.getInstance().groupManager().asyncGetJoinedGroupsFromServer(ValueCallbackImpl<List<ChatGroup>>(onSuccess = {
+                            if (it.isEmpty().not()) {
+                                EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).post(DemoHelper.getInstance().context.ioScope(), EaseEvent(EaseEvent.EVENT.UPDATE.name, EaseEvent.TYPE.GROUP))
+                            }
+                        }, onError = {_,_ ->
+
+                        }))
+                    }
+                }
+
             }
 
             override fun onDisconnected(errorCode: Int) {

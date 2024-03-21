@@ -39,7 +39,7 @@
         <item name="android:background">@drawable/demo_login_btn_bg</item>
         <item name="android:textColor">@color/ease_color_text_primary</item>
         <item name="android:enabled">false</item>
-        <item name="android:textAppearance">@style/Ease.TextAppearance.Label.Small</item>
+        <item name="android:textAppearance">@style/Ease.TextAppearance.Headline.Small</item>
     </style>
 
     <style name="main_bottom_view_normal">

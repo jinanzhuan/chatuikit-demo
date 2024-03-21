@@ -6,7 +6,6 @@ import android.util.Log
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoDataModel
 import com.hyphenate.chatdemo.common.ListenersWrapper
-import com.hyphenate.chatdemo.common.ProfileFetchManager
 import com.hyphenate.chatdemo.common.extensions.internal.checkAppKey
 import com.hyphenate.chatdemo.common.push.PushManager
 import com.hyphenate.chatdemo.ui.chat.ChatActivity
@@ -14,8 +13,6 @@ import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
 import com.hyphenate.chatdemo.ui.group.ChatGroupDetailActivity
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
-import com.hyphenate.easeui.common.ChatConversationType
-import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatMessage
 import com.hyphenate.easeui.common.ChatOptions
 import com.hyphenate.easeui.common.PushConfigBuilder
@@ -24,12 +21,12 @@ import com.hyphenate.easeui.common.impl.OnValueSuccess
 import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
+import com.hyphenate.easeui.model.EaseGroupProfile
 import com.hyphenate.easeui.model.EaseProfile
-import com.hyphenate.easeui.provider.EaseConversationInfoProvider
 import com.hyphenate.easeui.provider.EaseCustomActivityRoute
+import com.hyphenate.easeui.provider.EaseGroupProfileProvider
 import com.hyphenate.easeui.provider.EaseSettingsProvider
 import com.hyphenate.easeui.provider.EaseUserProfileProvider
-import com.xiaomi.push.it
 
 class DemoHelper private constructor(){
 
@@ -98,44 +95,17 @@ class DemoHelper private constructor(){
                     // fetch users from server and call call onValueSuccess.onSuccess(users) after successfully getting users
                 }
             })
-            .setConversationInfoProvider(object : EaseConversationInfoProvider {
+            .setGroupProfileProvider(object : EaseGroupProfileProvider {
 
-                override fun getProfile(id: String?, type: ChatConversationType): EaseProfile? {
-                    when (type) {
-                        ChatConversationType.Chat -> {
-                            return getDataModel().getUser(id)?.toProfile()
-                        }
-                        ChatConversationType.GroupChat -> {
-                            ChatClient.getInstance().groupManager().getGroup(id)?.let {
-                                return EaseProfile(it.groupId, it.groupName)
-                            }
-                            return null
-                        }
-                        else -> {
-                            return null
-                        }
-                    }
+                override fun getGroup(id: String?): EaseGroupProfile? {
+                    return null
                 }
 
-                override fun fetchProfiles(
-                    idsMap: Map<ChatConversationType, List<String>>,
-                    onValueSuccess: OnValueSuccess<List<EaseProfile>>
+                override fun fetchGroups(
+                    groupIds: List<String>,
+                    onValueSuccess: OnValueSuccess<List<EaseGroupProfile>>
                 ) {
-                    val groupIds = idsMap[ChatConversationType.GroupChat]
-                    if (groupIds.isNullOrEmpty().not()) {
-                        ProfileFetchManager.fetchJoinedGroups(onSuccess = {groups->
-                            groups.filter {
-                                groupIds?.contains(it.groupId) == true
-                            }.map { group->
-                                EaseProfile(group.groupId, group.groupName)
-                            }.let {
-                                onValueSuccess(it)
-                            }
-                        }, onError = { code, message ->
-                            ChatLog.e(TAG, "fetchJoinedGroups error: $code, $message")
-                            onValueSuccess(emptyList())
-                        })
-                    }
+
                 }
             })
             .setSettingsProvider(object : EaseSettingsProvider {

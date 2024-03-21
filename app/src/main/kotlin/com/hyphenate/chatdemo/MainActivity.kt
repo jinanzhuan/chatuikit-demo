@@ -24,12 +24,14 @@ import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatMessageListener
 import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
+import com.hyphenate.easeui.common.extensions.getFullInfo
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
 import com.hyphenate.easeui.feature.conversation.EaseConversationListFragment
 import com.hyphenate.easeui.interfaces.EaseContactListener
 import com.hyphenate.easeui.interfaces.OnEventResultListener
 import com.hyphenate.easeui.model.EaseEvent
+import com.hyphenate.easeui.model.EaseGroupProfile
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
@@ -61,6 +63,8 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         switchToHome()
         checkIfShowSavedFragment(savedInstanceState)
         addTabBadge()
+
+        EaseGroupProfile("groupId").getFullInfo()
     }
 
     override fun initListener() {
