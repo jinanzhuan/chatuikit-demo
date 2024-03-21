@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import com.hyphenate.chatdemo.BuildConfig
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.databinding.DemoActivityAboutBinding
 import com.hyphenate.easeui.base.EaseBaseActivity
@@ -21,8 +22,8 @@ class AboutActivity:EaseBaseActivity<DemoActivityAboutBinding>(), View.OnClickLi
 
     private fun initView(){
         binding.let {
-            it.tvVersion.text = getString(R.string.about_version,"1.1.0")
-            it.tvKitVersion.text = getString(R.string.about_uikit_version,"1.1.0")
+            it.tvVersion.text = getString(R.string.about_version,BuildConfig.VERSION_NAME)
+            it.tvKitVersion.text = getString(R.string.about_uikit_version,BuildConfig.VERSION_NAME)
         }
     }
 
