@@ -112,14 +112,11 @@ class LanguageSettingActivity:EaseBaseActivity<DemoActivityLanguageBinding>() {
     }
 
     private fun chengApplicationLanguage(){
-        LanguageUtil.changeLanguage(this@LanguageSettingActivity,languageCode)
+        LanguageUtil.changeLanguage(languageCode)
         EasePreferenceManager.getInstance().putString(DemoConstant.TARGET_LANGUAGE, languageCode)
         val resultIntent = Intent()
         resultIntent.putExtra(RESULT_TARGET_LANGUAGE,currentTag)
         setResult(RESULT_OK,resultIntent)
-        val intent = Intent(applicationContext, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
     }
 
     private fun defaultLanguage(){

@@ -248,7 +248,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 RESULT_CODE_UPDATE_NAME -> {
                     data?.let {
                         if (it.hasExtra(RESULT_REFRESH) && it.getBooleanExtra(RESULT_REFRESH,false)){
-                            updateLocalData()
+                            updateUsername()
                         }
                     }
                 }
@@ -375,6 +375,15 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             EaseIM.updateCurrentUser(it)
             EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
                 .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
+        }
+    }
+
+    private fun updateUsername(){
+        binding.run {
+            selfProfile = EaseIM.getCurrentUser()
+            selfProfile?.let {
+                tvNickName.text = it.name?: ""
+            }
         }
     }
 

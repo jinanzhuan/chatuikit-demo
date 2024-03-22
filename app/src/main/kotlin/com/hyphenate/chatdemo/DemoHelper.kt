@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.hyphenate.chatdemo.callkit.CallKitManager
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.common.DemoDataModel
+import com.hyphenate.chatdemo.common.LanguageUtil
 import com.hyphenate.chatdemo.common.ListenersWrapper
 import com.hyphenate.chatdemo.common.extensions.internal.checkAppKey
 import com.hyphenate.chatdemo.common.push.PushManager
@@ -17,6 +19,7 @@ import com.hyphenate.easeui.common.ChatMessage
 import com.hyphenate.easeui.common.ChatOptions
 import com.hyphenate.easeui.common.PushConfigBuilder
 import com.hyphenate.easeui.common.extensions.toProfile
+import com.hyphenate.easeui.common.helper.EasePreferenceManager
 import com.hyphenate.easeui.common.impl.OnValueSuccess
 import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
@@ -78,6 +81,11 @@ class DemoHelper private constructor(){
                 addUIKitSettings()
                 // Initialize the callkit module.
                 initCallKit()
+
+                val targetLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
+                targetLanguage?.let {
+                    LanguageUtil.changeLanguage(it)
+                }
             }
         }
     }

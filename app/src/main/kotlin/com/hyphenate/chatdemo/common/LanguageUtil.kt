@@ -1,14 +1,12 @@
 package com.hyphenate.chatdemo.common
 
-import android.content.Context
-import java.util.Locale
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 
 object LanguageUtil {
-    fun changeLanguage(context: Context,languageCode:String){
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val configuration = context.resources.configuration
-        configuration.setLocale(locale)
-        context.resources.updateConfiguration(configuration,context.resources.displayMetrics)
+    fun changeLanguage(languageCode:String){
+        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(languageCode)
+        // Call this on the main thread as it may require Activity.restart()
+        AppCompatDelegate.setApplicationLocales(appLocale)
     }
 }

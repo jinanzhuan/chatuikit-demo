@@ -109,7 +109,7 @@
     <string name="currency_feature_reaction">消息表情回应</string>
     <string name="currency_feature_reaction_describe">通过长按为消息添加表情回应</string>
 
-    <string name="demo_contact_remark">Remark</string>
+    <string name="demo_contact_remark">Remarks</string>
     <string name="demo_contact_edit_remark">修改备注</string>
     <string name="demo_contact_remark_count">%1$d/128</string>
 
