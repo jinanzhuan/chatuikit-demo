@@ -18,7 +18,11 @@ interface DemoGroupDao {
 
     // Query group by id
     @Query("SELECT * FROM DemoGroup WHERE id = :id")
-    fun getGroupById(id: String): Flow<DemoGroup>
+    fun getGroup(id: String): DemoGroup?
+
+    // Query group by id
+    @Query("SELECT * FROM DemoGroup WHERE id = :id")
+    fun getGroupById(id: String): Flow<DemoGroup?>
 
     // Query groups by ids
     @Query("SELECT * FROM DemoGroup WHERE id IN (:ids)")

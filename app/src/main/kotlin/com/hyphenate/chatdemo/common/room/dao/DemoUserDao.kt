@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface DemoUserDao {
 
     @Query("SELECT * FROM DemoUser")
-    fun getAll(): Flow<List<DemoUser>>
+    fun getAll(): List<DemoUser>
 
     @Query("SELECT * FROM DemoUser WHERE userId = :userId")
     fun getUserById(userId: String): Flow<DemoUser?>
