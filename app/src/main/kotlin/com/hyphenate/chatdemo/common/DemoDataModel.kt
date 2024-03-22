@@ -1,20 +1,77 @@
 package com.hyphenate.chatdemo.common
 
 import android.content.Context
-import com.hyphenate.easeui.model.EaseUser
+import com.hyphenate.chatdemo.common.room.AppDatabase
+import com.hyphenate.chatdemo.common.room.dao.DemoGroupDao
+import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
+import com.hyphenate.chatdemo.common.room.entity.parse
+import com.hyphenate.chatdemo.common.room.extensions.parseToDbBean
+import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatClient
+import com.hyphenate.easeui.model.EaseProfile
 
 class DemoDataModel(private val context: Context) {
+
+    private val database by lazy { AppDatabase.getDatabase(context, ChatClient.getInstance().currentUser) }
 
     init {
         PreferenceManager.init(context)
     }
 
     /**
+     * Initialize the local database.
+     */
+    fun initDb() {
+        if (EaseIM.isInited().not()) {
+            throw IllegalStateException("EaseIM SDK must be inited before using.")
+        }
+        database
+    }
+
+    /**
+     * Get the user data access object.
+     */
+    fun getUserDao(): DemoUserDao {
+        if (EaseIM.isInited().not()) {
+            throw IllegalStateException("EaseIM SDK must be inited before using.")
+        }
+        return database.userDao()
+    }
+
+    /**
+     * Get the group data access object.
+     */
+    fun getGroupDao(): DemoGroupDao {
+        if (EaseIM.isInited().not()) {
+            throw IllegalStateException("EaseIM SDK must be inited before using.")
+        }
+        return database.groupDao()
+    }
+
+    /**
      * Get user by userId from local db.
      */
-    fun getUser(userId: String?): EaseUser? {
-        return null
+    fun getUser(userId: String?): EaseProfile? {
+        if (userId.isNullOrEmpty()) {
+            return null
+        }
+        return getUserDao().getUser(userId)?.parse()
     }
+
+    /**
+     * Insert user to local db.
+     */
+    fun insertUser(user: EaseProfile) {
+        getUserDao().insertUser(user.parseToDbBean())
+    }
+
+    /**
+     * Insert users to local db.
+     */
+    fun insertUsers(users: List<EaseProfile>) {
+        getUserDao().insertUsers(users.map { it.parseToDbBean() })
+    }
+
 
     /**
      * Set the flag whether to use google push.

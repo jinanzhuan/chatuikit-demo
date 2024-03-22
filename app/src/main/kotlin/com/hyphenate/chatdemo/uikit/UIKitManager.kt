@@ -8,7 +8,6 @@ import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
 import com.hyphenate.chatdemo.ui.group.ChatGroupDetailActivity
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatMessage
-import com.hyphenate.easeui.common.extensions.toProfile
 import com.hyphenate.easeui.common.impl.OnValueSuccess
 import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
@@ -30,7 +29,7 @@ object UIKitManager {
     fun addProviders(context: Context) {
         EaseIM.setUserProfileProvider(object : EaseUserProfileProvider {
             override fun getUser(userId: String?): EaseProfile? {
-                return DemoHelper.getInstance().getDataModel().getUser(userId)?.toProfile()
+                return DemoHelper.getInstance().getDataModel().getUser(userId)
             }
 
             override fun fetchUsers(

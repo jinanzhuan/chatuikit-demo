@@ -10,6 +10,8 @@ plugins {
     id("com.huawei.agconnect")
     // Add honor services Gradle plugin
     id("com.hihonor.mcs.asplugin")
+    // Add the ksp plugin when using Room
+    id("com.google.devtools.ksp")
 }
 
 val properties = Properties()
@@ -64,6 +66,17 @@ android {
             "VIVO_PUSH_APPID" to properties.getProperty("VIVO_PUSH_APPID", "******"),
             "HONOR_PUSH_APPID" to properties.getProperty("HONOR_PUSH_APPID", "******")
         ))
+
+        //指定room.schemaLocation生成的文件路径  处理Room 警告 Schema export Error
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments(mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true",
+                    "room.expandProjection" to "true"
+                ))
+            }
+        }
     }
 
     signingConfigs {
@@ -99,11 +112,11 @@ android {
         buildConfig = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     applicationVariants.all {
@@ -162,6 +175,13 @@ dependencies {
 
     // Coil: load image library
     implementation("io.coil-kt:coil:2.5.0")
+    // Room
+    implementation("androidx.room:room-runtime:2.5.1")
+    ksp("androidx.room:room-compiler:2.5.1")
+    // optional - Kotlin Extensions and Coroutines support for Room
+    // To use Kotlin Flow and coroutines with Room, must include the room-ktx artifact in build.gradle file.
+    implementation("androidx.room:room-ktx:2.5.1")
+
     implementation(project(mapOf("path" to ":ease-im-kit")))
 
     //EaseCallKit，need add chat SDK

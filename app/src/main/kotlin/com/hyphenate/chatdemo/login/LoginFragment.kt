@@ -160,6 +160,7 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                     .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(stopTimeoutMillis), null)
                     .collect {
                         if (it != null) {
+                            DemoHelper.getInstance().getDataModel().initDb()
                             startActivity(Intent(mContext, MainActivity::class.java))
                             mContext.finish()
                         }
@@ -204,6 +205,7 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
                     .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(stopTimeoutMillis), null)
                     .collect {
                         if (it != null) {
+                            DemoHelper.getInstance().getDataModel().initDb()
                             startActivity(Intent(mContext, MainActivity::class.java))
                             mContext.finish()
                         }
