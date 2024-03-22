@@ -46,6 +46,7 @@ import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.hideSoftKeyboard
+import com.hyphenate.easeui.common.helper.EasePreferenceManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -304,7 +305,12 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
 
     private val spannable: SpannableString
         private get() {
-            val language = Locale.getDefault().language
+            val tagLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
+            val language = if (tagLanguage.isNullOrEmpty()){
+                Locale.getDefault().language
+            }else{
+                tagLanguage
+            }
             val isZh = language.startsWith("zh")
             val spanStr = SpannableString(getString(R.string.em_login_agreement))
             var start1 = 29
