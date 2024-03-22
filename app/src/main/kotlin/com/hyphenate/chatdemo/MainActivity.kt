@@ -63,8 +63,6 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         switchToHome()
         checkIfShowSavedFragment(savedInstanceState)
         addTabBadge()
-
-        EaseGroupProfile("groupId").getFullInfo()
     }
 
     override fun initListener() {
