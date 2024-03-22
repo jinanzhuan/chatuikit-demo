@@ -3,6 +3,7 @@ package com.hyphenate.chatdemo.ui.group
 import androidx.core.content.ContextCompat
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.callkit.CallKitManager
+import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
 import com.hyphenate.easeui.model.EaseMenuItem
 
@@ -36,5 +37,10 @@ class ChatGroupDetailActivity :EaseGroupDetailActivity(){
             }
         }
         return false
+    }
+
+    override fun onPrimaryClipChanged() {
+        super.onPrimaryClipChanged()
+        mContext.showToast(getString(R.string.system_copy_success))
     }
 }

@@ -248,7 +248,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
     }
 
     override fun onPrimaryClipChanged() {
-        mContext.showToast(getString(com.hyphenate.easeui.R.string.system_copy_success))
+        mContext.showToast(getString(R.string.system_copy_success))
     }
 
 }

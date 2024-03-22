@@ -4,6 +4,8 @@
     <string name="em_conversation_menu_video">Voice and video conference</string>
     <string name="em_conversation_menu_group">Create group</string>
 
+    <string name="system_copy_success">Successfully copied to clipboard</string>
+
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>
     <string name="loading">Loading&#8230;</string>
@@ -92,7 +94,7 @@
 
     <string name="main_about_me_information">Profile</string>
     <string name="main_about_me_information_avatar">Avatar</string>
-    <string name="main_about_me_information_nick_name">NickName</string>
+    <string name="main_about_me_information_nick_name">Nickname</string>
     <string name="main_about_me_information_camera">Camera</string>
     <string name="main_about_me_information_picture">Picture</string>
     <string name="main_about_me_information_edit_picture">Do you need to edit the Image?</string>

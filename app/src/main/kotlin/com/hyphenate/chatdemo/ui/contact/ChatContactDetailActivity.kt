@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
+import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.widget.EaseArrowItemView
@@ -44,6 +45,7 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                 launcherToUpdateRemark.launch(ChatContactRemarkActivity.createIntent(mContext,it.userId))
             }
         }
+        binding.tvNumber
     }
 
     override fun getDetailItem(): MutableList<EaseMenuItem>? {
@@ -101,5 +103,10 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                 else -> {}
             }
         }
+    }
+
+    override fun onPrimaryClipChanged() {
+        super.onPrimaryClipChanged()
+        mContext.showToast(R.string.system_copy_success)
     }
 }
