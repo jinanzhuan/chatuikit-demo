@@ -1,20 +1,124 @@
 package com.hyphenate.chatdemo.common
 
 import android.content.Context
+import com.hyphenate.chatdemo.common.room.AppDatabase
+import com.hyphenate.chatdemo.common.room.dao.DemoGroupDao
+import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
+import com.hyphenate.chatdemo.common.room.entity.DemoUser
+import com.hyphenate.chatdemo.common.room.entity.parse
+import com.hyphenate.chatdemo.common.room.extensions.parseToDbBean
+import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatClient
+import com.hyphenate.easeui.common.extensions.toUser
+import com.hyphenate.easeui.model.EaseProfile
 import com.hyphenate.easeui.model.EaseUser
+import java.util.concurrent.ConcurrentHashMap
 
 class DemoDataModel(private val context: Context) {
+
+    private val database by lazy { AppDatabase.getDatabase(context, ChatClient.getInstance().currentUser) }
+
+    private val contactList = ConcurrentHashMap<String, DemoUser>()
 
     init {
         PreferenceManager.init(context)
     }
 
     /**
+     * Initialize the local database.
+     */
+    fun initDb() {
+        if (EaseIM.isInited().not()) {
+            throw IllegalStateException("EaseIM SDK must be inited before using.")
+        }
+        database
+        resetUsersTimes()
+    }
+
+    /**
+     * Get the user data access object.
+     */
+    fun getUserDao(): DemoUserDao {
+        if (EaseIM.isInited().not()) {
+            throw IllegalStateException("EaseIM SDK must be inited before using.")
+        }
+        return database.userDao()
+    }
+
+    /**
+     * Get the group data access object.
+     */
+    fun getGroupDao(): DemoGroupDao {
+        if (EaseIM.isInited().not()) {
+            throw IllegalStateException("EaseIM SDK must be inited before using.")
+        }
+        return database.groupDao()
+    }
+
+    /**
+     * Get all contacts from cache.
+     */
+    fun getAllContacts(): Map<String, EaseUser> {
+        if (contactList.isEmpty()) {
+            loadContactFromDb()
+        }
+        return contactList.mapValues { it.value.parse().toUser() }
+    }
+
+    private fun loadContactFromDb() {
+        contactList.clear()
+        getUserDao().getAll().forEach {
+            contactList[it.userId] = it
+        }
+    }
+
+    /**
      * Get user by userId from local db.
      */
-    fun getUser(userId: String?): EaseUser? {
-        return null
+    fun getUser(userId: String?): DemoUser? {
+        if (userId.isNullOrEmpty()) {
+            return null
+        }
+        if (contactList.containsKey(userId)) {
+            return contactList[userId]
+        }
+        return getUserDao().getUser(userId)
     }
+
+    /**
+     * Insert user to local db.
+     */
+    fun insertUser(user: EaseProfile) {
+        getUserDao().insertUser(user.parseToDbBean())
+        contactList[user.id] = user.parseToDbBean()
+    }
+
+    /**
+     * Insert users to local db.
+     */
+    fun insertUsers(users: List<EaseProfile>) {
+        getUserDao().insertUsers(users.map { it.parseToDbBean() })
+        users.forEach {
+            contactList[it.id] = it.parseToDbBean()
+        }
+    }
+
+    /**
+     * Update user update times.
+     */
+    fun updateUsersTimes(userIds: List<EaseProfile>) {
+        if (userIds.isNotEmpty()) {
+            userIds?.map { it.id }?.let { userIds ->
+                getUserDao().updateUsersTimes(userIds)
+                loadContactFromDb()
+            }
+        }
+    }
+
+    private fun resetUsersTimes() {
+        getUserDao().resetUsersTimes()
+    }
+
 
     /**
      * Set the flag whether to use google push.

@@ -3,11 +3,15 @@ package com.hyphenate.chatdemo.uikit
 import android.content.Context
 import android.content.Intent
 import com.hyphenate.chatdemo.DemoHelper
+import com.hyphenate.chatdemo.common.extensions.internal.toProfile
 import com.hyphenate.chatdemo.ui.chat.ChatActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
 import com.hyphenate.chatdemo.ui.group.ChatGroupDetailActivity
+import com.hyphenate.chatdemo.viewmodel.ProfileInfoRepository
 import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatMessage
+import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.extensions.toProfile
 import com.hyphenate.easeui.common.impl.OnValueSuccess
 import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
@@ -19,6 +23,9 @@ import com.hyphenate.easeui.provider.EaseCustomActivityRoute
 import com.hyphenate.easeui.provider.EaseGroupProfileProvider
 import com.hyphenate.easeui.provider.EaseSettingsProvider
 import com.hyphenate.easeui.provider.EaseUserProfileProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object UIKitManager {
 
@@ -29,17 +36,35 @@ object UIKitManager {
 
     fun addProviders(context: Context) {
         EaseIM.setUserProfileProvider(object : EaseUserProfileProvider {
-            override fun getUser(userId: String?): EaseProfile? {
-                return DemoHelper.getInstance().getDataModel().getUser(userId)?.toProfile()
-            }
+                override fun getUser(userId: String?): EaseProfile? {
+                    return DemoHelper.getInstance().getDataModel().getAllContacts()[userId]?.toProfile()
+                }
 
-            override fun fetchUsers(
-                userIds: List<String>,
-                onValueSuccess: OnValueSuccess<List<EaseProfile>>
-            ) {
-                // fetch users from server and call call onValueSuccess.onSuccess(users) after successfully getting users
-            }
-        })
+                override fun fetchUsers(
+                    userIds: List<String>,
+                    onValueSuccess: OnValueSuccess<List<EaseProfile>>
+                ) {
+                    // fetch users from server and call call onValueSuccess.onSuccess(users) after successfully getting users
+                    CoroutineScope(Dispatchers.IO).launch {
+                        if (userIds.isEmpty()) {
+                            onValueSuccess(mutableListOf())
+                            return@launch
+                        }
+                        val users = ProfileInfoRepository().getUserInfoAttribute(userIds, mutableListOf(ChatUserInfoType.NICKNAME, ChatUserInfoType.AVATAR_URL))
+                        val callbackList = users.values?.map { it.toProfile() }?.map {
+                            ChatClient.getInstance().contactManager().fetchContactFromLocal(it.id)?.remark?.let { remark ->
+                                it.remark = remark
+                            }
+                            it
+                        } ?: mutableListOf()
+                        if (callbackList.isNotEmpty()) {
+                            DemoHelper.getInstance().getDataModel().insertUsers(callbackList)
+                            DemoHelper.getInstance().getDataModel().updateUsersTimes(callbackList)
+                        }
+                        onValueSuccess(callbackList)
+                    }
+                }
+            })
             .setGroupProfileProvider(object : EaseGroupProfileProvider {
 
                 override fun getGroup(id: String?): EaseGroupProfile? {

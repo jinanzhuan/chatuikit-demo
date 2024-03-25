@@ -121,6 +121,7 @@ class SplashActivity : BaseInitActivity<DemoSplashActivityBinding>() {
                 .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), false)
                 .collect {
                     if (it) {
+                        DemoHelper.getInstance().getDataModel().initDb()
                         startActivity(Intent(mContext, MainActivity::class.java))
                         finish()
                     }

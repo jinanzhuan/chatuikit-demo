@@ -1,12 +1,15 @@
 package com.hyphenate.chatdemo.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.toUser
 import com.hyphenate.easeui.common.helper.ContactSortedHelper
 import com.hyphenate.easeui.model.EaseProfile
+import com.hyphenate.easeui.model.EaseUser
 import com.hyphenate.easeui.model.setUserInitialLetter
 import com.hyphenate.easeui.provider.getSyncUser
 import com.hyphenate.easeui.viewmodel.contacts.EaseContactListViewModel
@@ -70,6 +73,18 @@ class ChatContactViewModel: EaseContactListViewModel() {
                         view?.loadContactListSuccess(sortedList.toMutableList())
                     }
                 }
+        }
+    }
+
+    override fun fetchContactInfo(contactList: List<EaseUser>) {
+        contactList?.filter {
+            val user = DemoHelper.getInstance().getDataModel().getUser(it.userId)
+            (user == null || user.updateTimes == 0) &&
+                    (it.nickname.isNullOrEmpty() || it.avatar.isNullOrEmpty())
+        }?.apply {
+            if (this.isNotEmpty()) {
+                super.fetchContactInfo(this)
+            }
         }
     }
 
