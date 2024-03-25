@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ChatContactViewModel: EaseContactListViewModel() {
-     private var contactRepository = ChatContactListRepository()
+     private var contactRepository = ChatContactRepository()
 
     override fun loadData(fetchServerData: Boolean){
         viewModelScope.launch {
@@ -25,11 +25,19 @@ class ChatContactViewModel: EaseContactListViewModel() {
                 flow {
                     emit(contactRepository.loadLocalContact())
                 }
-                    .flatMapConcat {
-                        flow {
-                            emit(contactRepository.loadData())
+                .flatMapConcat {
+                    val sortedList = it.map {
+                            user -> user.setUserInitialLetter()
+                            user
                         }
+                        .let {list ->
+                            ContactSortedHelper.sortedList(list).toMutableList()
+                        }
+                    view?.loadContactListSuccess(sortedList)
+                    flow {
+                        emit(contactRepository.loadData())
                     }
+                }
             } else {
                 flow {
                     emit(contactRepository.loadLocalContact())

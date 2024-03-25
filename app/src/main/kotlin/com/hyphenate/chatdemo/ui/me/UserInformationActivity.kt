@@ -46,6 +46,8 @@ import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.model.EaseProfile
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
@@ -252,7 +254,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 RESULT_CODE_UPDATE_NAME -> {
                     data?.let {
                         if (it.hasExtra(RESULT_REFRESH) && it.getBooleanExtra(RESULT_REFRESH,false)){
-                            updateUsername()
+                            it.getStringExtra("nickname")?.let { name ->
+                                updateUsername(name)
+                            }
                         }
                     }
                 }
@@ -391,22 +395,35 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         }
     }
 
-    private fun updateUserAvatar(url:String){
+    private fun updateUserAvatar(){
         selfProfile = EaseIM.getCurrentUser()
-        selfProfile?.avatar = url
-        selfProfile?.let {
-            EaseIM.updateCurrentUser(it)
-            EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
-                .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
-        }
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+            .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
     }
 
-    private fun updateUsername(){
-        binding.run {
-            selfProfile = EaseIM.getCurrentUser()
-            selfProfile?.let {
-                tvNickName.text = it.name?: ""
-            }
+    private fun updateUsername(nickname: String){
+        lifecycleScope.launch {
+            model.updateUserNickName(nickname)
+                .onStart {
+                    showLoading(true)
+                }
+                .onCompletion { dismissLoading() }
+                .catchChatException { e ->
+                    ChatLog.e("TAG", "updateUserNickName fail error message = " + e.description)
+                    mainScope().launch {
+                        mContext.showToast("updateUsername error ${e.errorCode} ${e.description}")
+                    }
+                }
+                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+                .collect {
+                    EaseIM.getCurrentUser()?.let {profile ->
+                        profile.name = nickname
+                        EaseIM.updateCurrentUser(profile)
+                    }
+                    binding.tvNickName.text = nickname
+                    EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+                        .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
+                }
         }
     }
 
@@ -415,6 +432,10 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         val scaledImage = ChatImageUtils.getScaledImageByUri(this,filePath)
         lifecycleScope.launch {
             model.uploadAvatar(scaledImage)
+                .onStart {
+                    showLoading(true)
+                }
+                .onCompletion { dismissLoading() }
                 .catchChatException { e ->
                     ChatLog.e("UserInformationActivity", "uploadAvatar fail error message = " + e.description)
                     mainScope().launch {
@@ -425,7 +446,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 .collect {
                     it?.let {
                         binding.ivAvatar.setImageURI(imageUri)
-                        updateUserAvatar(it)
+                        updateUserAvatar()
                     }
                 }
         }

@@ -93,17 +93,11 @@ open class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEd
 
     private fun updateUserInfo(){
         newName = binding.etName.text.trim().toString()
-        selfProfile = EaseIM.getCurrentUser()
         if (newName.isNotEmpty()){
-            selfProfile?.name = newName
-            selfProfile?.let { EaseIM.updateCurrentUser(it) }
             val resultIntent = Intent()
             resultIntent.putExtra(RESULT_REFRESH, true)
+            resultIntent.putExtra("nickname", newName)
             setResult(RESULT_OK,resultIntent)
-
-            EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
-                .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
-
         }
         finish()
     }

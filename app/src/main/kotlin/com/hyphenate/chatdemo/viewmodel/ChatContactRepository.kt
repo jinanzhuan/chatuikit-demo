@@ -6,7 +6,7 @@ import com.hyphenate.easeui.repository.EaseContactListRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class ChatContactListRepository: EaseContactListRepository() {
+class ChatContactRepository: EaseContactListRepository() {
 
     /**
      * Load server contacts.

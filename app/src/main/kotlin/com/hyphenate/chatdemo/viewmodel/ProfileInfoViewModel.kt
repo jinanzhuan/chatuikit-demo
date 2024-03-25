@@ -2,14 +2,35 @@ package com.hyphenate.chatdemo.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 
 class ProfileInfoViewModel(application: Application) : AndroidViewModel(application)  {
     private val mRepository: ProfileInfoRepository = ProfileInfoRepository()
-    fun uploadAvatar(filePath: String?)= flow {
-        emit(mRepository.uploadAvatar(filePath))
-    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun uploadAvatar(filePath: String?) =
+        flow {
+            emit(mRepository.uploadAvatar(filePath))
+        }.flatMapConcat { result ->
+            EaseIM.getCurrentUser()?.let {
+                it.avatar = result
+                EaseIM.updateCurrentUser(it)
+            }
+            flow {
+                emit(mRepository.uploadAvatarToChatServer(result))
+            }
+        }
+
+    /**
+     * Update user nickname.
+     */
+    fun updateUserNickName(nickName:String) =
+        flow {
+            emit(mRepository.updateNickname(nickName))
+        }
 
     fun setUserRemark(username:String,remark:String) = flow {
         emit(mRepository.setUserRemark(username,remark))
