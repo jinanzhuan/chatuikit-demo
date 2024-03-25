@@ -3,6 +3,7 @@ package com.hyphenate.chatdemo.ui.me
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,7 @@ import coil.load
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityMeInformationBinding
+import com.hyphenate.chatdemo.utils.UserFileUtils
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
@@ -29,7 +31,6 @@ import com.hyphenate.easeui.common.ChatImageUtils
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatPathUtils
 import com.hyphenate.easeui.common.bus.EaseFlowBus
-import com.hyphenate.easeui.common.dialog.CustomDialog
 import com.hyphenate.easeui.common.dialog.SimpleListSheetDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
@@ -56,6 +57,8 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     View.OnClickListener {
 
     private var cameraFile: File? = null
+    private var cropFile:File? = null
+    private var cropImageUri:Uri? = null
     private var selfProfile:EaseProfile? = null
     private var showSelectDialog:SimpleListSheetDialog? = null
     private var imageUri:Uri?= null
@@ -216,7 +219,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     private fun onRequestResult(result: Map<String, Boolean>?, requestCode: Int) {
         if (!result.isNullOrEmpty()) {
             for ((key, value) in result) {
-                ChatLog.e("chat", "onRequestResult: $key  $value")
+                ChatLog.e("UserInformationActivity", "onRequestResult: $key  $value")
             }
             if (PermissionCompat.getMediaAccess(mContext) !== PermissionCompat.StorageAccess.Denied) {
                 if (requestCode == REQUEST_CODE_STORAGE_PICTURE) {
@@ -264,11 +267,15 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     private fun onActivityResultForCamera(data: Intent?) {
         cameraFile?.let {
             if (it.exists()){
-                var uri = Uri.parse(it.absolutePath)
-//                Check if the image is rotated and restore it
-                uri = ChatImageUtils.checkDegreeAndRestoreImage(mContext, uri)
-                imageUri = uri
-                uploadFile(it.absolutePath)
+                imageUri = UserFileUtils.uri
+                if (PermissionCompat.checkPermission(
+                        mContext,
+                        requestEditImagePermission,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                ){
+                    openImageEditor(UserFileUtils.uri)
+                }
             }
         }
     }
@@ -286,23 +293,36 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                         filePath = it
                     }
                 }
-                showEditImageDialog(selectedImage)
+                if (PermissionCompat.checkPermission(
+                        mContext,
+                        requestEditImagePermission,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                ){
+                    openImageEditor(imageUri)
+                }
             }
         }
     }
 
     private fun onActivityResultForEditPhotos(data: Intent?){
-        data?.let {
-            val selectedImage = data.data
-            selectedImage?.let {
-                val filePath: String = EaseFileUtils.getFilePath(mContext, selectedImage)
-                if (!TextUtils.isEmpty(filePath) && File(filePath).exists()) {
-                    imageUri = Uri.parse(filePath)
-                    uploadFile(filePath)
-                }else{
-                    imageUri = selectedImage
-                    uploadFile(selectedImage)
+        if (cropFile != null && cropFile?.absolutePath != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                ChatLog.e("UserInformationActivity","onActivityResultForEditPhotos 1")
+                if (UserFileUtils.uri != null) {
+                    ChatLog.e("UserInformationActivity","onActivityResultForEditPhotos 1 - ${cropFile?.absolutePath}")
+                    cropFile = UserFileUtils.getCropFile(this, UserFileUtils.uri)
+                    var uri = Uri.parse(cropFile?.absolutePath)
+                    uri = ChatImageUtils.checkDegreeAndRestoreImage(mContext, uri)
+                    imageUri = uri
+                    uploadFile(cropFile?.absolutePath)
                 }
+            }else{
+                ChatLog.e("UserInformationActivity","onActivityResultForEditPhotos 2 - ${cropFile?.absolutePath}")
+                var uri = Uri.parse(cropFile?.absolutePath)
+                uri = ChatImageUtils.checkDegreeAndRestoreImage(mContext, uri)
+                imageUri = uri
+                uploadFile(cropFile?.absolutePath)
             }
         }
     }
@@ -318,13 +338,14 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             ChatPathUtils.getInstance().imagePath, (ChatClient.getInstance().currentUser
                     + System.currentTimeMillis()) + ".jpg"
         )
+
+        cameraFile = UserFileUtils.createImageFile(this, false)
+
         cameraFile?.let {
             it.parentFile?.mkdirs()
             launcher?.launch(
                 Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(
-                    MediaStore.EXTRA_OUTPUT, EaseCompat.getUriForFile(
-                        mContext, it
-                    )
+                    MediaStore.EXTRA_OUTPUT, UserFileUtils.uri
                 )
             )
         }
@@ -338,39 +359,40 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         EaseCompat.openImageByLauncher(launcher, mContext)
     }
 
-    private fun openImageEditor(uri: Uri?) {
-        uri?.let {
-            val intent = Intent(Intent.ACTION_EDIT).apply {
-                setDataAndType(uri, "image/*")
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+    private fun openImageEditor(selectUri: Uri?,isCamera:Boolean = false) {
+        ChatLog.e("UserInformationActivity","openImageEditor $selectUri")
+        selectUri?.let { uri->
+            if (!isSdcardExist()) {
+                return
             }
-            launcherToAlbumEdit.launch(intent)
+            cropFile = UserFileUtils.createImageFile(this, true)
+            cropFile?.let {
+                it.parentFile?.mkdirs()
+                val intent = Intent("com.android.camera.action.CROP").apply {
+                    setDataAndType(uri, "image/*")
+                    putExtra("crop", "true")
+                    putExtra("aspectX", 1)
+                    putExtra("aspectY", 1)
+                    putExtra("outputX", 320)
+                    putExtra("outputY", 320)
+                    putExtra("return-data", false)
+                    putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
+                    putExtra("noFaceDetection", true)
+                    if (!isCamera){
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            putExtra(MediaStore.EXTRA_OUTPUT, UserFileUtils.uri)
+                        } else {
+                            val imgCropUri = Uri.fromFile(it)
+                            putExtra(MediaStore.EXTRA_OUTPUT, imgCropUri)
+                        }
+                    }else{
+                        val imgCropUri = EaseCompat.getUriForFile(mContext, it)
+                        putExtra(MediaStore.EXTRA_OUTPUT, imgCropUri)
+                    }
+                }
+                launcherToAlbumEdit.launch(intent)
+            }
         }
-    }
-
-    private fun showEditImageDialog(fileUri: Uri?){
-        val editDialog = CustomDialog(
-            context = mContext,
-            title = resources.getString(R.string.main_about_me_information_edit_picture),
-            isEditTextMode = false,
-            onLeftButtonClickListener = {
-                fileUri?.let {
-                    uploadFile(it)
-                }
-            },
-            onRightButtonClickListener = {
-                if (PermissionCompat.checkPermission(
-                        mContext,
-                        requestEditImagePermission,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    )
-                ){
-                    openImageEditor(imageUri)
-                }
-            }
-        )
-        editDialog.show()
     }
 
     private fun updateUserAvatar(){
@@ -406,7 +428,8 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     }
 
     private fun uploadFile(filePath:String?){
-        val scaledImage = ChatImageUtils.getScaledImage(this,filePath)
+        ChatLog.e("UserInformationActivity","uploadFile filePath $filePath")
+        val scaledImage = ChatImageUtils.getScaledImageByUri(this,filePath)
         lifecycleScope.launch {
             model.uploadAvatar(scaledImage)
                 .onStart {
@@ -414,7 +437,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 }
                 .onCompletion { dismissLoading() }
                 .catchChatException { e ->
-                    ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                    ChatLog.e("UserInformationActivity", "uploadAvatar fail error message = " + e.description)
                     mainScope().launch {
                         mContext.showToast("uploadFile error ${e.errorCode} ${e.description}")
                     }
@@ -426,33 +449,6 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                         updateUserAvatar()
                     }
                 }
-        }
-    }
-
-    private fun uploadFile(fileUri:Uri?){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            val scaledImageUri =  ChatImageUtils.getScaledImage(this,fileUri)
-            lifecycleScope.launch {
-                val fileUrl = EaseCompat.getPath(this@UserInformationActivity,scaledImageUri)
-                model.uploadAvatar(fileUrl)
-                    .onStart {
-                        showLoading(true)
-                    }
-                    .onCompletion { dismissLoading() }
-                    .catchChatException { e ->
-                        ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
-                        mainScope().launch {
-                            mContext.showToast("uploadFile error ${e.errorCode} ${e.description}")
-                        }
-                    }
-                    .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
-                    .collect {
-                        it?.let {
-                            binding.ivAvatar.setImageURI(imageUri)
-                            updateUserAvatar()
-                        }
-                    }
-            }
         }
     }
 

@@ -26,10 +26,10 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         targetUserId = intent.getStringExtra(KEY_USER_ID)
-        model = ViewModelProvider(this)[ProfileInfoViewModel::class.java]
 
     }
     override fun initTitle() {
+        model = ViewModelProvider(this)[ProfileInfoViewModel::class.java]
         binding.run {
             titleBar.setTitle(getString(R.string.demo_contact_edit_remark))
             etName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(128))
