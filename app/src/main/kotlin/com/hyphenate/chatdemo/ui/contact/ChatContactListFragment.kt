@@ -3,6 +3,8 @@ package com.hyphenate.chatdemo.ui.contact
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.viewmodel.ChatContactViewModel
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
@@ -24,7 +26,25 @@ class ChatContactListFragment : EaseContactsListFragment() {
 
     override fun loadContactListSuccess(userList: MutableList<EaseUser>) {
         super.loadContactListSuccess(userList)
-        ChatLog.e(TAG,"loadContactListSuccess demo")
+        binding?.listContact?.let {
+            (it.rvContactList.layoutManager as? LinearLayoutManager)?.let { manager->
+                it.post {
+                    val firstVisibleItemPosition = manager.findFirstVisibleItemPosition()
+                    val lastVisibleItemPosition = manager.findLastVisibleItemPosition()
+                    val visibleList = it.getListAdapter()?.mData?.filterIndexed { index, _ ->
+                        index in firstVisibleItemPosition..lastVisibleItemPosition
+                    }
+                    val fetchList = visibleList?.filter { user ->
+                        val u = DemoHelper.getInstance().getDataModel().getUser(user.userId)
+                        (u == null || u.updateTimes == 0) &&
+                                (user.nickname.isNullOrEmpty() || user.avatar.isNullOrEmpty())
+                    }
+                    fetchList?.let {
+                        contactViewModel?.fetchContactInfo(fetchList)
+                    }
+                }
+            }
+        }
     }
 
     override fun loadContactListFail(code: Int, error: String) {

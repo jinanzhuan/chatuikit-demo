@@ -4,15 +4,21 @@ import android.content.Context
 import com.hyphenate.chatdemo.common.room.AppDatabase
 import com.hyphenate.chatdemo.common.room.dao.DemoGroupDao
 import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
+import com.hyphenate.chatdemo.common.room.entity.DemoUser
 import com.hyphenate.chatdemo.common.room.entity.parse
 import com.hyphenate.chatdemo.common.room.extensions.parseToDbBean
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
+import com.hyphenate.easeui.common.extensions.toUser
 import com.hyphenate.easeui.model.EaseProfile
+import com.hyphenate.easeui.model.EaseUser
+import java.util.concurrent.ConcurrentHashMap
 
 class DemoDataModel(private val context: Context) {
 
     private val database by lazy { AppDatabase.getDatabase(context, ChatClient.getInstance().currentUser) }
+
+    private val contactList = ConcurrentHashMap<String, DemoUser>()
 
     init {
         PreferenceManager.init(context)
@@ -26,6 +32,7 @@ class DemoDataModel(private val context: Context) {
             throw IllegalStateException("EaseIM SDK must be inited before using.")
         }
         database
+        resetUsersTimes()
     }
 
     /**
@@ -49,13 +56,33 @@ class DemoDataModel(private val context: Context) {
     }
 
     /**
+     * Get all contacts from cache.
+     */
+    fun getAllContacts(): Map<String, EaseUser> {
+        if (contactList.isEmpty()) {
+            loadContactFromDb()
+        }
+        return contactList.mapValues { it.value.parse().toUser() }
+    }
+
+    private fun loadContactFromDb() {
+        contactList.clear()
+        getUserDao().getAll().forEach {
+            contactList[it.userId] = it
+        }
+    }
+
+    /**
      * Get user by userId from local db.
      */
-    fun getUser(userId: String?): EaseProfile? {
+    fun getUser(userId: String?): DemoUser? {
         if (userId.isNullOrEmpty()) {
             return null
         }
-        return getUserDao().getUser(userId)?.parse()
+        if (contactList.containsKey(userId)) {
+            return contactList[userId]
+        }
+        return getUserDao().getUser(userId)
     }
 
     /**
@@ -63,6 +90,7 @@ class DemoDataModel(private val context: Context) {
      */
     fun insertUser(user: EaseProfile) {
         getUserDao().insertUser(user.parseToDbBean())
+        contactList[user.id] = user.parseToDbBean()
     }
 
     /**
@@ -70,6 +98,25 @@ class DemoDataModel(private val context: Context) {
      */
     fun insertUsers(users: List<EaseProfile>) {
         getUserDao().insertUsers(users.map { it.parseToDbBean() })
+        users.forEach {
+            contactList[it.id] = it.parseToDbBean()
+        }
+    }
+
+    /**
+     * Update user update times.
+     */
+    fun updateUsersTimes(userIds: List<EaseProfile>) {
+        if (userIds.isNotEmpty()) {
+            userIds?.map { it.id }?.let { userIds ->
+                getUserDao().updateUsersTimes(userIds)
+                loadContactFromDb()
+            }
+        }
+    }
+
+    private fun resetUsersTimes() {
+        getUserDao().resetUsersTimes()
     }
 
 

@@ -2,6 +2,7 @@ package com.hyphenate.chatdemo.viewmodel
 
 import com.hyphenate.EMCallBack
 import com.hyphenate.chatdemo.BuildConfig
+import com.hyphenate.chatdemo.common.suspend.fetUserInfo
 import com.hyphenate.chatdemo.common.suspend.updateOwnAttribute
 import com.hyphenate.cloud.HttpCallback
 import com.hyphenate.cloud.HttpClientManager
@@ -10,6 +11,7 @@ import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatException
 import com.hyphenate.easeui.common.ChatHttpClientManagerBuilder
 import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.ChatUserInfo
 import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.ChatValueCallback
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,11 @@ class ProfileInfoRepository: BaseRepository()  {
         private const val GROUP_AVATAR_URL = BuildConfig.APP_SERVER_PROTOCOL + "://" + BuildConfig.APP_SERVER_DOMAIN +
                 BuildConfig.APP_BASE_GROUP
     }
+
+    suspend fun getUserInfoAttribute(userIds: List<String>, attributes: List<ChatUserInfoType>): Map<String, ChatUserInfo> =
+        withContext(Dispatchers.IO) {
+            ChatClient.getInstance().userInfoManager().fetUserInfo(userIds,attributes)
+        }
 
     suspend fun setUserRemark(username:String,remark:String): Int =
         withContext(Dispatchers.IO) {

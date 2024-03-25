@@ -59,6 +59,20 @@ interface DemoUserDao {
     @Query("UPDATE DemoUser SET remark = :remark WHERE userId = :userId")
     fun updateUserRemark(userId: String, remark: String)
 
+    // Update update times
+    @Query("UPDATE DemoUser SET update_times = update_times + 1 WHERE userId = :userId")
+    fun updateUserTimes(userId: String)
+
+    // Update users update times
+    @Query("UPDATE DemoUser SET update_times = update_times + 1 WHERE userId IN (:userIds)")
+    fun updateUsersTimes(userIds: List<String>)
+
+    /**
+     * Reset the update times of all users.
+     */
+    @Query("UPDATE DemoUser SET update_times = 0")
+    fun resetUsersTimes()
+
     // Delete
     @Delete
     fun deleteUser(user: DemoUser)
