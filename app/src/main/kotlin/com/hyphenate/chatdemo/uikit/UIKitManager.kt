@@ -68,6 +68,9 @@ object UIKitManager {
             .setGroupProfileProvider(object : EaseGroupProfileProvider {
 
                 override fun getGroup(id: String?): EaseGroupProfile? {
+                    ChatClient.getInstance().groupManager().getGroup(id)?.let {
+                        return EaseGroupProfile(it.groupId, it.groupName, it.extension)
+                    }
                     return null
                 }
 

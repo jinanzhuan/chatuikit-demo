@@ -38,9 +38,9 @@ class ProfileInfoViewModel(application: Application) : AndroidViewModel(applicat
         emit(mRepository.setUserRemark(username,remark))
     }
 
-    fun fetchLocalUserRemark(userId:String):String{
+    fun fetchLocalUserRemark(userId:String):String?{
         val contact = ChatClient.getInstance().contactManager().fetchContactFromLocal(userId)
-        return contact.remark
+        return contact?.remark
     }
 
     fun getGroupAvatar(groupId:String?) = flow {
