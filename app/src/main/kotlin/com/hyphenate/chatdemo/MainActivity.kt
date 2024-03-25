@@ -18,20 +18,18 @@ import com.hyphenate.chatdemo.databinding.ActivityMainBinding
 import com.hyphenate.chatdemo.ui.conversation.ConversationListFragment
 import com.hyphenate.chatdemo.interfaces.IMainResultView
 import com.hyphenate.chatdemo.login.AboutMeFragment
+import com.hyphenate.chatdemo.ui.contact.ChatContactListFragment
 import com.hyphenate.chatdemo.viewmodel.MainViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatMessageListener
 import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
-import com.hyphenate.easeui.common.extensions.getFullInfo
 import com.hyphenate.easeui.common.extensions.showToast
-import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
 import com.hyphenate.easeui.feature.conversation.EaseConversationListFragment
 import com.hyphenate.easeui.interfaces.EaseContactListener
 import com.hyphenate.easeui.interfaces.OnEventResultListener
 import com.hyphenate.easeui.model.EaseEvent
-import com.hyphenate.easeui.model.EaseGroupProfile
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
@@ -133,7 +131,7 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
 
     private fun switchToContacts() {
         if (mContactFragment == null) {
-            mContactFragment = EaseContactsListFragment.Builder()
+            mContactFragment = ChatContactListFragment.Builder()
                 .useTitleBar(true)
                 .useSearchBar(true)
                 .enableTitleBarPressBack(false)
