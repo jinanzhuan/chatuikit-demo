@@ -31,6 +31,7 @@ import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.dialog.CustomDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
+import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.common.utils.EasePresenceUtil
 import com.hyphenate.easeui.configs.setStatusStyle
 import com.hyphenate.easeui.feature.chat.interfaces.IPresenceResultView
@@ -41,7 +42,8 @@ import com.hyphenate.easeui.widget.EasePresenceView
 import kotlinx.coroutines.launch
 
 class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnClickListener,
-    EasePresenceView.OnPresenceClickListener,IPresenceResultView {
+    EasePresenceView.OnPresenceClickListener,IPresenceResultView,
+    ClipboardManager.OnPrimaryClipChangedListener {
 
     /**
      * The clipboard manager.
@@ -87,6 +89,12 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
             itemAbout.setOnClickListener(this@AboutMeFragment)
             aboutMeLogout.setOnClickListener(this@AboutMeFragment)
         }
+        clipboard.addPrimaryClipChangedListener(this@AboutMeFragment)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        clipboard.removePrimaryClipChangedListener(this@AboutMeFragment)
     }
 
     override fun initData() {
@@ -237,6 +245,10 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
 
     override fun fetchPresenceStatusFail(code: Int, message: String?) {
 
+    }
+
+    override fun onPrimaryClipChanged() {
+        mContext.showToast(getString(R.string.system_copy_success))
     }
 
 }

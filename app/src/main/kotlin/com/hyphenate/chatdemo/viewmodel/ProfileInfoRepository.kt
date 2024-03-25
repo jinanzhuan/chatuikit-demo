@@ -1,14 +1,16 @@
 package com.hyphenate.chatdemo.viewmodel
 
-import android.util.Log
 import com.hyphenate.EMCallBack
 import com.hyphenate.chatdemo.BuildConfig
+import com.hyphenate.chatdemo.common.suspend.updateOwnAttribute
 import com.hyphenate.cloud.HttpCallback
 import com.hyphenate.cloud.HttpClientManager
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatException
 import com.hyphenate.easeui.common.ChatHttpClientManagerBuilder
+import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.ChatValueCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -61,6 +63,24 @@ class ProfileInfoRepository: BaseRepository()  {
         }
 
     /**
+     * Update the nickname of the current user to chat server.
+     * @param nickname The new nickname.
+     */
+    suspend fun updateNickname(nickname: String) =
+        withContext(Dispatchers.IO) {
+            ChatClient.getInstance().userInfoManager().updateOwnAttribute(ChatUserInfoType.NICKNAME, nickname)
+        }
+
+    /**
+     * Upload avatar url to chat server.
+     * @param remoteUrl The remote url of the avatar
+     */
+    suspend fun uploadAvatarToChatServer(remoteUrl: String) =
+        withContext(Dispatchers.IO) {
+            ChatClient.getInstance().userInfoManager().updateOwnAttribute(ChatUserInfoType.AVATAR_URL, remoteUrl)
+        }
+
+    /**
      * 上传头像
      * @return
      */
@@ -86,11 +106,12 @@ class ProfileInfoRepository: BaseRepository()  {
         callBack: ChatValueCallback<String>
     ){
         try {
-            Log.e("apex","uploadAvatarToAppServer $filePath")
+            ChatLog.e("ProfileInfoRepository","uploadAvatarToAppServer $filePath")
             if (filePath.isNullOrEmpty()){
                 callBack.onError(ChatError.INVALID_URL," invalid url.")
                 return
             }
+            ChatLog.e("ProfileInfoRepository","uploadAvatarToAppServer ${UPLOAD_AVATAR_URL+"/${ChatClient.getInstance().currentUser}"+BuildConfig.APP_UPLOAD_AVATAR}")
                 ChatHttpClientManagerBuilder()
                     .uploadFile(filePath)
                     .setParam("file",filePath)
@@ -98,10 +119,14 @@ class ProfileInfoRepository: BaseRepository()  {
                     .execute(object : HttpCallback{
                         override fun onSuccess(result: String?) {
                             result?.let {
+                                val url = try {
                                 val jsonObject = JSONObject(it)
-                                val url = jsonObject.getString("avatarUrl")
-                                callBack.onSuccess(url)
+                                jsonObject.getString("avatarUrl")
+                            } catch (e: Exception) {
+                                TODO("Not yet implemented")
                             }
+                                callBack.onSuccess(url)
+                            } ?: callBack.onError(ChatError.NETWORK_ERROR,"result url is null.")
                         }
 
                         override fun onError(code: Int, msg: String?) {

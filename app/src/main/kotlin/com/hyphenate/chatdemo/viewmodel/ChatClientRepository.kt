@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 /**
  * As the repository of ChatManager, handles ChatManager related logic
  */
-class ChatManagerRepository: BaseRepository() {
+class ChatClientRepository: BaseRepository() {
 
     /**
      * Get all unread message count.

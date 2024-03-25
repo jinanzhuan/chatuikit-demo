@@ -28,13 +28,14 @@ import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatImageUtils
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatPathUtils
-import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.dialog.CustomDialog
 import com.hyphenate.easeui.common.dialog.SimpleListSheetDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
 import com.hyphenate.easeui.common.extensions.isSdcardExist
+import com.hyphenate.easeui.common.extensions.mainScope
+import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.common.permission.PermissionCompat
 import com.hyphenate.easeui.common.utils.EaseCompat
 import com.hyphenate.easeui.common.utils.EaseFileUtils
@@ -44,6 +45,8 @@ import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.model.EaseProfile
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
@@ -248,7 +251,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 RESULT_CODE_UPDATE_NAME -> {
                     data?.let {
                         if (it.hasExtra(RESULT_REFRESH) && it.getBooleanExtra(RESULT_REFRESH,false)){
-                            updateLocalData()
+                            it.getStringExtra("nickname")?.let { name ->
+                                updateUsername(name)
+                            }
                         }
                     }
                 }
@@ -368,13 +373,35 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         editDialog.show()
     }
 
-    private fun updateUserAvatar(url:String){
+    private fun updateUserAvatar(){
         selfProfile = EaseIM.getCurrentUser()
-        selfProfile?.avatar = url
-        selfProfile?.let {
-            EaseIM.updateCurrentUser(it)
-            EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
-                .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+            .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
+    }
+
+    private fun updateUsername(nickname: String){
+        lifecycleScope.launch {
+            model.updateUserNickName(nickname)
+                .onStart {
+                    showLoading(true)
+                }
+                .onCompletion { dismissLoading() }
+                .catchChatException { e ->
+                    ChatLog.e("TAG", "updateUserNickName fail error message = " + e.description)
+                    mainScope().launch {
+                        mContext.showToast("updateUsername error ${e.errorCode} ${e.description}")
+                    }
+                }
+                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+                .collect {
+                    EaseIM.getCurrentUser()?.let {profile ->
+                        profile.name = nickname
+                        EaseIM.updateCurrentUser(profile)
+                    }
+                    binding.tvNickName.text = nickname
+                    EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+                        .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
+                }
         }
     }
 
@@ -382,14 +409,21 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         val scaledImage = ChatImageUtils.getScaledImage(this,filePath)
         lifecycleScope.launch {
             model.uploadAvatar(scaledImage)
+                .onStart {
+                    showLoading(true)
+                }
+                .onCompletion { dismissLoading() }
                 .catchChatException { e ->
                     ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                    mainScope().launch {
+                        mContext.showToast("uploadFile error ${e.errorCode} ${e.description}")
+                    }
                 }
                 .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
                 .collect {
                     it?.let {
                         binding.ivAvatar.setImageURI(imageUri)
-                        updateUserAvatar(it)
+                        updateUserAvatar()
                     }
                 }
         }
@@ -401,14 +435,21 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             lifecycleScope.launch {
                 val fileUrl = EaseCompat.getPath(this@UserInformationActivity,scaledImageUri)
                 model.uploadAvatar(fileUrl)
+                    .onStart {
+                        showLoading(true)
+                    }
+                    .onCompletion { dismissLoading() }
                     .catchChatException { e ->
                         ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                        mainScope().launch {
+                            mContext.showToast("uploadFile error ${e.errorCode} ${e.description}")
+                        }
                     }
                     .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
                     .collect {
                         it?.let {
                             binding.ivAvatar.setImageURI(imageUri)
-                            updateUserAvatar(it)
+                            updateUserAvatar()
                         }
                     }
             }

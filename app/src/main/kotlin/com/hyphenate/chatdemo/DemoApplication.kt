@@ -24,11 +24,6 @@ class DemoApplication: Application() {
         // Call this method after EaseIM#init
         val isBlack = EasePreferenceManager.getInstance().getBoolean(DemoConstant.IS_BLACK_THEME)
         AppCompatDelegate.setDefaultNightMode(if (isBlack) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
-        val targetLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
-        targetLanguage?.let {
-            Log.e("apex","targetLanguage $it")
-            LanguageUtil.changeLanguage(applicationContext,it)
-        }
     }
 
     private fun initSDK() {

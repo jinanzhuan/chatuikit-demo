@@ -15,6 +15,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.common.DemoConstant
+import com.hyphenate.easeui.common.helper.EasePreferenceManager
 import java.util.Locale
 
 class DemoAgreementDialogFragment : DemoDialogFragment() {
@@ -39,7 +41,12 @@ class DemoAgreementDialogFragment : DemoDialogFragment() {
 
     private val spannable: SpannableString
         private get() {
-            val language = Locale.getDefault().language
+            val tagLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
+            val language = if (tagLanguage.isNullOrEmpty()){
+                Locale.getDefault().language
+            }else{
+                tagLanguage
+            }
             val isZh = language.startsWith("zh")
             val spanStr = SpannableString(getString(R.string.demo_login_dialog_content_privacy))
             var start1 = 18
