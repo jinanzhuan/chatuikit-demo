@@ -2,6 +2,7 @@ package com.hyphenate.chatdemo.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,6 +18,7 @@ class ProfileInfoViewModel(application: Application) : AndroidViewModel(applicat
         }.flatMapConcat { result ->
             EaseIM.getCurrentUser()?.let {
                 it.avatar = result
+                DemoHelper.getInstance().getDataModel().insertUser(it)
                 EaseIM.updateCurrentUser(it)
             }
             flow {

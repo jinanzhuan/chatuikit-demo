@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import coil.load
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityMeInformationBinding
@@ -394,8 +395,10 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 }
                 .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
                 .collect {
+
                     EaseIM.getCurrentUser()?.let {profile ->
                         profile.name = nickname
+                        DemoHelper.getInstance().getDataModel().insertUser(profile)
                         EaseIM.updateCurrentUser(profile)
                     }
                     binding.tvNickName.text = nickname
