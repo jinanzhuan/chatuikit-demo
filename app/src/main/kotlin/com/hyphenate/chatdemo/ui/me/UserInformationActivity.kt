@@ -35,6 +35,8 @@ import com.hyphenate.easeui.common.dialog.SimpleListSheetDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
 import com.hyphenate.easeui.common.extensions.isSdcardExist
+import com.hyphenate.easeui.common.extensions.mainScope
+import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.common.permission.PermissionCompat
 import com.hyphenate.easeui.common.utils.EaseCompat
 import com.hyphenate.easeui.common.utils.EaseFileUtils
@@ -393,6 +395,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             model.uploadAvatar(scaledImage)
                 .catchChatException { e ->
                     ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                    mainScope().launch {
+                        mContext.showToast("uploadFile error ${e.errorCode} ${e.description}")
+                    }
                 }
                 .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
                 .collect {
@@ -412,6 +417,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 model.uploadAvatar(fileUrl)
                     .catchChatException { e ->
                         ChatLog.e("TAG", "uploadAvatar fail error message = " + e.description)
+                        mainScope().launch {
+                            mContext.showToast("uploadFile error ${e.errorCode} ${e.description}")
+                        }
                     }
                     .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
                     .collect {

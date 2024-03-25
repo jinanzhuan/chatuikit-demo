@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MainViewModel: EaseBaseViewModel<IMainResultView>(), IMainRequest {
-    private val chatRepository by lazy { ChatManagerRepository() }
+    private val chatRepository by lazy { ChatClientRepository() }
     override fun getUnreadMessageCount() {
         viewModelScope.launch {
             flow {

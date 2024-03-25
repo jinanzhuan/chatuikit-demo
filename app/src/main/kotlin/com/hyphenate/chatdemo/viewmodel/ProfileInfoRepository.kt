@@ -1,6 +1,5 @@
 package com.hyphenate.chatdemo.viewmodel
 
-import android.util.Log
 import com.hyphenate.EMCallBack
 import com.hyphenate.chatdemo.BuildConfig
 import com.hyphenate.cloud.HttpCallback
@@ -9,6 +8,7 @@ import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatException
 import com.hyphenate.easeui.common.ChatHttpClientManagerBuilder
+import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatValueCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -86,11 +86,12 @@ class ProfileInfoRepository: BaseRepository()  {
         callBack: ChatValueCallback<String>
     ){
         try {
-            Log.e("apex","uploadAvatarToAppServer $filePath")
+            ChatLog.e("ProfileInfoRepository","uploadAvatarToAppServer $filePath")
             if (filePath.isNullOrEmpty()){
                 callBack.onError(ChatError.INVALID_URL," invalid url.")
                 return
             }
+            ChatLog.e("ProfileInfoRepository","uploadAvatarToAppServer ${UPLOAD_AVATAR_URL+"/${ChatClient.getInstance().currentUser}"+BuildConfig.APP_UPLOAD_AVATAR}")
                 ChatHttpClientManagerBuilder()
                     .uploadFile(filePath)
                     .setParam("file",filePath)
