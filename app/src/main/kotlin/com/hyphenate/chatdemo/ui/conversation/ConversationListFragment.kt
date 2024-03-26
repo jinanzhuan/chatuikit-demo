@@ -62,7 +62,7 @@ class ConversationListFragment: EaseConversationListFragment() {
                     titlebar.getStatusView().visibility = View.VISIBLE
                     titlebar.setLogoStatusSize(resources.getDimensionPixelSize(com.hyphenate.easeui.R.dimen.ease_title_bar_status_icon_size))
                 }
-                ChatLog.e("ConversationListFragment","updateProfile ${profile.name} ${profile.avatar}")
+                ChatLog.e("ConversationListFragment","updateProfile ${profile.id} ${profile.name} ${profile.avatar}")
                 titlebar.setLogo(profile.avatar, com.hyphenate.easeui.R.drawable.ease_default_avatar, 32.dpToPx(mContext))
                 val layoutParams = titlebar.getLogoView()?.layoutParams as? ViewGroup.MarginLayoutParams
                 layoutParams?.marginStart = 12.dpToPx(mContext)

@@ -43,42 +43,46 @@ class ProfileInfoRepository: BaseRepository()  {
 
     suspend fun synchronizeProfile(isSyncFromServer:Boolean):EaseProfile? =
         withContext(Dispatchers.IO) {
-            val currentProfile = EaseIM.getCurrentUser()
-            val user = DemoHelper.getInstance().getDataModel().getUser(currentProfile?.id)
-            ChatLog.e("ProfileInfoRepository","synchronizeProfile 1 $user $isSyncFromServer - $currentProfile")
-            if (user == null || isSyncFromServer){
-                currentProfile?.let { profile->
-                    val ids = mutableListOf(profile.id)
-                    val type = mutableListOf(ChatUserInfoType.NICKNAME,ChatUserInfoType.AVATAR_URL)
-                    ChatClient.getInstance().userInfoManager().fetchUserInfoByAttribute(ids.toTypedArray(),type.toTypedArray(),object :
-                        EMValueCallBack<MutableMap<String, EMUserInfo>>{
-                        override fun onSuccess(value: MutableMap<String, EMUserInfo>?) {
-                             ChatLog.e("ProfileInfoRepository","fetchUserInfoByAttribute onSuccess $value")
-                             value?.let { map->
-                                 if (value.containsKey(profile.id)){
-                                     map[profile.id]?.let {
-                                         profile.name = it.nickname
-                                         profile.avatar = it.avatarUrl
-                                         EaseIM.updateUsersInfo(mutableListOf(profile))
-                                     }
-                                 }
-                             }
-                        }
+            val currentProfile = EaseIM.getCurrentUser()?:EaseProfile(ChatClient.getInstance().currentUser)
+            val user = DemoHelper.getInstance().getDataModel().getUser(currentProfile.id)
+            ChatLog.e("ProfileInfoRepository","synchronizeProfile $user $isSyncFromServer - $currentProfile")
+            suspendCoroutine { continuation ->
+                if (user == null || isSyncFromServer){
+                    currentProfile.let { profile->
+                        val ids = mutableListOf(profile.id)
+                        val type = mutableListOf(ChatUserInfoType.NICKNAME,ChatUserInfoType.AVATAR_URL)
+                        ChatClient.getInstance().userInfoManager().fetchUserInfoByAttribute(ids.toTypedArray(),type.toTypedArray(),object :
+                            EMValueCallBack<MutableMap<String, EMUserInfo>>{
+                            override fun onSuccess(value: MutableMap<String, EMUserInfo>?) {
+                                ChatLog.e("ProfileInfoRepository","fetchUserInfoByAttribute onSuccess ${profile.id} - $value")
+                                value?.let { map->
+                                    if (value.containsKey(profile.id)){
+                                        map[profile.id]?.let {
+                                            profile.name = it.nickname
+                                            profile.avatar = it.avatarUrl
+                                            EaseIM.updateUsersInfo(mutableListOf(profile))
+                                            continuation.resume(profile)
+                                        }
+                                    }
+                                }
+                            }
 
-                        override fun onError(error: Int, errorMsg: String?) {
-                            ChatLog.e("ProfileInfoRepository","fetchUserInfoByAttribute onError$error $errorMsg")
-                        }
-                    })
-                }
-            }else{
-                ChatLog.e("ProfileInfoRepository","fetchLocalUserInfo")
-                currentProfile?.let {
-                    it.name = user.name
-                    it.avatar = user.avatar
-                    EaseIM.updateUsersInfo(mutableListOf(it))
+                            override fun onError(error: Int, errorMsg: String?) {
+                                ChatLog.e("ProfileInfoRepository","fetchUserInfoByAttribute onError$error $errorMsg")
+                                continuation.resumeWithException(ChatException(error, errorMsg))
+                            }
+                        })
+                    }
+                }else{
+                    ChatLog.e("ProfileInfoRepository","fetchLocalUserInfo")
+                    currentProfile.let {
+                        it.name = user.name
+                        it.avatar = user.avatar
+                        EaseIM.updateUsersInfo(mutableListOf(it))
+                    }
+                    continuation.resume(currentProfile)
                 }
             }
-            currentProfile
         }
 
     suspend fun setUserRemark(username:String,remark:String): Int =
