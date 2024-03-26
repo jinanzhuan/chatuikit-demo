@@ -71,12 +71,6 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                     .catchChatException {
                         ChatLog.e("ContactDetail", "fetchUserInfoAttribute error: ${it.description}")
                     }
-                    .onStart {
-                        showLoading(true)
-                    }
-                    .onCompletion {
-                        dismissLoading()
-                    }
                     .collect {
                         it[user.userId]?.parseToDbBean()?.let {u->
                             u.parse().apply {
