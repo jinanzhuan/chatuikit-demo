@@ -11,11 +11,11 @@ import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.ui.me.EditUserNicknameActivity
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
-import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.extensions.catchChatException
-import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -78,22 +78,25 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
     private fun setRemark(){
         targetUserId?.let {
             lifecycleScope.launch {
-                val remark = binding.etName.text.toString()
-                if (remark.isNotEmpty()){
-                    model?.setUserRemark(it,remark)?.
-                        catchChatException { e ->
-                            ChatLog.e("TAG", "setRemark fail error message = " + e.description)
-                        }?.
-                        stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), -1)?.
-                        collect {
-                            if (it != -1) {
-                                val resultIntent = Intent()
-                                resultIntent.putExtra(RESULT_UPDATE_REMARK, remark)
-                                setResult(RESULT_OK,resultIntent)
-                                finish()
-                            }
-                        }
+                var remark = binding.etName.text.toString()
+                if (remark.isNullOrEmpty()) {
+                    remark = ""
                 }
+                model?.setUserRemark(it,remark)
+                    ?.onStart { showLoading(true) }
+                    ?.onCompletion { dismissLoading() }
+                    ?.catchChatException { e ->
+                        ChatLog.e("TAG", "setRemark fail error message = " + e.description)
+                    }?.
+                    stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), -1)?.
+                    collect {
+                        if (it != -1) {
+                            val resultIntent = Intent()
+                            resultIntent.putExtra(RESULT_UPDATE_REMARK, remark)
+                            setResult(RESULT_OK,resultIntent)
+                            finish()
+                        }
+                    }
             }
         }
 

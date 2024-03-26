@@ -3,6 +3,9 @@ package com.hyphenate.chatdemo.ui.group
 import androidx.core.content.ContextCompat
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.callkit.CallKitManager
+import com.hyphenate.chatdemo.common.extensions.internal.parse
+import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatGroup
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
 import com.hyphenate.easeui.model.EaseMenuItem
@@ -42,5 +45,10 @@ class ChatGroupDetailActivity :EaseGroupDetailActivity(){
     override fun onPrimaryClipChanged() {
         super.onPrimaryClipChanged()
         mContext.showToast(getString(R.string.system_copy_success))
+    }
+
+    override fun fetchGroupDetailSuccess(group: ChatGroup) {
+        EaseIM.updateGroupInfo(listOf(group.parse()))
+        super.fetchGroupDetailSuccess(group)
     }
 }

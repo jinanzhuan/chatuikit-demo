@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
+import com.hyphenate.easeui.common.ChatUserInfoType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -46,5 +47,13 @@ class ProfileInfoViewModel(application: Application) : AndroidViewModel(applicat
     fun getGroupAvatar(groupId:String?) = flow {
         emit(mRepository.getGroupAvatar(groupId))
     }
+
+    /**
+     * Fetch the user info attribute.
+     */
+    fun fetchUserInfoAttribute(userIds: List<String>, attributes: List<ChatUserInfoType>) =
+        flow {
+            emit(mRepository.getUserInfoAttribute(userIds, attributes))
+        }
 
 }
