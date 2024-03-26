@@ -66,11 +66,6 @@ class DemoHelper private constructor(){
                 addUIKitSettings()
                 // Initialize the callkit module.
                 initCallKit()
-
-                val targetLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
-                targetLanguage?.let {
-                    LanguageUtil.changeLanguage(it)
-                }
             }
         }
     }

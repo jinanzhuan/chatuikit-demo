@@ -2,14 +2,15 @@ package com.hyphenate.chatdemo.ui.me
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityFeaturesBinding
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
-import com.hyphenate.easeui.widget.EaseSwitchItemView
+import com.hyphenate.easeui.common.helper.EasePreferenceManager
 
-class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),
-    EaseSwitchItemView.OnCheckedChangeListener {
+class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),View.OnClickListener {
     override fun getViewBinding(inflater: LayoutInflater): DemoActivityFeaturesBinding {
         return DemoActivityFeaturesBinding.inflate(inflater)
     }
@@ -21,9 +22,9 @@ class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),
     }
 
     fun initView(){
-        val enableTranslation = EaseIM.getConfig()?.chatConfig?.enableTranslationMessage ?: false
-        val enableThread = EaseIM.getConfig()?.chatConfig?.enableChatThreadMessage ?: false
-        val enableReaction = EaseIM.getConfig()?.chatConfig?.enableMessageReaction ?: false
+        val enableTranslation = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_TRANSLATION)
+        val enableThread = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_THREAD)
+        val enableReaction = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_REACTION)
 
         if (enableTranslation){
             binding.switchItemTranslation.setChecked(true)
@@ -55,22 +56,37 @@ class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),
             it.titleBar.setNavigationOnClickListener{
                 mContext.onBackPressed()
             }
-            it.switchItemTranslation.setOnCheckedChangeListener(this)
-            it.switchItemTopic.setOnCheckedChangeListener(this)
-            it.switchItemReaction.setOnCheckedChangeListener(this)
+            it.switchItemTranslation.setOnClickListener(this)
+            it.switchItemTopic.setOnClickListener(this)
+            it.switchItemReaction.setOnClickListener(this)
         }
     }
 
-    override fun onCheckedChanged(buttonView: EaseSwitchItemView?, isChecked: Boolean) {
-        when(buttonView?.id){
-            R.id.switch_item_translation ->{
-                EaseIM.getConfig()?.chatConfig?.enableTranslationMessage = isChecked
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.switch_item_translation -> {
+                binding.switchItemTranslation.switch?.let { switch ->
+                    val isChecked = switch.isChecked.not()
+                    binding.switchItemTranslation.setChecked(isChecked)
+                    EaseIM.getConfig()?.chatConfig?.enableTranslationMessage = isChecked
+                    EasePreferenceManager.getInstance().putBoolean(DemoConstant.FEATURES_TRANSLATION,isChecked)
+                }
             }
-            R.id.switch_item_topic ->{
-                EaseIM.getConfig()?.chatConfig?.enableChatThreadMessage = isChecked
+            R.id.switch_item_topic -> {
+                binding.switchItemTopic.switch?.let { switch ->
+                    val isChecked = switch.isChecked.not()
+                    binding.switchItemTopic.setChecked(isChecked)
+                    EaseIM.getConfig()?.chatConfig?.enableChatThreadMessage = isChecked
+                    EasePreferenceManager.getInstance().putBoolean(DemoConstant.FEATURES_THREAD,isChecked)
+                }
             }
             R.id.switch_item_reaction -> {
-                EaseIM.getConfig()?.chatConfig?.enableMessageReaction = isChecked
+                binding.switchItemReaction.switch?.let { switch ->
+                    val isChecked = switch.isChecked.not()
+                    binding.switchItemReaction.setChecked(isChecked)
+                    EaseIM.getConfig()?.chatConfig?.enableMessageReaction = isChecked
+                    EasePreferenceManager.getInstance().putBoolean(DemoConstant.FEATURES_REACTION,isChecked)
+                }
             }
             else -> {}
         }

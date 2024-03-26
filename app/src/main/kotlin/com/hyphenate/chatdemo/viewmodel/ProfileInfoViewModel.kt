@@ -44,6 +44,11 @@ class ProfileInfoViewModel(application: Application) : AndroidViewModel(applicat
         return contact?.remark
     }
 
+    fun synchronizeProfile(isSyncFromServer:Boolean = false) =
+        flow {
+            emit(mRepository.synchronizeProfile(isSyncFromServer))
+        }
+
     fun getGroupAvatar(groupId:String?) = flow {
         emit(mRepository.getGroupAvatar(groupId))
     }

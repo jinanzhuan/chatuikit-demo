@@ -132,7 +132,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
 
             EaseIM.getCurrentUser()?.let {
                 epPresence.setPresenceData(it)
-                name = it.name?:it.id
+                name = it.getNotEmptyName()
             }
 
             tvName.text = name
