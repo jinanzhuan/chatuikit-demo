@@ -15,4 +15,6 @@ plugins {
     id("com.google.gms.google-services") version "4.4.1" apply false
     // Add to replace of kapt plugin when using Room. 1.8.0 is the version of Kotlin, 1.0.9 is the version of KSP
     id("com.google.devtools.ksp") version "1.8.0-1.0.9" apply false
+    // If use Gradle 8.0.2 or higher, also need to add a toolchain resolver plugin.
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.5.0") apply false
 }
