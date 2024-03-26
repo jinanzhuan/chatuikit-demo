@@ -37,7 +37,11 @@ object UIKitManager {
     fun addProviders(context: Context) {
         EaseIM.setUserProfileProvider(object : EaseUserProfileProvider {
                 override fun getUser(userId: String?): EaseProfile? {
-                    return DemoHelper.getInstance().getDataModel().getAllContacts()[userId]?.toProfile()
+                    return DemoHelper.getInstance().getDataModel().getAllContacts()[userId]?.toProfile()?.run {
+                        // reset remark
+                        remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(userId)?.remark
+                        this
+                    }
                 }
 
                 override fun fetchUsers(

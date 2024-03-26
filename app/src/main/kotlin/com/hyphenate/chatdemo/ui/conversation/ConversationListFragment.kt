@@ -41,6 +41,12 @@ class ConversationListFragment: EaseConversationListFragment() {
                 updateProfile()
             }
         }
+
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX).register(this) {
+            if (it.isContactChange && it.message.isNullOrEmpty().not()) {
+                binding?.listConversation?.notifyDataSetChanged()
+            }
+        }
     }
 
     private fun updateProfile(){

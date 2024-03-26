@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hyphenate.chatdemo.DemoHelper
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.viewmodel.ChatContactViewModel
 import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
+import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseUser
 import com.hyphenate.easeui.viewmodel.contacts.IContactListRequest
 
@@ -22,6 +25,15 @@ class ChatContactListFragment : EaseContactsListFragment() {
         contactViewModel = ViewModelProvider(context as AppCompatActivity)[ChatContactViewModel::class.java]
         binding?.listContact?.setViewModel(contactViewModel)
         super.initView(savedInstanceState)
+    }
+
+    override fun initData() {
+        super.initData()
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX).register(this) {
+            if (it.isContactChange && it.message.isNullOrEmpty().not()) {
+                binding?.listContact?.loadContactData(false)
+            }
+        }
     }
 
     override fun loadContactListSuccess(userList: MutableList<EaseUser>) {

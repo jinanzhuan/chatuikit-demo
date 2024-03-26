@@ -2,7 +2,6 @@ package com.hyphenate.chatdemo.common
 
 import android.content.Context
 import com.hyphenate.chatdemo.common.room.AppDatabase
-import com.hyphenate.chatdemo.common.room.dao.DemoGroupDao
 import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
 import com.hyphenate.chatdemo.common.room.entity.DemoUser
 import com.hyphenate.chatdemo.common.room.entity.parse
@@ -43,16 +42,6 @@ class DemoDataModel(private val context: Context) {
             throw IllegalStateException("EaseIM SDK must be inited before using.")
         }
         return database.userDao()
-    }
-
-    /**
-     * Get the group data access object.
-     */
-    fun getGroupDao(): DemoGroupDao {
-        if (EaseIM.isInited().not()) {
-            throw IllegalStateException("EaseIM SDK must be inited before using.")
-        }
-        return database.groupDao()
     }
 
     /**
@@ -117,6 +106,20 @@ class DemoDataModel(private val context: Context) {
 
     private fun resetUsersTimes() {
         getUserDao().resetUsersTimes()
+    }
+
+    /**
+     * Update UIKit's user cache.
+     */
+    fun updateUserCache(userId: String?) {
+        if (userId.isNullOrEmpty()) {
+            return
+        }
+        val user = contactList[userId]?.parse() ?: return
+        ChatClient.getInstance().contactManager().fetchContactFromLocal(userId)?.remark?.let { remark ->
+            user.remark = remark
+        }
+        EaseIM.updateUsersInfo(mutableListOf(user))
     }
 
 

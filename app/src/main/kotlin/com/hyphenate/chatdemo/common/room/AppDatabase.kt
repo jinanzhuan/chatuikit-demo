@@ -5,23 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.hyphenate.chatdemo.common.extensions.MD5
-import com.hyphenate.chatdemo.common.room.dao.DemoGroupDao
 import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
-import com.hyphenate.chatdemo.common.room.entity.DemoGroup
 import com.hyphenate.chatdemo.common.room.entity.DemoUser
 
-@Database(entities = [DemoUser::class, DemoGroup::class], version = 2)
+@Database(entities = [DemoUser::class], version = 2)
 abstract class AppDatabase: RoomDatabase() {
 
     /**
      * Get the user data access object.
      */
     abstract fun userDao(): DemoUserDao
-
-    /**
-     * Get the group data access object.
-     */
-    abstract fun groupDao(): DemoGroupDao
 
     companion object {
         @Volatile

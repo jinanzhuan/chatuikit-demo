@@ -8,10 +8,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.hyphenate.chatdemo.R
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.callkit.CallKitManager
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
+import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
+import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.widget.EaseArrowItemView
 
@@ -97,12 +102,19 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                     data?.let {
                         if (it.hasExtra(RESULT_UPDATE_REMARK)){
                             remarkItem.setContent(it.getStringExtra(RESULT_UPDATE_REMARK))
+                            notifyUpdateRemarkEvent()
                         }
                     }
                 }
                 else -> {}
             }
         }
+    }
+
+    private fun notifyUpdateRemarkEvent() {
+        DemoHelper.getInstance().getDataModel().updateUserCache(user?.userId)
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX)
+            .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_USER_SUFFIX, EaseEvent.TYPE.CONTACT, user?.userId))
     }
 
     override fun onPrimaryClipChanged() {

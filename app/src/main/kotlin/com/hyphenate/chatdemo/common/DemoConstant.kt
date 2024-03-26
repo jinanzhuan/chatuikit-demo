@@ -5,6 +5,7 @@ object DemoConstant {
     const val CALL_INVITE_MESSAGE = "call_invite_message"
 
     const val EVENT_UPDATE_SELF = "event_update_self"
+    const val EVENT_UPDATE_USER_SUFFIX = "/info"
 
     const val IS_BLACK_THEME = "isBlack"
     const val TARGET_LANGUAGE = "target_language"

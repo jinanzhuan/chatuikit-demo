@@ -35,6 +35,7 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
             etName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(128))
             targetUserId?.let {
                 val remark = model?.fetchLocalUserRemark(it)
+                etName.setText(remark)
                 inputNameCount.text = resources.getString(R.string.demo_contact_remark_count,remark?.length?:0)
             }
         }
@@ -84,12 +85,14 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
                         catchChatException { e ->
                             ChatLog.e("TAG", "setRemark fail error message = " + e.description)
                         }?.
-                        stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), ChatError.EM_NO_ERROR)?.
+                        stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), -1)?.
                         collect {
-                            val resultIntent = Intent()
-                            resultIntent.putExtra(RESULT_UPDATE_REMARK, remark)
-                            setResult(RESULT_OK,resultIntent)
-                            finish()
+                            if (it != -1) {
+                                val resultIntent = Intent()
+                                resultIntent.putExtra(RESULT_UPDATE_REMARK, remark)
+                                setResult(RESULT_OK,resultIntent)
+                                finish()
+                            }
                         }
                 }
             }

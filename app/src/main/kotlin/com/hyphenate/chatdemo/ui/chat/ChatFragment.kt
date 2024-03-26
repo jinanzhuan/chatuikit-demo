@@ -4,15 +4,30 @@ import android.os.Bundle
 import android.view.MenuItem
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.callkit.CallKitManager
+import com.hyphenate.chatdemo.common.DemoConstant
+import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.feature.chat.EaseChatFragment
 import com.hyphenate.easeui.feature.chat.enums.EaseChatType
-import com.hyphenate.easeui.feature.thread.EaseChatThreadListActivity
+import com.hyphenate.easeui.model.EaseEvent
 
 class ChatFragment: EaseChatFragment() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         binding?.titleBar?.inflateMenu(R.menu.demo_chat_menu)
+    }
+
+    override fun initEventBus() {
+        super.initEventBus()
+        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX).register(this) {
+            if (it.isContactChange && it.message.isNullOrEmpty().not()) {
+                val userId = it.message
+                if (chatType == EaseChatType.SINGLE_CHAT && userId == conversationId) {
+                    setDefaultHeader(true)
+                }
+                binding?.layoutChat?.chatMessageListLayout?.refreshMessages()
+            }
+        }
     }
 
     override fun setMenuItemClick(item: MenuItem): Boolean {
