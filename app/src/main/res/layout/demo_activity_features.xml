@@ -22,6 +22,7 @@
         android:id="@+id/switch_item_translation"
         app:switchItemTitle="@string/currency_feature_translation"
         style="@style/ease_contact_detail_switch_item"
+        app:switchItemClickable="false"
         android:layout_width="match_parent"
         android:layout_height="54dp" />
 
@@ -36,6 +37,7 @@
         android:id="@+id/switch_item_topic"
         app:switchItemTitle="@string/currency_feature_topic"
         style="@style/ease_contact_detail_switch_item"
+        app:switchItemClickable="false"
         android:layout_width="match_parent"
         android:layout_height="54dp" />
 
@@ -50,6 +52,7 @@
         android:id="@+id/switch_item_reaction"
         app:switchItemTitle="@string/currency_feature_reaction"
         style="@style/ease_contact_detail_switch_item"
+        app:switchItemClickable="false"
         android:layout_width="match_parent"
         android:layout_height="54dp" />
 

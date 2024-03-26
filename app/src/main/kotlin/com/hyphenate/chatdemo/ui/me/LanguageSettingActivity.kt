@@ -14,7 +14,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.hyphenate.chatdemo.MainActivity
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.bean.Language
 import com.hyphenate.chatdemo.bean.LanguageType

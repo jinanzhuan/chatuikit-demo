@@ -9,27 +9,36 @@ import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.navigation.NavigationBarView
 import com.hyphenate.chat.EMMessage
 import com.hyphenate.chatdemo.base.BaseInitActivity
+import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.ActivityMainBinding
 import com.hyphenate.chatdemo.ui.conversation.ConversationListFragment
 import com.hyphenate.chatdemo.interfaces.IMainResultView
 import com.hyphenate.chatdemo.login.AboutMeFragment
 import com.hyphenate.chatdemo.ui.contact.ChatContactListFragment
 import com.hyphenate.chatdemo.viewmodel.MainViewModel
+import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatError
+import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatMessageListener
 import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
+import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.conversation.EaseConversationListFragment
 import com.hyphenate.easeui.interfaces.EaseContactListener
 import com.hyphenate.easeui.interfaces.OnEventResultListener
 import com.hyphenate.easeui.model.EaseEvent
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
@@ -45,6 +54,9 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
     private val badgeMap = mutableMapOf<Int, TextView>()
     private val mainViewModel: MainViewModel by lazy {
         ViewModelProvider(this)[MainViewModel::class.java]
+    }
+    private val mProfileViewModel: ProfileInfoViewModel by lazy {
+        ViewModelProvider(this)[ProfileInfoViewModel::class.java]
     }
 
     companion object {
@@ -74,6 +86,7 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
     override fun initData() {
         super.initData()
         mainViewModel.attachView(this)
+        synchronizeProfile()
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.ADD.name).register(this){
             // check unread message count
             mainViewModel.getUnreadMessageCount()
@@ -274,6 +287,25 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
 
     override fun onMessageReceived(messages: MutableList<EMMessage>?) {
         mainViewModel.getUnreadMessageCount()
+    }
+
+    private fun synchronizeProfile(){
+        lifecycleScope.launch {
+            mProfileViewModel.synchronizeProfile()
+                .onCompletion { dismissLoading() }
+                .catchChatException { e ->
+                    ChatLog.e("MainActivity", " synchronizeProfile fail error message = " + e.description)
+                }
+                .stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), null)
+                .collect {
+                    ChatLog.e("MainActivity","synchronizeProfile result $it")
+                    it?.let {
+                        EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT)
+                            .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_SELF, EaseEvent.TYPE.CONTACT))
+                    }
+                }
+        }
+
     }
 
 }

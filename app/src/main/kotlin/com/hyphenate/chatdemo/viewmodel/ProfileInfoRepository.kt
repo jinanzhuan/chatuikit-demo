@@ -1,11 +1,15 @@
 package com.hyphenate.chatdemo.viewmodel
 
 import com.hyphenate.EMCallBack
+import com.hyphenate.EMValueCallBack
+import com.hyphenate.chat.EMUserInfo
 import com.hyphenate.chatdemo.BuildConfig
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.common.suspend.fetUserInfo
 import com.hyphenate.chatdemo.common.suspend.updateOwnAttribute
 import com.hyphenate.cloud.HttpCallback
 import com.hyphenate.cloud.HttpClientManager
+import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatException
@@ -14,6 +18,7 @@ import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatUserInfo
 import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.ChatValueCallback
+import com.hyphenate.easeui.model.EaseProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONException
@@ -34,6 +39,46 @@ class ProfileInfoRepository: BaseRepository()  {
     suspend fun getUserInfoAttribute(userIds: List<String>, attributes: List<ChatUserInfoType>): Map<String, ChatUserInfo> =
         withContext(Dispatchers.IO) {
             ChatClient.getInstance().userInfoManager().fetUserInfo(userIds,attributes)
+        }
+
+    suspend fun synchronizeProfile(isSyncFromServer:Boolean):EaseProfile? =
+        withContext(Dispatchers.IO) {
+            val currentProfile = EaseIM.getCurrentUser()
+            val user = DemoHelper.getInstance().getDataModel().getUser(currentProfile?.id)
+            ChatLog.e("ProfileInfoRepository","synchronizeProfile 1 $user $isSyncFromServer - $currentProfile")
+            if (user == null || isSyncFromServer){
+                currentProfile?.let { profile->
+                    val ids = mutableListOf(profile.id)
+                    val type = mutableListOf(ChatUserInfoType.NICKNAME,ChatUserInfoType.AVATAR_URL)
+                    ChatClient.getInstance().userInfoManager().fetchUserInfoByAttribute(ids.toTypedArray(),type.toTypedArray(),object :
+                        EMValueCallBack<MutableMap<String, EMUserInfo>>{
+                        override fun onSuccess(value: MutableMap<String, EMUserInfo>?) {
+                             ChatLog.e("ProfileInfoRepository","fetchUserInfoByAttribute onSuccess $value")
+                             value?.let { map->
+                                 if (value.containsKey(profile.id)){
+                                     map[profile.id]?.let {
+                                         profile.name = it.nickname
+                                         profile.avatar = it.avatarUrl
+                                         EaseIM.updateUsersInfo(mutableListOf(profile))
+                                     }
+                                 }
+                             }
+                        }
+
+                        override fun onError(error: Int, errorMsg: String?) {
+                            ChatLog.e("ProfileInfoRepository","fetchUserInfoByAttribute onError$error $errorMsg")
+                        }
+                    })
+                }
+            }else{
+                ChatLog.e("ProfileInfoRepository","fetchLocalUserInfo")
+                currentProfile?.let {
+                    it.name = user.name
+                    it.avatar = user.avatar
+                    EaseIM.updateUsersInfo(mutableListOf(it))
+                }
+            }
+            currentProfile
         }
 
     suspend fun setUserRemark(username:String,remark:String): Int =
