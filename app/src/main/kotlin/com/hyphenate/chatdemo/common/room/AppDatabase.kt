@@ -8,7 +8,7 @@ import com.hyphenate.chatdemo.common.extensions.MD5
 import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
 import com.hyphenate.chatdemo.common.room.entity.DemoUser
 
-@Database(entities = [DemoUser::class], version = 2)
+@Database(entities = [DemoUser::class], version = 3)
 abstract class AppDatabase: RoomDatabase() {
 
     /**

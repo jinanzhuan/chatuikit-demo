@@ -24,9 +24,8 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
     private var targetUserId:String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         targetUserId = intent.getStringExtra(KEY_USER_ID)
-
+        super.onCreate(savedInstanceState)
     }
     override fun initTitle() {
         model = ViewModelProvider(this)[ProfileInfoViewModel::class.java]
