@@ -12,13 +12,23 @@ import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoConstant
+import com.hyphenate.chatdemo.common.room.entity.parse
+import com.hyphenate.chatdemo.common.room.extensions.parseToDbBean
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
+import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatClient
+import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.bus.EaseFlowBus
+import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.widget.EaseArrowItemView
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 
 class ChatContactDetailActivity:EaseContactDetailsActivity() {
@@ -51,6 +61,28 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
             }
         }
         binding.tvNumber
+    }
+
+    override fun initData() {
+        super.initData()
+        lifecycleScope.launch {
+            user?.let { user->
+                model.fetchUserInfoAttribute(listOf(user.userId), listOf(ChatUserInfoType.NICKNAME, ChatUserInfoType.AVATAR_URL))
+                    .catchChatException {
+                        ChatLog.e("ContactDetail", "fetchUserInfoAttribute error: ${it.description}")
+                    }
+                    .collect {
+                        it[user.userId]?.parseToDbBean()?.let {u->
+                            u.parse().apply {
+                                remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id).remark
+                                EaseIM.updateUsersInfo(mutableListOf(this))
+                                DemoHelper.getInstance().getDataModel().insertUser(this)
+                            }
+                            notifyUpdateRemarkEvent()
+                        }
+                    }
+            }
+        }
     }
 
     override fun getDetailItem(): MutableList<EaseMenuItem>? {

@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object ListenersWrapper {
+    private var isLoadGroupList = false
 
     private val connectListener by lazy {
         object : ChatConnectionListener {
@@ -25,10 +26,13 @@ object ListenersWrapper {
                 // do something
                 CoroutineScope(Dispatchers.IO).launch {
                     val groups = ChatClient.getInstance().groupManager().allGroups
-                    if (groups.isEmpty()) {
+                    if (isLoadGroupList.not() && groups.isEmpty()) {
                         ChatClient.getInstance().groupManager().asyncGetJoinedGroupsFromServer(ValueCallbackImpl<List<ChatGroup>>(onSuccess = {
+                            isLoadGroupList = true
                             if (it.isEmpty().not()) {
-                                EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name).post(DemoHelper.getInstance().context.ioScope(), EaseEvent(EaseEvent.EVENT.UPDATE.name, EaseEvent.TYPE.GROUP))
+                                EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE.name)
+                                    .post(DemoHelper.getInstance().context.ioScope(),
+                                        EaseEvent(EaseEvent.EVENT.UPDATE.name, EaseEvent.TYPE.GROUP))
                             }
                         }, onError = {_,_ ->
 
