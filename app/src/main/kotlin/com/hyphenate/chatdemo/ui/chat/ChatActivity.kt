@@ -31,7 +31,6 @@ class ChatActivity: EaseChatActivity() {
             }
         })
         builder.setCustomFragment(ChatFragment())
-            .setTargetTranslationList(mutableListOf("EN"))
             .setCustomAdapter(CustomMessagesAdapter())
     }
 }

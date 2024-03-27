@@ -34,9 +34,6 @@ class ChatNewRequestsActivity:EaseNewRequestsActivity() {
                     ChatLog.e("ChatNewRequestsActivity", "fetchUserInfoAttribute error: ${it.description}")
                 }
                 .collect {
-                    for (value in it.values) {
-                        Log.e("apex","agreeInviteSuccess ${value.userId} - ${value.nickname}")
-                    }
                     it[userId]?.parseToDbBean()?.let {u->
                         u.parse().apply {
                             remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id)?.remark ?:""

@@ -3,12 +3,12 @@ package com.hyphenate.chatdemo.ui.me
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityFeaturesBinding
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
-import com.hyphenate.easeui.common.helper.EasePreferenceManager
 
 class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),View.OnClickListener {
     override fun getViewBinding(inflater: LayoutInflater): DemoActivityFeaturesBinding {
@@ -22,10 +22,9 @@ class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),View.OnCl
     }
 
     fun initView(){
-        val enableTranslation = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_TRANSLATION)
-        val enableThread = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_THREAD)
-        val enableReaction = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_REACTION)
-
+        val enableTranslation = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_TRANSLATION,true)
+        val enableThread = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_THREAD,true)
+        val enableReaction = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_REACTION,true)
         if (enableTranslation){
             binding.switchItemTranslation.setChecked(true)
         }else{
@@ -69,7 +68,7 @@ class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),View.OnCl
                     val isChecked = switch.isChecked.not()
                     binding.switchItemTranslation.setChecked(isChecked)
                     EaseIM.getConfig()?.chatConfig?.enableTranslationMessage = isChecked
-                    EasePreferenceManager.getInstance().putBoolean(DemoConstant.FEATURES_TRANSLATION,isChecked)
+                    DemoHelper.getInstance().getDataModel().putBoolean(DemoConstant.FEATURES_TRANSLATION,isChecked)
                 }
             }
             R.id.switch_item_topic -> {
@@ -77,7 +76,7 @@ class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),View.OnCl
                     val isChecked = switch.isChecked.not()
                     binding.switchItemTopic.setChecked(isChecked)
                     EaseIM.getConfig()?.chatConfig?.enableChatThreadMessage = isChecked
-                    EasePreferenceManager.getInstance().putBoolean(DemoConstant.FEATURES_THREAD,isChecked)
+                    DemoHelper.getInstance().getDataModel().putBoolean(DemoConstant.FEATURES_THREAD,isChecked)
                 }
             }
             R.id.switch_item_reaction -> {
@@ -85,7 +84,7 @@ class FeaturesActivity:EaseBaseActivity<DemoActivityFeaturesBinding>(),View.OnCl
                     val isChecked = switch.isChecked.not()
                     binding.switchItemReaction.setChecked(isChecked)
                     EaseIM.getConfig()?.chatConfig?.enableMessageReaction = isChecked
-                    EasePreferenceManager.getInstance().putBoolean(DemoConstant.FEATURES_REACTION,isChecked)
+                    DemoHelper.getInstance().getDataModel().putBoolean(DemoConstant.FEATURES_REACTION,isChecked)
                 }
             }
             else -> {}

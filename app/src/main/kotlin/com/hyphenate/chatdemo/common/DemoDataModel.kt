@@ -278,6 +278,17 @@ class DemoDataModel(private val context: Context) {
         return PreferenceManager.getValue(KEY_PUSH_APP_SILENT_MODEL, false)
     }
 
+    fun putBoolean(key: String, value: Boolean){
+        PreferenceManager.putValue(key,value)
+    }
+
+    fun getBoolean(key: String,default:Boolean?=false): Boolean {
+        return if (default == null){
+            PreferenceManager.getValue(key, false)
+        }else{
+            PreferenceManager.getValue(key, default)
+        }
+    }
 
     companion object {
         private const val KEY_DEVELOPER_MODE = "shared_is_developer"
