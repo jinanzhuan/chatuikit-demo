@@ -11,7 +11,7 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -325,6 +325,8 @@
         <activity android:name=".ui.contact.ChatContactRemarkActivity"
             android:exported="false"/>
         <activity android:name="com.hyphenate.chatdemo.ui.group.CreateGroupActivity"
+            android:exported="false"/>
+        <activity android:name=".ui.contact.ChatNewRequestsActivity"
             android:exported="false"/>
     </application>
 

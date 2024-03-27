@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.bean.LanguageType
 import com.hyphenate.chatdemo.common.DemoConstant
@@ -55,7 +56,7 @@ class CurrencyActivity:EaseBaseActivity<DemoActivityCurrencyBinding>(),
     }
 
     private fun initSwitch(){
-        val isBlack = EasePreferenceManager.getInstance().getBoolean(DemoConstant.IS_BLACK_THEME)
+        val isBlack = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.IS_BLACK_THEME)
         if (isBlack){
             binding.switchItemDark.setChecked(true)
         }else{
@@ -103,7 +104,7 @@ class CurrencyActivity:EaseBaseActivity<DemoActivityCurrencyBinding>(),
 
     private fun changeTheme(isChecked: Boolean){
         AppCompatDelegate.setDefaultNightMode(if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
-        EasePreferenceManager.getInstance().putBoolean(DemoConstant.IS_BLACK_THEME, isChecked)
+        DemoHelper.getInstance().getDataModel().putBoolean(DemoConstant.IS_BLACK_THEME, isChecked)
     }
 
     private fun updateLanguage(){

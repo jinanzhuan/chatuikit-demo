@@ -21,23 +21,23 @@ class DemoApplication: Application() {
 
         DemoHelper.getInstance().init(this)
         initSDK()
-        initFeatureConfig()
     }
 
     private fun initSDK() {
         if (DemoHelper.getInstance().getDataModel().isAgreeAgreement()) {
             DemoHelper.getInstance().initSDK()
+            initFeatureConfig()
         }
     }
 
     private fun initFeatureConfig(){
         // Call this method after EaseIM#init
-        val isBlack = EasePreferenceManager.getInstance().getBoolean(DemoConstant.IS_BLACK_THEME)
+        val isBlack = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.IS_BLACK_THEME)
         AppCompatDelegate.setDefaultNightMode(if (isBlack) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 
-        val enableTranslation = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_TRANSLATION)
-        val enableThread = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_THREAD)
-        val enableReaction = EasePreferenceManager.getInstance().getBoolean(DemoConstant.FEATURES_REACTION)
+        val enableTranslation = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_TRANSLATION,true)
+        val enableThread = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_THREAD,true)
+        val enableReaction = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_REACTION,true)
         val targetLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
         targetLanguage?.let {
             LanguageUtil.changeLanguage(it)
