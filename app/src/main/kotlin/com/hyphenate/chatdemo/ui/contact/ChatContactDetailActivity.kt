@@ -25,9 +25,8 @@ import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
+import com.hyphenate.easeui.provider.getSyncUser
 import com.hyphenate.easeui.widget.EaseArrowItemView
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 
@@ -145,8 +144,16 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
 
     private fun notifyUpdateRemarkEvent() {
         DemoHelper.getInstance().getDataModel().updateUserCache(user?.userId)
+        updateInfo()
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX)
             .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_USER_SUFFIX, EaseEvent.TYPE.CONTACT, user?.userId))
+    }
+
+    private fun updateInfo(){
+        EaseIM.getUserProvider()?.getSyncUser(user?.userId)?.let {
+            binding.epPresence.setPresenceData(it)
+            binding.tvName.text = it.getRemarkOrName()
+        }
     }
 
     override fun onPrimaryClipChanged() {
