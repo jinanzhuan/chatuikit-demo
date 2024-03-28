@@ -9,6 +9,7 @@ import com.hyphenate.chatdemo.R
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import coil.ImageLoader
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoConstant
@@ -22,6 +23,7 @@ import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.showToast
+import com.hyphenate.easeui.common.extensions.toProfile
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
@@ -74,14 +76,23 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                     .collect {
                         it[user.userId]?.parseToDbBean()?.let {u->
                             u.parse().apply {
-                                remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id).remark
+                                remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id)?.remark
                                 EaseIM.updateUsersInfo(mutableListOf(this))
                                 DemoHelper.getInstance().getDataModel().insertUser(this)
                             }
+                            updateUserInfo()
                             notifyUpdateRemarkEvent()
                         }
                     }
             }
+        }
+    }
+
+    private fun updateUserInfo() {
+        DemoHelper.getInstance().getDataModel().getUser(user?.userId)?.let {
+            binding.epPresence.setPresenceData(it.parse())
+            binding.tvName.text = it.name?.ifEmpty { it.userId } ?: it.userId
+            binding.tvNumber.text = it.userId
         }
     }
 
