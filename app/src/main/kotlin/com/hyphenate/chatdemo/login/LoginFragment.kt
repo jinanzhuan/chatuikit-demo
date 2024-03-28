@@ -85,6 +85,7 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
             tvLoginDeveloper.setOnClickListener(this@LoginFragment)
             cbSelect.setOnCheckedChangeListener(this@LoginFragment)
             etLoginCode.setOnEditorActionListener(this@LoginFragment)
+            etLoginPhone.clearEditTextListener()
         }
     }
 
