@@ -33,7 +33,6 @@ class ConferenceMemberSelectViewHolder(
                 if (checkedList.isNotEmpty() && isContains(checkedList,item.userId)) {
                     cbSelect.isSelected = true
                     itemLayout.isEnabled = false
-                    Log.e("member", "setData: ${item.userId} is selected: ${cbSelect.isSelected} and is enabled: ${itemView.isClickable}")
                 }
                 val header = user.initialLetter
                 letterHeader.visibility = View.GONE
