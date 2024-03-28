@@ -153,16 +153,8 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
 
     private fun notifyUpdateRemarkEvent() {
         DemoHelper.getInstance().getDataModel().updateUserCache(user?.userId)
-        updateInfo()
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX)
             .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_USER_SUFFIX, EaseEvent.TYPE.CONTACT, user?.userId))
-    }
-
-    private fun updateInfo(){
-        EaseIM.getUserProvider()?.getSyncUser(user?.userId)?.let {
-            binding.epPresence.setPresenceData(it)
-            binding.tvName.text = it.getRemarkOrName()
-        }
     }
 
     override fun onPrimaryClipChanged() {
