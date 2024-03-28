@@ -86,6 +86,9 @@ class LoginFragment : EaseBaseFragment<DemoFragmentLoginBinding>(), View.OnClick
             cbSelect.setOnCheckedChangeListener(this@LoginFragment)
             etLoginCode.setOnEditorActionListener(this@LoginFragment)
             etLoginPhone.clearEditTextListener()
+            root.setOnClickListener {
+                mContext.hideSoftKeyboard()
+            }
         }
     }
 
