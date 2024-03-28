@@ -9,7 +9,6 @@ import com.hyphenate.chatdemo.R
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import coil.ImageLoader
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoConstant
@@ -23,13 +22,11 @@ import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.showToast
-import com.hyphenate.easeui.common.extensions.toProfile
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
+import com.hyphenate.easeui.provider.getSyncUser
 import com.hyphenate.easeui.widget.EaseArrowItemView
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 

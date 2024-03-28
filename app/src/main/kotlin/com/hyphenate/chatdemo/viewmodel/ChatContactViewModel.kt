@@ -1,6 +1,5 @@
 package com.hyphenate.chatdemo.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.easeui.EaseIM
