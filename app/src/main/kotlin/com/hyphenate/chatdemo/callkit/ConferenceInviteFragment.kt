@@ -34,6 +34,7 @@ class ConferenceInviteFragment: EaseGroupMemberFragment() {
         arguments?.let {
             existMembers = it.getStringArrayList(CallKitManager.EXTRA_CONFERENCE_GROUP_EXIT_MEMBERS) ?: mutableListOf()
         }
+        binding?.srlContactRefresh?.setEnableLoadMore(false)
     }
 
     override fun initListener() {
@@ -65,7 +66,7 @@ class ConferenceInviteFragment: EaseGroupMemberFragment() {
     override fun initData() {
         super.initData()
         if (mListAdapter is ConferenceInviteAdapter) {
-            (mListAdapter as ConferenceInviteAdapter).setSelectedMembers(existMembers)
+            (mListAdapter as ConferenceInviteAdapter).setExistMembers(existMembers)
         }
     }
 

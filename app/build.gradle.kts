@@ -189,8 +189,8 @@ dependencies {
     implementation(project(mapOf("path" to ":ease-im-kit")))
 
     //EaseCallKit，need add chat SDK
-    //api(project(mapOf("path" to ":ease-call-kit")))
-    implementation("io.hyphenate:ease-call-kit:4.4.0")
+    api(project(mapOf("path" to ":ease-call-kit")))
+    //implementation("io.hyphenate:ease-call-kit:4.4.0")
     // Chat SDK
-    implementation("io.hyphenate:hyphenate-chat:4.4.1")
+    //implementation("io.hyphenate:hyphenate-chat:4.4.1")
 }

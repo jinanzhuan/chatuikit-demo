@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hyphenate.chatdemo.DemoHelper
+import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.viewmodel.ChatContactViewModel
 import com.hyphenate.easeui.common.ChatLog
@@ -25,6 +26,10 @@ class ChatContactListFragment : EaseContactsListFragment() {
         contactViewModel = ViewModelProvider(context as AppCompatActivity)[ChatContactViewModel::class.java]
         binding?.listContact?.setViewModel(contactViewModel)
         super.initView(savedInstanceState)
+        binding?.titleContact?.let {
+            it.setTitle("")
+            it.setTitleEndDrawable(R.drawable.contact_title)
+        }
     }
 
     override fun initData() {

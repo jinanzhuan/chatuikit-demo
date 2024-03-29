@@ -9,10 +9,11 @@ import com.hyphenate.easeui.model.EaseUser
 
 class ConferenceInviteAdapter(private val groupId: String?): EaseBaseRecyclerViewAdapter<EaseUser>() {
     private var selectedListener: OnContactSelectListener? = null
-    private var selectedMember:MutableList<String> = mutableListOf()
+    private var existMembers:MutableList<String> = mutableListOf()
+    private val checkedList:MutableList<String> = mutableListOf()
 
     override fun getViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<EaseUser> {
-        return ConferenceMemberSelectViewHolder(groupId,
+        return ConferenceMemberSelectViewHolder(groupId, checkedList,
                 EaseLayoutGroupSelectContactBinding.inflate(LayoutInflater.from(parent.context),
                     parent, false)
             )
@@ -20,14 +21,14 @@ class ConferenceInviteAdapter(private val groupId: String?): EaseBaseRecyclerVie
 
     override fun onBindViewHolder(holder: ViewHolder<EaseUser>, position: Int) {
         if (holder is ConferenceMemberSelectViewHolder){
-            holder.setSelectedMembers(selectedMember)
+            holder.setSelectedMembers(existMembers)
             holder.setCheckBoxSelectListener(selectedListener)
         }
         super.onBindViewHolder(holder, position)
     }
 
-    fun setSelectedMembers(selectedMember:MutableList<String>){
-        this.selectedMember = selectedMember
+    fun setExistMembers(existMembers:MutableList<String>){
+        this.existMembers = existMembers
         notifyDataSetChanged()
     }
 

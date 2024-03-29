@@ -16,7 +16,7 @@ class ChatGroupDetailActivity :EaseGroupDetailActivity(){
         val list = super.getDetailItem()
         val videoItem = EaseMenuItem(
             title = getString(R.string.menu_video_call),
-            resourceId = R.drawable.video_call,
+            resourceId = R.drawable.ease_video_camera,
             menuId = R.id.group_item_video_call,
             titleColor = ContextCompat.getColor(this, com.hyphenate.easeui.R.color.ease_color_primary),
             order = 2,

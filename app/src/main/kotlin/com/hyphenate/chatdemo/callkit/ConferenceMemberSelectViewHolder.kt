@@ -1,8 +1,8 @@
 package com.hyphenate.chatdemo.callkit
 
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
+import androidx.viewbinding.ViewBinding
 import com.hyphenate.easeui.common.extensions.toProfile
 import com.hyphenate.easeui.databinding.EaseLayoutGroupSelectContactBinding
 import com.hyphenate.easeui.feature.group.adapter.EaseGroupMemberListAdapter
@@ -12,6 +12,7 @@ import com.hyphenate.easeui.model.EaseUser
 
 class ConferenceMemberSelectViewHolder(
     private val groupId: String?,
+    private val checkedMemberList: MutableList<String>,
     viewBinding: EaseLayoutGroupSelectContactBinding
 ): EaseSelectContactViewHolder(viewBinding) {
     private var isShowInitLetter:Boolean = false
@@ -20,14 +21,30 @@ class ConferenceMemberSelectViewHolder(
         this.isShowInitLetter = isShow
     }
 
+    override fun initView(viewBinding: ViewBinding?) {
+        if (viewBinding is EaseLayoutGroupSelectContactBinding) {
+            viewBinding.cbSelect.isClickable = false
+        }
+    }
+
     override fun setData(item: EaseUser?, position: Int) {
         item?.let { user->
             with(viewBinding) {
-                cbSelect.setOnCheckedChangeListener{ view, isChecked->
-                    user.let { u->
-                        selectedListener?.onContactSelectedChanged(view,u.userId,isChecked)
+                itemLayout.setOnClickListener {
+                    val isChecked = cbSelect.isChecked
+                    cbSelect.isChecked = !isChecked
+                    if (!isChecked) {
+                        if (!checkedMemberList.contains(user.userId)) {
+                            checkedMemberList.add(user.userId)
+                        }
+                    }else {
+                        if (checkedMemberList.contains(user.userId)) {
+                            checkedMemberList.remove(user.userId)
+                        }
                     }
+                    selectedListener?.onContactSelectedChanged(it, user.userId, cbSelect.isChecked)
                 }
+                cbSelect.isChecked = checkedMemberList.contains(user.userId)
                 cbSelect.isSelected = false
                 itemLayout.isEnabled = true
                 if (checkedList.isNotEmpty() && isContains(checkedList,item.userId)) {
