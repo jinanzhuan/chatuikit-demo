@@ -1,4 +1,4 @@
-package com.hyphenate.chatdemo.login
+package com.hyphenate.chatdemo.ui.login
 
 import android.content.ClipData
 import android.content.ClipboardManager

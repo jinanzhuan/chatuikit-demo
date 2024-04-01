@@ -289,8 +289,8 @@
             android:configChanges="orientation|keyboardHidden|screenSize">
 
         </activity>
-        <activity android:name=".login.LoginActivity" />
-        <activity android:name=".login.SplashActivity"
+        <activity android:name=".ui.login.LoginActivity" />
+        <activity android:name=".ui.login.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

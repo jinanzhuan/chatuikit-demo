@@ -9,7 +9,7 @@ import com.hyphenate.chatdemo.MainActivity
 import com.hyphenate.chatdemo.base.ActivityState
 import com.hyphenate.chatdemo.callkit.extensions.isTargetActivity
 import com.hyphenate.chatdemo.common.extensions.internal.makeTaskToFront
-import com.hyphenate.chatdemo.login.SplashActivity
+import com.hyphenate.chatdemo.ui.login.SplashActivity
 import com.hyphenate.easecallkit.base.EaseCallFloatWindow
 
 class CallKitActivityLifecycleCallback: Application.ActivityLifecycleCallbacks, ActivityState {

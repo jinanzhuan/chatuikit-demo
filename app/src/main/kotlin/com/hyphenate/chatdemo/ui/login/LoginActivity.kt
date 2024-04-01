@@ -1,4 +1,4 @@
-package com.hyphenate.chatdemo.login
+package com.hyphenate.chatdemo.ui.login
 
 import android.content.Context
 import android.content.Intent
