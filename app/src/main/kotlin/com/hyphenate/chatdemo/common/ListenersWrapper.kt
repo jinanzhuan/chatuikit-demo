@@ -2,7 +2,7 @@ package com.hyphenate.chatdemo.common
 
 import com.hyphenate.chatdemo.DemoApplication
 import com.hyphenate.chatdemo.DemoHelper
-import com.hyphenate.chatdemo.login.LoginActivity
+import com.hyphenate.chatdemo.ui.login.LoginActivity
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.ChatConnectionListener

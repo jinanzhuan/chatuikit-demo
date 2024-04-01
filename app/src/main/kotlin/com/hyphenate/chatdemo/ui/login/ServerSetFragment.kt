@@ -1,4 +1,4 @@
-package com.hyphenate.chatdemo.login
+package com.hyphenate.chatdemo.ui.login
 
 import android.os.Bundle
 import android.text.Editable
