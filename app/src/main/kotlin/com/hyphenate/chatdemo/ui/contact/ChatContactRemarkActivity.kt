@@ -31,7 +31,7 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
         model = ViewModelProvider(this)[ProfileInfoViewModel::class.java]
         binding.run {
             titleBar.setTitle(getString(R.string.demo_contact_edit_remark))
-            etName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(128))
+            etName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(100))
             targetUserId?.let {
                 val remark = model?.fetchLocalUserRemark(it)
                 etName.setText(remark)

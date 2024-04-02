@@ -7,9 +7,8 @@ import com.hyphenate.chatdemo.common.extensions.internal.toProfile
 import com.hyphenate.chatdemo.ui.chat.ChatActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactCheckActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
-import com.hyphenate.chatdemo.ui.contact.ChatNewRequestsActivity
 import com.hyphenate.chatdemo.ui.group.ChatGroupDetailActivity
-import com.hyphenate.chatdemo.ui.group.CreateGroupActivity
+import com.hyphenate.chatdemo.ui.group.ChatCreateGroupActivity
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoRepository
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
@@ -122,10 +121,7 @@ object UIKitManager {
                                 intent.setClass(context, ChatContactDetailActivity::class.java)
                             }
                             EaseCreateGroupActivity::class.java.name -> {
-                                intent.setClass(context, CreateGroupActivity::class.java)
-                            }
-                            EaseNewRequestsActivity::class.java.name ->{
-                                intent.setClass(context, ChatNewRequestsActivity::class.java)
+                                intent.setClass(context, ChatCreateGroupActivity::class.java)
                             }
                             EaseContactCheckActivity::class.java.name ->{
                                 intent.setClass(context, ChatContactCheckActivity::class.java)

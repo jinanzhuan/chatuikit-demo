@@ -66,6 +66,13 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
         super.initView(savedInstanceState)
         initPresence()
         initStatus()
+        EaseIM.getConfig()?.presencesConfig?.enablePresences?.let {
+             if (it){
+                 binding?.itemPresence?.visibility = View.VISIBLE
+             }else{
+                 binding?.itemPresence?.visibility = View.GONE
+             }
+        }
     }
     override fun initViewModel() {
         super.initViewModel()

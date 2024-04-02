@@ -7,16 +7,22 @@ import android.os.Build
 import android.os.Environment
 import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore
-import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatLog
+import com.hyphenate.easeui.common.ChatPathUtils
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
 
-object UserFileUtils {
-    fun getAppRootDirPath(): File? {
-        return EaseIM.getContext()?.getExternalFilesDir(null)?.absoluteFile
-    }
+object CameraAndCropFileUtils {
+
+    //用于获取与应用程序相关联的特定类型的文件目录，如果你不想将文件放在特定的子目录，可以传递 null 将文件放在根目录。
+    // 在存储在这些目录的文件，不需要申请WRITE_EXTERNAL_STORAGE权限。
+    private val rootSavePath = ChatPathUtils.getInstance().imagePath
+
+    // 用于获取用户可以看到的公共目录 比如 "Music", "Pictures"等 在这个路径下的文件即使在应用卸载后依然存在。
+    // 需要申请WRITE_EXTERNAL_STORAGE权限。
+    private val rootPublicFolderPath = Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).absolutePath
 
     var uri: Uri? = null
     fun createImageFile(context: Context, isCrop: Boolean): File? {
@@ -28,16 +34,11 @@ object UserFileUtils {
             } else {
                 "IMG_$timeStamp.jpg"
             }
-            val rootFile = File(getAppRootDirPath().toString() + File.separator + "capture")
-            if (!rootFile.exists()) {
-                rootFile.mkdirs()
-            }
             val imgFile: File
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                imgFile = File(
-                    Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES)
-                        .toString() + File.separator + fileName
-                )
+                //如果 version >= 11 需要将图片文件创建到公共目录 比如 "Music", "Pictures"等
+                ChatLog.e("CameraAndCropFileUtils","createImageFile version >= 11 需要将图片文件创建到公共目录 ${Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).toString() + File.separator + fileName}")
+                imgFile = File(rootPublicFolderPath+ File.separator + fileName)
                 // 通过 MediaStore API 插入file 为了拿到系统裁剪要保存到的uri（因为App没有权限不能访问公共存储空间，需要通过 MediaStore API来操作）
                 val values = ContentValues()
                 values.put(MediaStore.Images.Media.DATA, imgFile.absolutePath)
@@ -45,8 +46,10 @@ object UserFileUtils {
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 uri = context.contentResolver
                     .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                ChatLog.e("CameraAndCropFileUtils","createImageFile version >= 11 创建成功 Uri: $uri")
             } else {
-                imgFile = File(rootFile.absolutePath + File.separator + fileName)
+                imgFile = File(rootSavePath ,File.separator + fileName)
+                ChatLog.e("CameraAndCropFileUtils","createImageFile version < 11 ${imgFile.absolutePath}")
             }
             imgFile
         } catch (e: Exception) {
