@@ -340,8 +340,6 @@
             android:exported="false"/>
         <activity android:name="com.hyphenate.chatdemo.ui.group.ChatCreateGroupActivity"
             android:exported="false"/>
-        <activity android:name=".ui.contact.ChatNewRequestsActivity"
-            android:exported="false"/>
         <activity android:name=".ui.contact.ChatContactCheckActivity"
             android:exported="false"/>
     </application>
