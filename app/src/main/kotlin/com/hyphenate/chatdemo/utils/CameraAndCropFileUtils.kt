@@ -2,6 +2,7 @@ package com.hyphenate.chatdemo.utils
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -44,8 +45,7 @@ object CameraAndCropFileUtils {
                 values.put(MediaStore.Images.Media.DATA, imgFile.absolutePath)
                 values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                uri = context.contentResolver
-                    .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
                 ChatLog.e("CameraAndCropFileUtils","createImageFile version >= 11 创建成功 Uri: $uri")
             } else {
                 imgFile = File(rootSavePath ,File.separator + fileName)
@@ -68,6 +68,20 @@ object CameraAndCropFileUtils {
             return File(path)
         }
         return null
+    }
+
+    fun getAbsolutePathFromUri(context: Context, uri: Uri): String? {
+        var absolutePath: String? = null
+        val projection = arrayOf(MediaStore.MediaColumns.DATA)
+        val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
+        cursor?.let {
+            if (it.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+                absolutePath = cursor.getString(columnIndex)
+            }
+            cursor.close()
+        }
+        return absolutePath
     }
 
 }

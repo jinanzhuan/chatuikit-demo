@@ -6,6 +6,7 @@ pluginManagement {
         maven { url = uri("https://maven.aliyun.com/repository/public/")}
         maven { url = uri("https://developer.huawei.com/repo/")}
         maven { url = uri("https://developer.hihonor.com/repo")}
+        maven { url = uri("https://jitpack.io")}
     }
 }
 dependencyResolutionManagement {
@@ -16,6 +17,7 @@ dependencyResolutionManagement {
         maven { url = uri("https://maven.aliyun.com/repository/public/")}
         maven { url = uri("https://developer.huawei.com/repo/")}
         maven { url = uri("https://developer.hihonor.com/repo")}
+        maven { url = uri("https://jitpack.io")}
     }
 }
 

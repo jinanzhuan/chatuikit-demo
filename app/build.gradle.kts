@@ -177,6 +177,9 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
 
+    // image corp library
+    implementation("com.github.yalantis:ucrop:2.2.8")
+
     // Coil: load image library
     implementation("io.coil-kt:coil:2.5.0")
     // Room
