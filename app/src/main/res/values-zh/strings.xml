@@ -84,8 +84,8 @@
 
     <string name="em_login_out_hint">是否退出？</string>
 
-    <string name="em_main_add_contact_success">Contact request sent</string>
-    <string name="em_main_add_contact_fail">Contact request failed to send: %1$s</string>
+    <string name="em_main_add_contact_success">请求已发送</string>
+    <string name="em_main_add_contact_not_found">用户不存在</string>
 
     <string name="message_forward_success">消息转发成功</string>
     <string name="message_forward_fail">消息转发失败</string>

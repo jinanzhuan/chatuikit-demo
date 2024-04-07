@@ -251,7 +251,11 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
                     }
                 }else{
                     runOnUiThread{
-                        mContext.showToast(mContext.resources.getString(R.string.em_main_add_contact_fail,errorMessage))
+                        if (errorCode == ChatError.USER_NOT_FOUND){
+                            mContext.showToast(mContext.resources.getString(R.string.em_main_add_contact_not_found))
+                        }else{
+                            mContext.showToast(errorMessage.toString())
+                        }
                     }
                 }
             }

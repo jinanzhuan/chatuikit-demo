@@ -84,8 +84,8 @@
 
     <string name="em_login_out_hint">Exit now?</string>
 
-    <string name="em_main_add_contact_success">Contact request sent</string>
-    <string name="em_main_add_contact_fail">Contact request failed to send: %1$s</string>
+    <string name="em_main_add_contact_success">Request sent.</string>
+    <string name="em_main_add_contact_not_found">User does not exist</string>
 
     <string name="message_forward_success">Message forwarded successfully</string>
     <string name="message_forward_fail">Message forwarding failed</string>
