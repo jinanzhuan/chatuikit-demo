@@ -343,6 +343,8 @@
             android:exported="false"/>
         <activity android:name=".ui.contact.ChatContactCheckActivity"
             android:exported="false"/>
+        <activity android:name=".ui.chat.ChatThreadActivity"
+            android:exported="false"/>
         <!-- crop activity -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
