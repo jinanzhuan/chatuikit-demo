@@ -162,6 +162,15 @@
 -keepattributes SourceFile,LineNumberTable
 -keep class com.hihonor.push.**{*;}
 
+#Crop
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }
+
+#Bugly
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}
+
 #环信
 -keep class com.hyphenate.** {*;}
 -dontwarn  com.hyphenate.**

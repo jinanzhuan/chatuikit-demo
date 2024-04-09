@@ -284,6 +284,15 @@
         </service>
         <!-- Hihonor推送配置 end -->
 
+        <!-- Bugly 配置APP ID -->
+        <meta-data
+            android:name="BUGLY_APPID"
+            android:value="${BUGLY_APPID}" />
+        <!-- 配置Bugly调试模式（true或者false）-->
+        <meta-data
+            android:name="BUGLY_ENABLE_DEBUG"
+            android:value="${BUGLY_ENABLE_DEBUG}" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
