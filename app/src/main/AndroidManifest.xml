@@ -309,16 +309,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.hyphenate.chatdemo.ui.chat.ChatActivity"
+        <activity android:name=".ui.chat.ChatActivity"
             android:screenOrientation="portrait"
             android:exported="false"/>
         <activity android:name=".ui.contact.ChatContactDetailActivity"
             android:exported="false"/>
         <activity android:name=".ui.group.ChatGroupDetailActivity"
             android:exported="false"/>
-        <activity android:name="com.hyphenate.chatdemo.callkit.ConferenceInviteActivity"
+        <activity android:name=".callkit.ConferenceInviteActivity"
             android:exported="false"/>
-        <activity android:name="com.hyphenate.chatdemo.callkit.VideoCallActivity"
+        <activity android:name=".callkit.VideoCallActivity"
             android:label="@string/demo_activity_label_video_call"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:excludeFromRecents="false"
@@ -348,7 +348,7 @@
             android:exported="false"/>
         <activity android:name=".ui.contact.ChatContactRemarkActivity"
             android:exported="false"/>
-        <activity android:name="com.hyphenate.chatdemo.ui.group.ChatCreateGroupActivity"
+        <activity android:name=".ui.group.ChatCreateGroupActivity"
             android:exported="false"/>
         <activity android:name=".ui.contact.ChatContactCheckActivity"
             android:exported="false"/>

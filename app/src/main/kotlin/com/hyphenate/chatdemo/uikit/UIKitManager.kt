@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.common.extensions.internal.toProfile
+import com.hyphenate.chatdemo.ui.chat.ChatThreadActivity
 import com.hyphenate.chatdemo.ui.chat.ChatActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactCheckActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
@@ -21,7 +22,7 @@ import com.hyphenate.easeui.feature.contact.EaseContactCheckActivity
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.feature.group.EaseCreateGroupActivity
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
-import com.hyphenate.easeui.feature.invitation.EaseNewRequestsActivity
+import com.hyphenate.easeui.feature.thread.EaseChatThreadActivity
 import com.hyphenate.easeui.model.EaseGroupProfile
 import com.hyphenate.easeui.model.EaseProfile
 import com.hyphenate.easeui.provider.EaseCustomActivityRoute
@@ -125,6 +126,9 @@ object UIKitManager {
                             }
                             EaseContactCheckActivity::class.java.name ->{
                                 intent.setClass(context, ChatContactCheckActivity::class.java)
+                            }
+                            EaseChatThreadActivity::class.java.name ->{
+                                intent.setClass(context, ChatThreadActivity::class.java)
                             }
                             else -> {
                                 return intent

@@ -5,13 +5,14 @@ import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.ui.login.LoginActivity
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
-import com.hyphenate.easeui.common.ChatConnectionListener
 import com.hyphenate.easeui.common.ChatGroup
 import com.hyphenate.easeui.common.ChatLog
-import com.hyphenate.easeui.common.ChatMessageListener
+import com.hyphenate.easeui.common.ChatMessage
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.ioScope
 import com.hyphenate.easeui.common.impl.ValueCallbackImpl
+import com.hyphenate.easeui.interfaces.EaseConnectionListener
+import com.hyphenate.easeui.interfaces.EaseMessageListener
 import com.hyphenate.easeui.model.EaseEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ object ListenersWrapper {
     private var isLoadGroupList = false
 
     private val connectListener by lazy {
-        object : ChatConnectionListener {
+        object : EaseConnectionListener() {
             override fun onConnected() {
                 // do something
                 CoroutineScope(Dispatchers.IO).launch {
@@ -42,10 +43,6 @@ object ListenersWrapper {
 
             }
 
-            override fun onDisconnected(errorCode: Int) {
-
-            }
-
             override fun onLogout(errorCode: Int, info: String?) {
                 super.onLogout(errorCode, info)
                 ChatLog.e("app","onLogout: $errorCode")
@@ -57,24 +54,25 @@ object ListenersWrapper {
         }
     }
 
-    private val messageListener by lazy { ChatMessageListener { messageList ->
-        if (DemoHelper.getInstance().getDataModel().isAppPushSilent()) {
-            return@ChatMessageListener
-        }
-        // do something
-        messageList?.forEach { message ->
-
-            if (EaseIM.checkMutedConversationList(message.conversationId())) {
-                return@forEach
+    private val messageListener by lazy { object : EaseMessageListener(){
+        override fun onMessageReceived(messages: MutableList<ChatMessage>?) {
+            super.onMessageReceived(messages)
+            if (DemoHelper.getInstance().getDataModel().isAppPushSilent()) {
+                return
             }
-            if (DemoApplication.getInstance().getLifecycleCallbacks().isFront.not()) {
-                DemoHelper.getInstance().getNotifier()?.notify(message)
+            // do something
+            messages?.forEach { message ->
+
+                if (EaseIM.checkMutedConversationList(message.conversationId())) {
+                    return@forEach
+                }
+                if (DemoApplication.getInstance().getLifecycleCallbacks().isFront.not()) {
+                    DemoHelper.getInstance().getNotifier()?.notify(message)
+                }
+                // notify new message
+                DemoHelper.getInstance().getNotifier()?.vibrateAndPlayTone(message)
             }
-
-            // notify new message
-            DemoHelper.getInstance().getNotifier()?.vibrateAndPlayTone(message)
         }
-
     } }
 
     fun registerListeners() {

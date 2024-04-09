@@ -26,13 +26,13 @@ import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatLog
-import com.hyphenate.easeui.common.ChatMessageListener
 import com.hyphenate.easeui.common.EaseConstant
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.conversation.EaseConversationListFragment
 import com.hyphenate.easeui.interfaces.EaseContactListener
+import com.hyphenate.easeui.interfaces.EaseMessageListener
 import com.hyphenate.easeui.interfaces.OnEventResultListener
 import com.hyphenate.easeui.model.EaseEvent
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
-    OnEventResultListener, IMainResultView, ChatMessageListener {
+    OnEventResultListener, IMainResultView{
     override fun getViewBinding(inflater: LayoutInflater): ActivityMainBinding? {
         return ActivityMainBinding.inflate(inflater)
     }
@@ -57,6 +57,12 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
     }
     private val mProfileViewModel: ProfileInfoViewModel by lazy {
         ViewModelProvider(this)[ProfileInfoViewModel::class.java]
+    }
+
+    private val chatMessageListener = object : EaseMessageListener() {
+        override fun onMessageReceived(messages: MutableList<EMMessage>?) {
+            mainViewModel.getUnreadMessageCount()
+        }
     }
 
     companion object {
@@ -79,7 +85,7 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         super.initListener()
         binding.navView.setOnItemSelectedListener(this)
         EaseIM.addEventResultListener(this)
-        EaseIM.addChatMessageListener(this)
+        EaseIM.addChatMessageListener(chatMessageListener)
         EaseIM.addContactListener(contactListener)
     }
 
@@ -287,10 +293,6 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         override fun onContactInvited(username: String?, reason: String?) {
             mainViewModel.getRequestUnreadCount()
         }
-    }
-
-    override fun onMessageReceived(messages: MutableList<EMMessage>?) {
-        mainViewModel.getUnreadMessageCount()
     }
 
     private fun synchronizeProfile(){
