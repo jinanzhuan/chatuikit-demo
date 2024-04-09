@@ -1,4 +1,3 @@
-import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
@@ -57,6 +56,8 @@ android {
         buildConfigField("String", "MI_PUSH_APPID", "\"${properties.getProperty("MI_PUSH_APPID")}\"")
         buildConfigField("String", "FCM_SENDERID", "\"${properties.getProperty("FCM_SENDERID")}\"")
         buildConfigField("String", "HONOR_PUSH_APPID", "\"${properties.getProperty("HONOR_PUSH_APPID")}\"")
+        buildConfigField("String", "BUGLY_APPID", "\"${properties.getProperty("BUGLY_APPID")}\"")
+        buildConfigField("String", "BUGLY_ENABLE_DEBUG", "\"${properties.getProperty("BUGLY_ENABLE_DEBUG")}\"")
 
         // Set RTC appId from local.properties
         buildConfigField("String", "RTC_APPID", "\"${properties.getProperty("RTC_APPID")}\"")
@@ -64,7 +65,9 @@ android {
         addManifestPlaceholders(mapOf(
             "VIVO_PUSH_APPKEY" to properties.getProperty("VIVO_PUSH_APPKEY", "******"),
             "VIVO_PUSH_APPID" to properties.getProperty("VIVO_PUSH_APPID", "******"),
-            "HONOR_PUSH_APPID" to properties.getProperty("HONOR_PUSH_APPID", "******")
+            "HONOR_PUSH_APPID" to properties.getProperty("HONOR_PUSH_APPID", "******"),
+            "BUGLY_APPID" to properties.getProperty("BUGLY_APPID", "******"),
+            "BUGLY_ENABLE_DEBUG" to properties.getProperty("BUGLY_ENABLE_DEBUG", "******")
         ))
 
         //指定room.schemaLocation生成的文件路径  处理Room 警告 Schema export Error
@@ -179,6 +182,8 @@ dependencies {
 
     // image corp library
     implementation("com.github.yalantis:ucrop:2.2.8")
+    // bugly
+    implementation("com.tencent.bugly:crashreport:4.1.9.3")
 
     // Coil: load image library
     implementation("io.coil-kt:coil:2.5.0")
