@@ -72,6 +72,7 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                                 remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id)?.remark
                                 EaseIM.updateUsersInfo(mutableListOf(this))
                                 DemoHelper.getInstance().getDataModel().insertUser(this)
+                                EaseIM.updateCurrentUser(this)
                             }
                             updateUserInfo()
                             notifyUpdateRemarkEvent()
@@ -86,7 +87,6 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
             binding.epPresence.setPresenceData(it.parse())
             binding.tvName.text = it.parse().getRemarkOrName()
             binding.tvNumber.text = it.userId
-            if (it.remark.isNullOrEmpty()) return
             remarkItem.setContent(it.remark)
         }
     }
@@ -139,9 +139,8 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                 REQUEST_UPDATE_REMARK ->{
                     data?.let {
                         if (it.hasExtra(RESULT_UPDATE_REMARK)){
-                            remarkItem.setContent(it.getStringExtra(RESULT_UPDATE_REMARK))
-                            binding.tvName.text = it.getStringExtra(RESULT_UPDATE_REMARK)
                             notifyUpdateRemarkEvent()
+                            updateUserInfo()
                         }
                     }
                 }
@@ -151,7 +150,6 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
     }
 
     private fun notifyUpdateRemarkEvent() {
-        DemoHelper.getInstance().getDataModel().updateUserCache(user?.userId)
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX)
             .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_USER_SUFFIX, EaseEvent.TYPE.CONTACT, user?.userId))
     }

@@ -8,11 +8,16 @@ import android.text.InputFilter
 import android.text.TextWatcher
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
+import com.hyphenate.chatdemo.common.room.entity.parse
 import com.hyphenate.chatdemo.ui.me.EditUserNicknameActivity
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
+import com.hyphenate.easeui.EaseIM
+import com.hyphenate.easeui.common.ChatError
 import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.extensions.catchChatException
+import com.hyphenate.easeui.model.EaseProfile
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -76,21 +81,27 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
     }
 
     private fun setRemark(){
-        targetUserId?.let {
+        targetUserId?.let { Id->
             lifecycleScope.launch {
                 var remark = binding.etName.text.toString()
-                if (remark.isNullOrEmpty()) {
+                if (remark.isEmpty()) {
                     remark = ""
                 }
-                model?.setUserRemark(it,remark)
+                model?.setUserRemark(Id,remark)
                     ?.onStart { showLoading(true) }
                     ?.onCompletion { dismissLoading() }
                     ?.catchChatException { e ->
                         ChatLog.e("TAG", "setRemark fail error message = " + e.description)
                     }?.
-                    stateIn(lifecycleScope, SharingStarted.WhileSubscribed(5000), -1)?.
+                    stateIn(lifecycleScope, SharingStarted.WhileSubscribed(3000), -1)?.
                     collect {
-                        if (it != -1) {
+                        if (it == ChatError.EM_NO_ERROR) {
+                            val profile = DemoHelper.getInstance().getDataModel().getUser(Id)?.parse()?: EaseProfile(Id)
+                            profile.let { info->
+                                info.remark = remark
+                                DemoHelper.getInstance().getDataModel().insertUser(info)
+                                EaseIM.updateCurrentUser(info)
+                            }
                             val resultIntent = Intent()
                             resultIntent.putExtra(RESULT_UPDATE_REMARK, remark)
                             setResult(RESULT_OK,resultIntent)
