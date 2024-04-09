@@ -25,7 +25,6 @@ import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
-import com.hyphenate.easeui.provider.getSyncUser
 import com.hyphenate.easeui.widget.EaseArrowItemView
 import kotlinx.coroutines.launch
 
@@ -46,10 +45,7 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
     override fun initView() {
         super.initView()
         model = ViewModelProvider(this)[ProfileInfoViewModel::class.java]
-        user?.let {
-            val remark = model.fetchLocalUserRemark(it.userId)
-            remarkItem.setContent(remark)
-        }
+        updateUserInfo()
     }
 
     override fun initListener() {
@@ -76,6 +72,7 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                                 remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id)?.remark
                                 EaseIM.updateUsersInfo(mutableListOf(this))
                                 DemoHelper.getInstance().getDataModel().insertUser(this)
+                                EaseIM.updateCurrentUser(this)
                             }
                             updateUserInfo()
                             notifyUpdateRemarkEvent()
@@ -88,8 +85,9 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
     private fun updateUserInfo() {
         DemoHelper.getInstance().getDataModel().getUser(user?.userId)?.let {
             binding.epPresence.setPresenceData(it.parse())
-            binding.tvName.text = it.name?.ifEmpty { it.userId } ?: it.userId
+            binding.tvName.text = it.parse().getRemarkOrName()
             binding.tvNumber.text = it.userId
+            remarkItem.setContent(it.remark)
         }
     }
 
@@ -141,8 +139,8 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                 REQUEST_UPDATE_REMARK ->{
                     data?.let {
                         if (it.hasExtra(RESULT_UPDATE_REMARK)){
-                            remarkItem.setContent(it.getStringExtra(RESULT_UPDATE_REMARK))
                             notifyUpdateRemarkEvent()
+                            updateUserInfo()
                         }
                     }
                 }
@@ -152,7 +150,6 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
     }
 
     private fun notifyUpdateRemarkEvent() {
-        DemoHelper.getInstance().getDataModel().updateUserCache(user?.userId)
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX)
             .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_USER_SUFFIX, EaseEvent.TYPE.CONTACT, user?.userId))
     }

@@ -11,6 +11,7 @@ import com.hyphenate.easeui.common.helper.EasePreferenceManager
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.tencent.bugly.crashreport.CrashReport
 
 class DemoApplication: Application() {
     private val mLifecycleCallbacks = UserActivityLifecycleCallbacks()
@@ -21,12 +22,13 @@ class DemoApplication: Application() {
 
         DemoHelper.getInstance().init(this)
         initSDK()
+        initFeatureConfig()
+        initBugly()
     }
 
     private fun initSDK() {
         if (DemoHelper.getInstance().getDataModel().isAgreeAgreement()) {
             DemoHelper.getInstance().initSDK()
-            initFeatureConfig()
         }
     }
 
@@ -45,6 +47,10 @@ class DemoApplication: Application() {
         EaseIM.getConfig()?.chatConfig?.enableTranslationMessage = enableTranslation
         EaseIM.getConfig()?.chatConfig?.enableChatThreadMessage = enableThread
         EaseIM.getConfig()?.chatConfig?.enableMessageReaction = enableReaction
+    }
+
+    private fun initBugly(){
+        CrashReport.initCrashReport(applicationContext)
     }
 
     private fun registerActivityLifecycleCallbacks() {

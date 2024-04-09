@@ -2,6 +2,7 @@ package com.hyphenate.chatdemo.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.hyphenate.chatdemo.DemoHelper
+import com.hyphenate.chatdemo.common.room.entity.parse
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatClient
 import com.hyphenate.easeui.common.extensions.catchChatException
@@ -10,7 +11,6 @@ import com.hyphenate.easeui.common.helper.ContactSortedHelper
 import com.hyphenate.easeui.model.EaseProfile
 import com.hyphenate.easeui.model.EaseUser
 import com.hyphenate.easeui.model.setUserInitialLetter
-import com.hyphenate.easeui.provider.getSyncUser
 import com.hyphenate.easeui.viewmodel.contacts.EaseContactListViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapConcat
@@ -52,7 +52,7 @@ class ChatContactViewModel: EaseContactListViewModel() {
                 .collect {
                     val data = it?.map { user->
                         val contactInfo = ChatClient.getInstance().contactManager().fetchContactFromLocal(user.userId)
-                        val profile = EaseIM.getUserProvider()?.getSyncUser(user.userId) ?: EaseProfile(user.userId)
+                        val profile = DemoHelper.getInstance().getDataModel().getUser(user.userId)?.parse()?: EaseProfile(user.userId)
                         contactInfo?.let { contact->
                             if (contact.remark.isNotEmpty()){
                                 profile.remark = contact.remark

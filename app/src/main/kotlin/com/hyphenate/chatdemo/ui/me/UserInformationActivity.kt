@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +22,8 @@ import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityMeInformationBinding
+import com.hyphenate.chatdemo.ui.me.controller.CameraAndCroppingController
+import com.hyphenate.chatdemo.utils.CameraAndCropFileUtils
 import com.hyphenate.chatdemo.viewmodel.ProfileInfoViewModel
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
@@ -39,6 +43,7 @@ import com.hyphenate.easeui.interfaces.SimpleListSheetItemClickListener
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
 import com.hyphenate.easeui.model.EaseProfile
+import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -50,7 +55,7 @@ import java.io.File
 class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>(),
     View.OnClickListener {
 
-    private val cameraAndCroppingController:CameraAndCroppingController by lazy {
+    private val cameraAndCroppingController: CameraAndCroppingController by lazy {
         CameraAndCroppingController(mContext)
     }
     private var selfProfile:EaseProfile? = null
@@ -107,6 +112,17 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     private val launcherToUpdateName: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result -> onActivityResult(result, RESULT_CODE_UPDATE_NAME) }
+
+
+    private val launcherToMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        // Callback is invoked after the user selects a media item or closes the
+        if (uri != null) {
+            ChatLog.d("launcherToMedia", "Selected URI: $uri")
+            cameraAndCroppingController.gotoCrop(uri)
+        } else {
+            ChatLog.d("launcherToMedia", "No media selected")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -186,13 +202,18 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 }
             }
             R.id.about_information_picture -> {
-                if (PermissionCompat.checkMediaPermission(
-                        mContext,
-                        requestImagePermission,
-                        Manifest.permission.READ_MEDIA_IMAGES
-                    )
-                ) {
-                    selectPicFromLocal(launcherToAlbum)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2){
+                    val mimeType = "image/*"
+                    launcherToMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.SingleMimeType(mimeType)))
+                }else{
+                    if (PermissionCompat.checkMediaPermission(
+                            mContext,
+                            requestImagePermission,
+                            Manifest.permission.READ_MEDIA_IMAGES
+                        )
+                    ) {
+                        selectPicFromLocal(launcherToAlbum)
+                    }
                 }
             }
             else -> {}
@@ -248,33 +269,61 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        data?.let {
+            if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+                val resultUri = UCrop.getOutput(data)
+                resultUri?.let { it1 ->
+                    imageUri = resultUri
+                    val path = CameraAndCropFileUtils.getAbsolutePathFromUri(mContext, it1)
+                    ChatLog.e("UserInformationActivity","onActivityResult corp path $path")
+                    path?.let {
+                        uploadFile(it)
+                    }
+                }
+            } else if (resultCode == UCrop.RESULT_ERROR) {
+                val cropError = UCrop.getError(data)
+                ChatLog.e("UserInformationActivity","onActivityResult corp error ${cropError?.message}")
+            } else {
+
+            }
+        }
+    }
+
     private fun onActivityResultForCamera(data: Intent?) {
         val imageUri = cameraAndCroppingController.resultForCamera(data)
-        cameraAndCroppingController.gotoCrop(imageUri,launcherToAlbumEdit)
-        binding.ivAvatar.setImageURI(imageUri)
+        this.imageUri = imageUri
+        imageUri?.let { cameraAndCroppingController.gotoCrop(it) }
     }
 
     private fun onActivityResultForLocalPhotos(data: Intent?) {
         if (data != null) {
             val selectedImage = data.data
-            if (selectedImage != null) {
-                var filePath: String = EaseFileUtils.getFilePath(mContext, selectedImage)
-                if (!TextUtils.isEmpty(filePath) && File(filePath).exists()) {
-                    imageUri = Uri.parse(filePath)
-                } else {
-                    imageUri = selectedImage
-                    selectedImage.path?.let {
-                        filePath = it
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2){
+                selectedImage?.let { cameraAndCroppingController.gotoCrop(it) }
+            }else{
+                if (selectedImage != null) {
+                    var filePath: String = EaseFileUtils.getFilePath(mContext, selectedImage)
+                    if (!TextUtils.isEmpty(filePath) && File(filePath).exists()) {
+                        imageUri = Uri.parse(filePath)
+                    } else {
+                        imageUri = selectedImage
+                        selectedImage.path?.let {
+                            filePath = it
+                        }
                     }
+                    cameraAndCroppingController.gotoCrop(imageUri,launcherToAlbumEdit)
                 }
-                cameraAndCroppingController.gotoCrop(imageUri,launcherToAlbumEdit)
             }
         }
     }
 
     private fun onActivityResultForEditPhotos(data: Intent?){
         val imageCropFile = cameraAndCroppingController.resultForCropFile(data)
-        imageUri = cameraAndCroppingController.getImageCropUri()
+        cameraAndCroppingController.getImageCropUri()?.let {
+            imageUri = it
+        }
         imageCropFile?.let {
             uploadFile(it.absolutePath)
         }
