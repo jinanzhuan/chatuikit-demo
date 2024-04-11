@@ -20,7 +20,8 @@ class CustomMessagesAdapter: EaseMessagesAdapter() {
         const val VIEW_TYPE_MESSAGE_INVITE_SEND = 1002
         const val VIEW_TYPE_MESSAGE_INVITE_RECEIVE = 1003
     }
-
+    //继承EaseMessagesAdapter 重写getItemNotEmptyViewType 添加自定义ViewType
+    //下方示例 增加自定义 call 消息提醒类型
     override fun getItemNotEmptyViewType(position: Int): Int {
         getItem(position)?.let {
             val msgType = it.getStringAttribute(EaseMsgUtils.CALL_MSG_TYPE,"")
@@ -35,6 +36,8 @@ class CustomMessagesAdapter: EaseMessagesAdapter() {
         return super.getItemNotEmptyViewType(position)
     }
 
+    // 继承EaseMessagesAdapter getViewHolder 添加自定义ViewHolder 和 ui布局
+    // 下方示例 增加单聊、群聊 call 消息提醒类型布局和事件处理
     override fun getViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<ChatMessage> {
         when (viewType) {
             VIEW_TYPE_MESSAGE_CALL_SEND, VIEW_TYPE_MESSAGE_CALL_RECEIVE -> {

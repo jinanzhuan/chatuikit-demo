@@ -43,15 +43,32 @@ object ListenersWrapper {
 
             }
 
+            override fun onTokenExpired() {
+                super.onTokenExpired()
+                logout(false)
+            }
+
             override fun onLogout(errorCode: Int, info: String?) {
                 super.onLogout(errorCode, info)
                 ChatLog.e("app","onLogout: $errorCode")
+                logout()
+            }
+        }
+    }
+
+    private fun logout(unbindPushToken:Boolean = true){
+        EaseIM.logout(unbindPushToken,
+            onSuccess = {
+                ChatLog.e("ListenersWrapper","logout success")
                 DemoApplication.getInstance().getLifecycleCallbacks().activityList.forEach {
                     it.finish()
                 }
                 LoginActivity.startAction(DemoApplication.getInstance())
+            },
+            onError = {code, error ->
+                ChatLog.e("ListenersWrapper","logout error $code $error")
             }
-        }
+        )
     }
 
     private val messageListener by lazy { object : EaseMessageListener(){
@@ -69,8 +86,6 @@ object ListenersWrapper {
                 if (DemoApplication.getInstance().getLifecycleCallbacks().isFront.not()) {
                     DemoHelper.getInstance().getNotifier()?.notify(message)
                 }
-                // notify new message
-                DemoHelper.getInstance().getNotifier()?.vibrateAndPlayTone(message)
             }
         }
     } }

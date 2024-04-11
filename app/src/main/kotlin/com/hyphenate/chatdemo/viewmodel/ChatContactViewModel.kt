@@ -58,6 +58,7 @@ class ChatContactViewModel: EaseContactListViewModel() {
                                 profile.remark = contact.remark
                             }
                         }
+                        DemoHelper.getInstance().getDataModel().insertUser(profile,false)
                         profile
                     }
                     data?.let { it1 ->

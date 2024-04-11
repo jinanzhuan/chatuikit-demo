@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.common.extensions.internal.toProfile
-import com.hyphenate.chatdemo.ui.chat.ChatThreadActivity
 import com.hyphenate.chatdemo.ui.chat.ChatActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactCheckActivity
 import com.hyphenate.chatdemo.ui.contact.ChatContactDetailActivity
@@ -22,7 +21,6 @@ import com.hyphenate.easeui.feature.contact.EaseContactCheckActivity
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.feature.group.EaseCreateGroupActivity
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
-import com.hyphenate.easeui.feature.thread.EaseChatThreadActivity
 import com.hyphenate.easeui.model.EaseGroupProfile
 import com.hyphenate.easeui.model.EaseProfile
 import com.hyphenate.easeui.provider.EaseCustomActivityRoute
@@ -43,11 +41,7 @@ object UIKitManager {
     fun addProviders(context: Context) {
         EaseIM.setUserProfileProvider(object : EaseUserProfileProvider {
                 override fun getUser(userId: String?): EaseProfile? {
-                    return DemoHelper.getInstance().getDataModel().getAllContacts()[userId]?.toProfile()?.run {
-                        // reset remark
-                        remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(userId)?.remark
-                        this
-                    }
+                    return DemoHelper.getInstance().getDataModel().getAllContacts()[userId]?.toProfile()
                 }
 
                 override fun fetchUsers(
@@ -62,7 +56,7 @@ object UIKitManager {
                         }
                         val users = ProfileInfoRepository().getUserInfoAttribute(userIds, mutableListOf(ChatUserInfoType.NICKNAME, ChatUserInfoType.AVATAR_URL))
                         val callbackList = users.values?.map { it.toProfile() }?.map {
-                            ChatClient.getInstance().contactManager().fetchContactFromLocal(it.id)?.remark?.let { remark ->
+                            DemoHelper.getInstance().getDataModel().getUser(it.id)?.remark?.let { remark->
                                 it.remark = remark
                             }
                             it
@@ -126,9 +120,6 @@ object UIKitManager {
                             }
                             EaseContactCheckActivity::class.java.name ->{
                                 intent.setClass(context, ChatContactCheckActivity::class.java)
-                            }
-                            EaseChatThreadActivity::class.java.name ->{
-                                intent.setClass(context, ChatThreadActivity::class.java)
                             }
                             else -> {
                                 return intent

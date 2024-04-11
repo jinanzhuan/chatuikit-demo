@@ -100,7 +100,7 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
                             profile.let { info->
                                 info.remark = remark
                                 DemoHelper.getInstance().getDataModel().insertUser(info)
-                                EaseIM.updateCurrentUser(info)
+                                EaseIM.updateUsersInfo(mutableListOf(info))
                             }
                             val resultIntent = Intent()
                             resultIntent.putExtra(RESULT_UPDATE_REMARK, remark)

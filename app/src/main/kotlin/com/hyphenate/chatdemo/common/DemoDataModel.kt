@@ -57,7 +57,9 @@ class DemoDataModel(private val context: Context) {
     private fun loadContactFromDb() {
         contactList.clear()
         getUserDao().getAll().forEach {
-            contactList[it.userId] = it
+            val profile = it.parse()
+            profile.remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(it.userId)?.remark
+            contactList[it.userId] = profile.parseToDbBean()
         }
     }
 
@@ -77,8 +79,10 @@ class DemoDataModel(private val context: Context) {
     /**
      * Insert user to local db.
      */
-    fun insertUser(user: EaseProfile) {
-        getUserDao().insertUser(user.parseToDbBean())
+    fun insertUser(user: EaseProfile,isInsertDb:Boolean = true) {
+        if (isInsertDb){
+            getUserDao().insertUser(user.parseToDbBean())
+        }
         contactList[user.id] = user.parseToDbBean()
     }
 

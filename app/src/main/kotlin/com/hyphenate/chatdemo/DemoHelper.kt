@@ -99,12 +99,11 @@ class DemoHelper private constructor(){
             acceptInvitationAlways = false
             // set if you need read ack
             requireAck = true
-            // set if you need delivery ack
-            requireDeliveryAck = false
             // Set whether the sent message is included in the message listener, default false
             isIncludeSendMessageInMessageListener = true
-            // Set whether to turn on local message traffic statistics, default false
-            isEnableStatistics = true
+
+            getDataModel().setUseFCM(true)
+
             /**
              * Note: Developers need to apply your own push accounts and replace the following
              */

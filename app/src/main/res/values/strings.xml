@@ -113,7 +113,7 @@
 
     <string name="demo_contact_remark">Remarks</string>
     <string name="demo_contact_edit_remark">Remarks</string>
-    <string name="demo_contact_remark_count">%1$d/128</string>
+    <string name="demo_contact_remark_count">%1$d/100</string>
 
     <string name="main_about_me_currency_language">System Language</string>
     <string name="currency_language_zh_cn">Simplified Chinese</string>

@@ -1,5 +1,6 @@
 package com.hyphenate.chatdemo
 
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -42,10 +43,15 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener,
-    OnEventResultListener, IMainResultView{
+    OnEventResultListener, IMainResultView {
     override fun getViewBinding(inflater: LayoutInflater): ActivityMainBinding? {
         return ActivityMainBinding.inflate(inflater)
     }
+    /**
+     * The clipboard manager.
+     */
+    private val clipboard by lazy { getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
+    private var lastClipText: String? = null
 
     private var mConversationListFragment: Fragment? = null
     private var mContactFragment:Fragment? = null
@@ -87,6 +93,13 @@ class MainActivity : BaseInitActivity<ActivityMainBinding>(), NavigationBarView.
         EaseIM.addEventResultListener(this)
         EaseIM.addChatMessageListener(chatMessageListener)
         EaseIM.addContactListener(contactListener)
+        clipboard.addPrimaryClipChangedListener {
+            val currentClipText = clipboard.primaryClip?.getItemAt(0)?.text?.toString()
+            if (currentClipText != lastClipText) {
+                mContext.showToast(getString(R.string.system_copy_success))
+                lastClipText = currentClipText
+            }
+        }
     }
 
     override fun initData() {
