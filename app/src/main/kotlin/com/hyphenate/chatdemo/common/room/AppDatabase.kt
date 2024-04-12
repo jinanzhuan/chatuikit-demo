@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.hyphenate.chatdemo.BuildConfig
 import com.hyphenate.chatdemo.common.extensions.MD5
 import com.hyphenate.chatdemo.common.room.dao.DemoUserDao
 import com.hyphenate.chatdemo.common.room.entity.DemoUser
@@ -24,7 +25,7 @@ abstract class AppDatabase: RoomDatabase() {
         // 可以采用addMigrations()的方式，进行数据库的升级
         fun getDatabase(context: Context, userId: String): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val dbName = userId.MD5()
+                val dbName = (BuildConfig.APPKEY + userId).MD5()
                 val instance = Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java,
