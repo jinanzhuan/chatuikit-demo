@@ -26,7 +26,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = "4.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -124,16 +124,6 @@ android {
     // Set toolchain version
     kotlin {
         jvmToolchain(8)
-    }
-
-    applicationVariants.all {
-        outputs.all { it ->
-            val apkName = "easemob_demo_${buildType.name}_${versionName}.apk"
-            if (it is com.android.build.gradle.internal.api.BaseVariantOutputImpl) {
-                it.outputFileName = apkName
-            }
-            true
-        }
     }
 }
 
