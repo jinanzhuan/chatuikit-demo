@@ -89,6 +89,7 @@
 
     <string name="message_forward_success">Message forwarded successfully</string>
     <string name="message_forward_fail">Message forwarding failed</string>
+    <string name="message_modify_fail">Message modifying failed</string>
 
     <string name="main_about_me_presence">User Status</string>
 
