@@ -135,7 +135,6 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                 epPresence.setPresenceData(it)
                 name = it.getRemarkOrName()
             }
-
             tvName.text = name
             tvNumber.text = id
         }
@@ -152,7 +151,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
             if (presence == null){
                 binding?.epPresence?.setPresenceData(user)
             }
-            binding?.tvName?.text = user.name ?: user.id
+            binding?.tvName?.text = user.getNotEmptyName()
         }
     }
 

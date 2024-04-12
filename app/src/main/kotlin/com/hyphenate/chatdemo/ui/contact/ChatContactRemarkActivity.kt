@@ -98,7 +98,11 @@ class ChatContactRemarkActivity: EditUserNicknameActivity() {
                         if (it == ChatError.EM_NO_ERROR) {
                             val profile = DemoHelper.getInstance().getDataModel().getUser(Id)?.parse()?: EaseProfile(Id)
                             profile.let { info->
-                                info.remark = remark
+                                if (remark.isEmpty()){
+                                    info.remark = null
+                                }else{
+                                    info.remark = remark
+                                }
                                 DemoHelper.getInstance().getDataModel().insertUser(info)
                                 EaseIM.updateUsersInfo(mutableListOf(info))
                             }

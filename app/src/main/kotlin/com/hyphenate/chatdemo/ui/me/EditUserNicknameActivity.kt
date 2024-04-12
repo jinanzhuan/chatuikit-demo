@@ -6,15 +6,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chatdemo.R
-import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoActivityMeInformationEditBinding
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
-import com.hyphenate.easeui.common.EaseConstant
-import com.hyphenate.easeui.common.bus.EaseFlowBus
-import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseProfile
 
 open class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEditBinding>() {
@@ -93,12 +88,10 @@ open class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEd
 
     private fun updateUserInfo(){
         newName = binding.etName.text.trim().toString()
-        if (newName.isNotEmpty()){
-            val resultIntent = Intent()
-            resultIntent.putExtra(RESULT_REFRESH, true)
-            resultIntent.putExtra("nickname", newName)
-            setResult(RESULT_OK,resultIntent)
-        }
+        val resultIntent = Intent()
+        resultIntent.putExtra(RESULT_REFRESH, true)
+        resultIntent.putExtra("nickname", newName)
+        setResult(RESULT_OK,resultIntent)
         finish()
     }
 
