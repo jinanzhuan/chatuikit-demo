@@ -1,7 +1,6 @@
 package com.hyphenate.chatdemo
 
 import android.app.Application
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.hyphenate.chatdemo.base.UserActivityLifecycleCallbacks
 import com.hyphenate.chatdemo.common.DemoConstant
@@ -12,6 +11,7 @@ import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.bugly.crashreport.CrashReport
+import java.util.Locale
 
 class DemoApplication: Application() {
     private val mLifecycleCallbacks = UserActivityLifecycleCallbacks()
@@ -42,8 +42,11 @@ class DemoApplication: Application() {
         val enableReaction = DemoHelper.getInstance().getDataModel().getBoolean(DemoConstant.FEATURES_REACTION,true)
         val targetLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
         targetLanguage?.let {
-            LanguageUtil.changeLanguage(it)
+            if (it.isNotEmpty()){
+                LanguageUtil.changeLanguage(it)
+            }
         }
+        EaseIM.getConfig()?.chatConfig?.targetTranslationLanguage = Locale.getDefault().language
         EaseIM.getConfig()?.chatConfig?.enableTranslationMessage = enableTranslation
         EaseIM.getConfig()?.chatConfig?.enableChatThreadMessage = enableThread
         EaseIM.getConfig()?.chatConfig?.enableMessageReaction = enableReaction

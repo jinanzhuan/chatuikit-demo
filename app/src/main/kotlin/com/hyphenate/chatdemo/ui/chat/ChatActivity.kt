@@ -2,13 +2,11 @@ package com.hyphenate.chatdemo.ui.chat
 
 import com.hyphenate.chatdemo.R
 import com.hyphenate.easeui.common.ChatMessage
-import com.hyphenate.easeui.common.enums.EaseTranslationLanguageType
 import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.chat.EaseChatFragment
 import com.hyphenate.easeui.feature.chat.activities.EaseChatActivity
 import com.hyphenate.easeui.feature.chat.interfaces.OnMessageForwardCallback
 import com.hyphenate.easeui.feature.chat.interfaces.OnSendCombineMessageCallback
-import java.util.Locale
 
 class ChatActivity: EaseChatActivity() {
 
@@ -32,7 +30,6 @@ class ChatActivity: EaseChatActivity() {
                 mContext.showToast(R.string.message_forward_fail)
             }
         })
-        builder.setTargetTranslation(EaseTranslationLanguageType.from(Locale.getDefault().language))
         builder.setCustomFragment(ChatFragment())
             .setCustomAdapter(CustomMessagesAdapter())
     }

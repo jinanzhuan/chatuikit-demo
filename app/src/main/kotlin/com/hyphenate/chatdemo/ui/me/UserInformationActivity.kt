@@ -72,8 +72,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
         private const val REQUEST_CODE_LOCAL_EDIT = 113
         private const val RESULT_CODE_CAMERA = 114
         private const val RESULT_CODE_LOCAL = 115
-        private const val RESULT_CODE_LOCAL_EDIT = 116
-        private const val RESULT_CODE_UPDATE_NAME = 117
+        private const val RESULT_CODE_UPDATE_NAME = 116
         private const val RESULT_REFRESH = "isRefresh"
     }
 
@@ -104,10 +103,6 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     private val launcherToAlbum: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result -> onActivityResult(result, RESULT_CODE_LOCAL) }
-
-    private val launcherToAlbumEdit: ActivityResultLauncher<Intent> = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result -> onActivityResult(result, RESULT_CODE_LOCAL_EDIT) }
 
     private val launcherToUpdateName: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -232,7 +227,7 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 }else if (requestCode == REQUEST_CODE_CAMERA){
                     cameraAndCroppingController.selectPicFromCamera(launcherToCamera)
                 }else if (requestCode == REQUEST_CODE_LOCAL_EDIT){
-                    cameraAndCroppingController.gotoCrop(imageUri,launcherToAlbumEdit)
+                    imageUri?.let { cameraAndCroppingController.gotoCrop(it) }
                 }
             }
         }
@@ -253,9 +248,6 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                 RESULT_CODE_LOCAL -> {
                     onActivityResultForLocalPhotos(data)
                 }
-                RESULT_CODE_LOCAL_EDIT -> {
-                    onActivityResultForEditPhotos(data)
-                }
                 RESULT_CODE_UPDATE_NAME -> {
                     data?.let {
                         if (it.hasExtra(RESULT_REFRESH) && it.getBooleanExtra(RESULT_REFRESH,false)){
@@ -275,8 +267,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
             if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
                 val resultUri = UCrop.getOutput(data)
                 resultUri?.let { it1 ->
-                    imageUri = resultUri
-                    val path = CameraAndCropFileUtils.getAbsolutePathFromUri(mContext, it1)
+                    val result = ChatImageUtils.checkDegreeAndRestoreImage(mContext,it1)
+                    imageUri = result
+                    val path = CameraAndCropFileUtils.getAbsolutePathFromUri(mContext, result)
                     ChatLog.e("UserInformationActivity","onActivityResult corp path $path")
                     path?.let {
                         uploadFile(it)
@@ -293,8 +286,11 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
 
     private fun onActivityResultForCamera(data: Intent?) {
         val imageUri = cameraAndCroppingController.resultForCamera(data)
-        this.imageUri = imageUri
-        imageUri?.let { cameraAndCroppingController.gotoCrop(it) }
+        val result = ChatImageUtils.checkDegreeAndRestoreImage(mContext,imageUri)
+        this.imageUri = result
+        imageUri?.let {
+            cameraAndCroppingController.gotoCrop(it)
+        }
     }
 
     private fun onActivityResultForLocalPhotos(data: Intent?) {
@@ -313,19 +309,9 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
                             filePath = it
                         }
                     }
-                    cameraAndCroppingController.gotoCrop(imageUri,launcherToAlbumEdit)
+                    imageUri?.let { cameraAndCroppingController.gotoCrop(it) }
                 }
             }
-        }
-    }
-
-    private fun onActivityResultForEditPhotos(data: Intent?){
-        val imageCropFile = cameraAndCroppingController.resultForCropFile(data)
-        cameraAndCroppingController.getImageCropUri()?.let {
-            imageUri = it
-        }
-        imageCropFile?.let {
-            uploadFile(it.absolutePath)
         }
     }
 

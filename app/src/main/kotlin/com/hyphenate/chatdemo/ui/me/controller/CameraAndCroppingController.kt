@@ -99,71 +99,22 @@ class CameraAndCroppingController(
     }
 
     fun gotoCrop(sourceUri: Uri){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2){
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.TITLE, "MyCrop")
-            values.put(
-                MediaStore.Images.Media.DESCRIPTION,
-                "Crop taken on " + System.currentTimeMillis()
-            )
-            cropImageUri = context.contentResolver.insert(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                values
-            )
-            cropImageUri?.let {
-                UCrop.of(sourceUri, it)
-                    .withAspectRatio(1f, 1f)
-                    .withMaxResultSize(500, 500)
-                    .start(context as Activity)
-            }
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.TITLE, "MyCrop")
+        values.put(
+            MediaStore.Images.Media.DESCRIPTION,
+            "Crop taken on " + System.currentTimeMillis()
+        )
+        cropImageUri = context.contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            values
+        )
+        cropImageUri?.let {
+            UCrop.of(sourceUri, it)
+                .withAspectRatio(1f, 1f)
+                .withMaxResultSize(500, 500)
+                .start(context as Activity)
         }
-    }
-
-
-    fun gotoCrop(sourceUri: Uri?,launcher: ActivityResultLauncher<Intent>?){
-        val intent = Intent("com.android.camera.action.CROP")
-        intent.putExtra("crop", "true")
-        intent.putExtra("aspectX", 1)    //X方向上的比例
-        intent.putExtra("aspectY", 1)    //Y方向上的比例
-        intent.putExtra("outputX", 500)  //裁剪区的宽
-        intent.putExtra("outputY", 500)  //裁剪区的高
-        intent.putExtra("scale ", true)  //是否保留比例
-        intent.putExtra("return-data", false)
-        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2){
-            if (intent.resolveActivity(context.packageManager) != null) {
-                val values = ContentValues()
-                values.put(MediaStore.Images.Media.TITLE, "MyCrop")
-                values.put(
-                    MediaStore.Images.Media.DESCRIPTION,
-                    "Crop taken on " + System.currentTimeMillis()
-                )
-                cropImageUri = context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    values
-                )
-                intent.setDataAndType(resultImageUri, "image/*")
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, cropImageUri)
-            }
-        }else{
-            imageCropFile = CameraAndCropFileUtils.createImageFile(context, true)
-            imageCropFile?.let { crop->
-                sourceUri?.let {
-                    crop.parentFile?.mkdirs()
-                    intent.setDataAndType(it, "image/*")
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, CameraAndCropFileUtils.uri)
-                        resultImageUri = CameraAndCropFileUtils.uri
-                    }else{
-                        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        val imgCropUri = Uri.fromFile(crop)
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, imgCropUri)
-                        resultImageUri = imgCropUri
-                    }
-                }
-            }
-        }
-        launcher?.launch(intent)
     }
 
     fun resultForCropFile(data: Intent?):File?{

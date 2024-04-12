@@ -21,8 +21,10 @@ import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.common.LanguageUtil
 import com.hyphenate.chatdemo.databinding.DemoActivityLanguageBinding
 import com.hyphenate.chatdemo.interfaces.LanguageListItemSelectListener
+import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.base.EaseBaseActivity
 import com.hyphenate.easeui.common.helper.EasePreferenceManager
+import java.util.Locale
 
 class LanguageSettingActivity:EaseBaseActivity<DemoActivityLanguageBinding>() {
     private var tagList:MutableList<Language> = mutableListOf()
@@ -53,11 +55,16 @@ class LanguageSettingActivity:EaseBaseActivity<DemoActivityLanguageBinding>() {
             it.rlSheetList.layoutManager = layoutManager
             it.rlSheetList.adapter = this.languageAdapter
             val tagLanguage = EasePreferenceManager.getInstance().getString(DemoConstant.TARGET_LANGUAGE)
-            tagLanguage?.let { tag->
-                val index = tagList.indexOfFirst { language-> language.type.value == tag }
-                languageCode = tag
-                selectedPosition = index
+            if (tagLanguage.isNullOrEmpty()){
+                val index = tagList.indexOfFirst { language-> language.type.value == Locale.getDefault().language }
                 languageAdapter?.setSelectPosition(index)
+            }else{
+                tagLanguage.let { tag->
+                    val index = tagList.indexOfFirst { language-> language.type.value == tag }
+                    languageCode = tag
+                    selectedPosition = index
+                    languageAdapter?.setSelectPosition(index)
+                }
             }
             updateConfirm()
         }
@@ -112,6 +119,7 @@ class LanguageSettingActivity:EaseBaseActivity<DemoActivityLanguageBinding>() {
 
     private fun chengApplicationLanguage(){
         LanguageUtil.changeLanguage(languageCode)
+        EaseIM.getConfig()?.chatConfig?.targetTranslationLanguage = languageCode
         EasePreferenceManager.getInstance().putString(DemoConstant.TARGET_LANGUAGE, languageCode)
         val resultIntent = Intent()
         resultIntent.putExtra(RESULT_TARGET_LANGUAGE,currentTag)

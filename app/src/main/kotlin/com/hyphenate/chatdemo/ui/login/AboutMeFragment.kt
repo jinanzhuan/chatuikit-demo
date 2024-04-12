@@ -29,7 +29,6 @@ import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.dialog.CustomDialog
 import com.hyphenate.easeui.common.extensions.catchChatException
 import com.hyphenate.easeui.common.extensions.dpToPx
-import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.common.utils.EasePresenceUtil
 import com.hyphenate.easeui.configs.setStatusStyle
 import com.hyphenate.easeui.feature.chat.interfaces.IPresenceResultView
@@ -40,8 +39,7 @@ import com.hyphenate.easeui.widget.EasePresenceView
 import kotlinx.coroutines.launch
 
 class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnClickListener,
-    EasePresenceView.OnPresenceClickListener,IPresenceResultView,
-    ClipboardManager.OnPrimaryClipChangedListener {
+    EasePresenceView.OnPresenceClickListener,IPresenceResultView{
 
     /**
      * The clipboard manager.
@@ -94,12 +92,10 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
             itemAbout.setOnClickListener(this@AboutMeFragment)
             aboutMeLogout.setOnClickListener(this@AboutMeFragment)
         }
-        clipboard.addPrimaryClipChangedListener(this@AboutMeFragment)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        clipboard.removePrimaryClipChangedListener(this@AboutMeFragment)
     }
 
     override fun initData() {
@@ -137,7 +133,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
 
             EaseIM.getCurrentUser()?.let {
                 epPresence.setPresenceData(it)
-                name = it.getNotEmptyName()
+                name = it.getRemarkOrName()
             }
 
             tvName.text = name
@@ -152,11 +148,11 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                 binding?.epPresence?.setPresenceData(user,it)
                 val subtitle = EasePresenceUtil.getPresenceString(mContext,it)
                 binding?.itemPresence?.setContent(subtitle)
-                binding?.tvName?.text = user.name ?: user.id
             }
             if (presence == null){
                 binding?.epPresence?.setPresenceData(user)
             }
+            binding?.tvName?.text = user.name ?: user.id
         }
     }
 
@@ -253,10 +249,6 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
 
     override fun fetchPresenceStatusFail(code: Int, message: String?) {
 
-    }
-
-    override fun onPrimaryClipChanged() {
-        mContext.showToast(getString(R.string.system_copy_success))
     }
 
 }

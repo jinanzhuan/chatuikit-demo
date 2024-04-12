@@ -6,7 +6,6 @@ import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.extensions.internal.parse
 import com.hyphenate.easeui.EaseIM
 import com.hyphenate.easeui.common.ChatGroup
-import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.group.EaseGroupDetailActivity
 import com.hyphenate.easeui.model.EaseMenuItem
 
@@ -40,11 +39,6 @@ class ChatGroupDetailActivity :EaseGroupDetailActivity(){
             }
         }
         return false
-    }
-
-    override fun onPrimaryClipChanged() {
-        super.onPrimaryClipChanged()
-        mContext.showToast(getString(R.string.system_copy_success))
     }
 
     override fun fetchGroupDetailSuccess(group: ChatGroup) {

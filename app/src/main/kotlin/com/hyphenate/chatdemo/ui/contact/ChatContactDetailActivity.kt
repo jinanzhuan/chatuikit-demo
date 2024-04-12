@@ -21,7 +21,6 @@ import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.ChatUserInfoType
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.common.extensions.catchChatException
-import com.hyphenate.easeui.common.extensions.showToast
 import com.hyphenate.easeui.feature.contact.EaseContactDetailsActivity
 import com.hyphenate.easeui.model.EaseEvent
 import com.hyphenate.easeui.model.EaseMenuItem
@@ -72,7 +71,6 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
                                 remark = ChatClient.getInstance().contactManager().fetchContactFromLocal(id)?.remark
                                 EaseIM.updateUsersInfo(mutableListOf(this))
                                 DemoHelper.getInstance().getDataModel().insertUser(this)
-                                EaseIM.updateCurrentUser(this)
                             }
                             updateUserInfo()
                             notifyUpdateRemarkEvent()
@@ -154,8 +152,4 @@ class ChatContactDetailActivity:EaseContactDetailsActivity() {
             .post(lifecycleScope, EaseEvent(DemoConstant.EVENT_UPDATE_USER_SUFFIX, EaseEvent.TYPE.CONTACT, user?.userId))
     }
 
-    override fun onPrimaryClipChanged() {
-        super.onPrimaryClipChanged()
-        mContext.showToast(R.string.system_copy_success)
-    }
 }
