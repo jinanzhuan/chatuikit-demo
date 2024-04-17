@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -150,11 +151,14 @@ class UserInformationActivity:EaseBaseActivity<DemoActivityMeInformationBinding>
     private fun updateLocalData(){
         binding.run {
             selfProfile = EaseIM.getCurrentUser()
-            selfProfile?.let {
-                it.avatar?.let { avatar->
-                    ivAvatar.load(avatar)
+            selfProfile?.let { profile->
+                val ph = AppCompatResources.getDrawable(this@UserInformationActivity, com.hyphenate.easeui.R.drawable.ease_default_avatar)
+                val ep = AppCompatResources.getDrawable(this@UserInformationActivity, com.hyphenate.easeui.R.drawable.ease_default_avatar)
+                ivAvatar.load(profile.avatar ?: ph) {
+                    placeholder(ph)
+                    error(ep)
                 }
-                tvNickName.text = it.name?: ""
+                tvNickName.text = profile.getNotEmptyName()
             }
         }
     }

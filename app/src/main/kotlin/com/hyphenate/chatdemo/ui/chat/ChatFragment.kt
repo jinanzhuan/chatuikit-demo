@@ -5,9 +5,12 @@ import android.view.MenuItem
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.callkit.CallKitManager
 import com.hyphenate.chatdemo.common.DemoConstant
+import com.hyphenate.chatdemo.common.MenuFilterHelper
+import com.hyphenate.easeui.common.ChatMessage
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.feature.chat.EaseChatFragment
 import com.hyphenate.easeui.feature.chat.enums.EaseChatType
+import com.hyphenate.easeui.menu.chat.EaseChatMenuHelper
 import com.hyphenate.easeui.model.EaseEvent
 
 class ChatFragment: EaseChatFragment() {
@@ -48,8 +51,8 @@ class ChatFragment: EaseChatFragment() {
         }
     }
 
-    override fun cancelMultipleSelectStyle() {
-        super.cancelMultipleSelectStyle()
-        //setMenuListener()
+    override fun onPreMenu(helper: EaseChatMenuHelper?, message: ChatMessage?) {
+        super.onPreMenu(helper, message)
+        MenuFilterHelper.filterMenu(helper, message)
     }
 }

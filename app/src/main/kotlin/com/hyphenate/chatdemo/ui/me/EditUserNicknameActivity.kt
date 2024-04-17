@@ -37,6 +37,8 @@ open class EditUserNicknameActivity:EaseBaseActivity<DemoActivityMeInformationEd
             selfProfile?.let {
                 etName.setText(it.name)
             }
+            etName.requestFocus()
+            showKeyboard(etName)
         }
         binding.inputNameCount.text = resources.getString(
             R.string.main_about_me_information_change_name_count
