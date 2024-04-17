@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.hyphenate.chatdemo.DemoApplication
+import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.databinding.DemoFragmentAboutMeBinding
@@ -171,6 +172,7 @@ class AboutMeFragment: EaseBaseFragment<DemoFragmentAboutMeBinding>(), View.OnCl
                     ChatLog.e("logout", "logout failed: ${e.description}")
                 }
                 .collect {
+                    DemoHelper.getInstance().getDataModel().clearCache()
                     DemoApplication.getInstance().getLifecycleCallbacks().skipToTarget(
                         LoginActivity::class.java)
                 }

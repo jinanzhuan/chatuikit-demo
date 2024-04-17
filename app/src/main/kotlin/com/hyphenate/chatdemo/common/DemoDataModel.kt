@@ -32,6 +32,7 @@ class DemoDataModel(private val context: Context) {
         }
         database
         resetUsersTimes()
+        contactList.clear()
     }
 
     /**
@@ -110,6 +111,10 @@ class DemoDataModel(private val context: Context) {
 
     private fun resetUsersTimes() {
         getUserDao().resetUsersTimes()
+    }
+
+    fun clearCache(){
+        contactList.clear()
     }
 
     /**
