@@ -8,11 +8,9 @@ import com.hyphenate.chatdemo.DemoHelper
 import com.hyphenate.chatdemo.R
 import com.hyphenate.chatdemo.common.DemoConstant
 import com.hyphenate.chatdemo.viewmodel.ChatContactViewModel
-import com.hyphenate.easeui.common.ChatLog
 import com.hyphenate.easeui.common.bus.EaseFlowBus
 import com.hyphenate.easeui.feature.contact.EaseContactsListFragment
 import com.hyphenate.easeui.model.EaseEvent
-import com.hyphenate.easeui.model.EaseUser
 import com.hyphenate.easeui.viewmodel.contacts.IContactListRequest
 
 class ChatContactListFragment : EaseContactsListFragment() {
@@ -34,6 +32,7 @@ class ChatContactListFragment : EaseContactsListFragment() {
 
     override fun initData() {
         super.initData()
+        fetchFirstVisibleData()
         EaseFlowBus.with<EaseEvent>(EaseEvent.EVENT.UPDATE + EaseEvent.TYPE.CONTACT + DemoConstant.EVENT_UPDATE_USER_SUFFIX).register(this) {
             if (it.isContactChange && it.message.isNullOrEmpty().not()) {
                 binding?.listContact?.loadContactData(false)
@@ -41,8 +40,7 @@ class ChatContactListFragment : EaseContactsListFragment() {
         }
     }
 
-    override fun loadContactListSuccess(userList: MutableList<EaseUser>) {
-        super.loadContactListSuccess(userList)
+    private fun fetchFirstVisibleData(){
         binding?.listContact?.let {
             (it.rvContactList.layoutManager as? LinearLayoutManager)?.let { manager->
                 it.post {
@@ -53,8 +51,7 @@ class ChatContactListFragment : EaseContactsListFragment() {
                     }
                     val fetchList = visibleList?.filter { user ->
                         val u = DemoHelper.getInstance().getDataModel().getUser(user.userId)
-                        (u == null || u.updateTimes == 0) &&
-                                (user.nickname.isNullOrEmpty() || user.avatar.isNullOrEmpty())
+                        (u == null || u.updateTimes == 0) && (user.nickname == null || user.avatar == null)
                     }
                     fetchList?.let {
                         contactViewModel?.fetchContactInfo(fetchList)
@@ -62,11 +59,6 @@ class ChatContactListFragment : EaseContactsListFragment() {
                 }
             }
         }
-    }
-
-    override fun loadContactListFail(code: Int, error: String) {
-        super.loadContactListFail(code, error)
-        ChatLog.e(TAG,"loadContactListFail demo $code $error")
     }
 
     class Builder:EaseContactsListFragment.Builder() {

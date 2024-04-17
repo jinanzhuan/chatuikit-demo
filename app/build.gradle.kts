@@ -184,7 +184,8 @@ dependencies {
     // To use Kotlin Flow and coroutines with Room, must include the room-ktx artifact in build.gradle file.
     implementation("androidx.room:room-ktx:2.5.1")
 
-    implementation(project(mapOf("path" to ":ease-im-kit")))
+    implementation("io.hyphenate:ease-chat-kit:4.5.0")
+//    implementation(project(mapOf("path" to ":ease-im-kit")))
 
     //EaseCallKit，need add chat SDK
 //    implementation(project(mapOf("path" to ":ease-call-kit")))
