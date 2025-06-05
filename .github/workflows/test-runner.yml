@@ -1,9 +1,9 @@
 name: Test Self-Hosted Runner
-on: [workflow_dispatch]  # 允许手动触发
+on: [push]  # workflow_dispatch 允许手动触发 push 为提交代码自动触发
 
 jobs:
   test:
     runs-on: self-hosted  # 关键：指定使用你的 Runner
     steps:
-      - run: echo "Hello from Self-Hosted Runner!"
+      - run: echo "Hello world"
       - run: uname -a  # 打印系统信息（验证 Runner 环境）
